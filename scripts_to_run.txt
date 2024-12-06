@@ -1,0 +1,18 @@
+
+
+
+bsub -Is -n 4 -gpu "num=1" -M 16GB bash
+
+
+
+
+
+
+
+bsub -J mCLM -q long -gpu "num=1" -n 8 -sla gRED_resbioai_gpu -R "rusage[mem=4GB]" -o bsub_outputs/%J_stdout.txt -e bsub_outputs/%J_stderr.txt "python abxtext/main.py --batch_size=128 --validate_every_n=0 --max_epochs=100 --num_warmup_steps=200  --data_module=RandCapS1B --ckpt_path='ckpts/S1B/iter_test/CaptionGNN/' --loss='BCE' --model='CaptionGNN' --load_GNN_ckpt='ckpts/S1B/iter_test/BCE/tulun4e5/best_val_checkpoint.ckpt' --freeze_GNN --load_BERT_ckpt='ckpts/S1B/iter_test/BERT/uni4xmak/best_val_checkpoint.ckpt' --freeze_text_encoder"
+
+
+
+
+
+
