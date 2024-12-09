@@ -90,20 +90,6 @@ class mCLM(L.LightningModule):
 
         self.save_hyperparameters(ignore=["encoder"])
 
-        self.mol_encoder = GNNMolEncoder(
-            node_dim=self.config["node_dim"],
-            edge_dim=self.config["edge_dim"],
-            hidden_dim_graph=self.config["hidden_dim_graph"],
-            hidden_dim_ffn=None,
-            num_mp_layers=self.config["num_mp_layers"],
-            out_channels=config["latent_size"],
-            dropout=self.config["dropout"],
-            num_readout_layers=1,
-            mol_features_size=0,
-            aggr=self.config["aggr"],
-            jk=self.config["jk"],
-        )
-
         self.loss_module = self.get_loss_func()
         self.metrics = self.get_metrics()
 

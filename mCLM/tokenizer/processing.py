@@ -4,6 +4,13 @@
 
 from transformers.processing_utils import ProcessingKwargs, ProcessorMixin
 
+from transformers.modeling_utils import PreTrainedModel
+
+
+from mCLM.data.processing import smiles_to_mol
+
+from transformers import PreTrainedTokenizer, AddedToken
+
 
 
 class mCLMProcessor(ProcessorMixin):
@@ -12,8 +19,7 @@ class mCLMProcessor(ProcessorMixin):
 
     def __init__(
         self,
-        image_processor=None,
-        vision_tokenizer=None,
+        molecule_tokenizer=None,
         text_tokenizer=None,
         chat_template="You are a helpful assistant. USER: {image_prompt}{text_prompt}. ASSISTANT:",
         prefix_template="{H}*{W}",
@@ -25,12 +31,11 @@ class mCLMProcessor(ProcessorMixin):
         self.vision_tokenizer = vision_tokenizer
         self.prefix_template = prefix_template
         self.visual_template = visual_template
-        self.vis_tok_spatial_factor = 2 ** (len(self.vision_tokenizer.config.ch_mult) - 1)
 
         super().__init__(image_processor, tokenizer, chat_template=chat_template)
         self.const_helper = self.build_const_helper()
 
-    @torch.no_grad()
+    #@torch.no_grad()
     def __call__(
         self,
         text: Optional[TextInput | PreTokenizedInput] = None,
@@ -105,7 +110,7 @@ class mCLMProcessor(ProcessorMixin):
             size_list.append([h, w])
 
         text_inputs = self.tokenizer(prompt_list, **kwargs)
-        return BatchFeature(data={**text_inputs, "image_size": size_list}, tensor_type=kwargs.get("return_tensors"))
+        return BatchFeature(data={**text_inputs, "mol_mask": size_list}, tensor_type=kwargs.get("return_tensors"))
 
     @torch.no_grad()
     def batch_decode(self, *args, **kwargs):
@@ -155,45 +160,108 @@ class mCLMProcessor(ProcessorMixin):
 
     def tokenize_molecule(self, molecule: List[str], padding_molecule: bool = False):
         is_all_same_size, prev_size = True, None
-        for im in image:
-            if prev_size is not None:
-                is_all_same_size &= (prev_size == im.size)
-            prev_size = im.size
 
-        if is_all_same_size:
-            image_inputs = self.image_processor(image, return_tensors="pt")["pixel_values"]
-            image_inputs = image_inputs.to(self.vision_tokenizer.device, self.vision_tokenizer.dtype)
-            image_tokens = self.vision_tokenizer.encode(image_inputs)
-        elif padding_image:
-            image_inputs = [self.image_processor(im, return_tensors="pt")["pixel_values"] for im in image]
-            image_shapes = [im.shape[2:] for im in image_inputs]
-            max_shape = (
-                max([im_shape[0] for im_shape in image_shapes]),
-                max([im_shape[1] for im_shape in image_shapes]),
-            )
-            image_inputs = [
-                F.pad(im_inp, (0, max_shape[1] - im_shape[1], 0, max_shape[0] - im_shape[0]))
-                for im_inp, im_shape in zip(image_inputs, image_shapes)
-            ]
-            image_inputs = torch.cat(image_inputs, dim=0).to(self.vision_tokenizer.device, self.vision_tokenizer.dtype)
-            image_tokens = self.vision_tokenizer.encode(image_inputs)
-            image_tokens = [
-                im_tok[:ceil(im_shape[0] / self.vis_tok_spatial_factor), :ceil(im_shape[1] / self.vis_tok_spatial_factor)]
-                for im_tok, im_shape in zip(image_tokens, image_shapes)
-            ]
-        else:
-            image_tokens = []
-            for im in image:
-                image_input = self.image_processor(im, return_tensors="pt")["pixel_values"]
-                image_input = image_input.to(self.vision_tokenizer.device, self.vision_tokenizer.dtype)
-                image_tokens.append(self.vision_tokenizer.encode(image_input).squeeze(0))
+        molecule_tokens = []
+        for mol in molecule:
+            molecule_input = [smiles_to_mol(m) for m in mol.split('.')]
+            molecule_input = [m.to(self.molecule_tokenizer.device, self.molecule_tokenizer.dtype) for m in molecule_input]
+            molecule_tokens.append(self.molecule_tokenizer.encode(molecule_input).squeeze(0))
 
-        return image_tokens
+        return molecule_tokens
 
 
 
 
 
+class mCLMGNNPretrainedModel(PreTrainedModel):
+    """
+    An abstract class to handle weights initialization and a simple interface for downloading and loading pretrained
+    models.
+    """
+
+    #config_class = Emu3VisionVQConfig
+    #base_model_prefix = "emuvideovq"
+    #main_input_name = "pixel_values"
+    #_no_split_modules = ["Emu3VisionVQResnetBlock", "Emu3VisionVQAttnBlock", "Emu3VisionVQResnetTemporalBlock"]
+
+    def _init_weights(self, module):
+        if isinstance(module, (nn.Conv2d, nn.Conv3d)):
+            nn.init.kaiming_normal_(module.weight, mode="fan_out", nonlinearity="relu")
+        # copied from the `reset_parameters` method of `class Linear(Module)` in `torch`.
+        elif isinstance(module, nn.Linear):
+            nn.init.kaiming_uniform_(module.weight, a=math.sqrt(5))
+            if module.bias is not None:
+                fan_in, _ = nn.init._calculate_fan_in_and_fan_out(module.weight)
+                bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+                nn.init.uniform_(module.bias, -bound, bound)
+        elif isinstance(module, (nn.BatchNorm2d, nn.BatchNorm3d, nn.GroupNorm)):
+            nn.init.constant_(module.weight, 1)
+            nn.init.constant_(module.bias, 0)
+
+
+class mCLMGNNModel(mCLMGNNPretrainedModel):
+
+    def __init__(self, config):
+        super().__init__(config)
+        self.config = config
+
+        self.mol_encoder = GNNMolEncoder(
+            node_dim=self.config["node_dim"],
+            edge_dim=self.config["edge_dim"],
+            hidden_dim_graph=self.config["hidden_dim_graph"],
+            hidden_dim_ffn=None,
+            num_mp_layers=self.config["num_mp_layers"],
+            out_channels=config["latent_size"],
+            dropout=self.config["dropout"],
+            num_readout_layers=1,
+            mol_features_size=0,
+            aggr=self.config["aggr"],
+            jk=self.config["jk"],
+        )
+
+
+
+        self.post_init()
+
+    def encode(self, x: torch.Tensor):
+
+        h = self.encoder(x)
+
+        return h
+
+    def decode(self, x: torch.Tensor):
+        ndim = x.ndim
+        if ndim == 3:
+            x = x.unsqueeze(1)
+
+        b, t, h, w = x.shape
+        quant = self.quantize.embedding(x.flatten())
+        c = quant.shape[-1]
+        quant = quant.view(b, t, h, w, c).permute(0, 4, 1, 2, 3).contiguous()
+        quant2 = self.post_quant_conv(quant)
+
+        quant = quant.permute(0, 2, 1, 3, 4)
+        quant2 = quant2.permute(0, 2, 1, 3, 4)
+
+        video = self.decoder(quant2, quant)
+        video = video.reshape(
+            b,
+            t * self.config.temporal_downsample_factor,
+            self.config.out_channels,
+            h * self.spatial_scale_factor,
+            w * self.spatial_scale_factor,
+        )
+        if ndim == 3:
+            return video[:, 0]
+        return video
+
+    @property
+    def device(self):
+        return next(self.parameters()).device
+
+    @property
+    def dtype(self):
+        return next(self.parameters()).dtype
 
 
 

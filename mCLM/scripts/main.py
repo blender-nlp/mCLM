@@ -12,10 +12,7 @@ import pandas as pd
 
 from MolCapArena.data.dataloaders import GraphDataModule
 from MolCapArena.model.models import (
-    GNNOnlyModel,
-    CaptionOnlyModel,
-    GNNCaptionModel,
-    MoleculeTextModel,
+    mCLM,
 )
 
 import subprocess
@@ -82,7 +79,6 @@ if __name__ == "__main__":
     parser.add_argument("--loss", default="CLIP", type=str)
     parser.add_argument("--load_ckpt", default=None, type=str)
     parser.add_argument("--load_GNN_ckpt", default=None, type=str)
-    parser.add_argument("--load_BERT_ckpt", default=None, type=str)
 
     parser.add_argument("--seed", default=42, type=int)
 
@@ -141,6 +137,40 @@ if __name__ == "__main__":
             + "GNN"
         )
 
+
+    config["task"] = task
+
+    model_type = mCLM
+
+    task_type = 'NTP' #next token prediction
+
+    model = model_type(
+        config,
+        task=task_type,
+        lr=config["lr"],
+        weight_decay=config["weight_decay"],
+    )
+
+    molecule_tokenizer = mCLMGNNModel()
+
+
+    if config["load_GNN_ckpt"] != None:
+        gnn_ckpt_sd = MoleculeTextModel.load_from_checkpoint(
+            config["load_GNN_ckpt"],
+            config=config,
+            encoder=GNNOnlyModel(config, output_dim=output_dim),
+        ).encoder.mol_encoder.state_dict()
+        #gnn_ckpt_sd.pop("classifier.1.weight")
+        #gnn_ckpt_sd.pop("classifier.1.bias")
+
+        molecule_tokenizer.encoder.load_state_dict(gnn_ckpt_sd, strict=True)
+
+
+    processor = mCLMProcessor(molecule_tokenizer=molecule_tokenizer)
+
+    
+
+
     if config["data_module"] == "BBBP":
         task = "BBBP"
         output_dim = 1
@@ -152,190 +182,6 @@ if __name__ == "__main__":
             task=task,
             fold_idx=config["fold_idx"],
         )
-    if config["data_module"] == "CapBBBP":
-        task = "BBBP"
-        output_dim = 1
-        dm = GraphDataModule(
-            config,
-            pretrained_text_model=config["pretrained_text_model"],
-            batch_size=config["batch_size"],
-            trunc_length=config["trunc_length"],
-            task=task,
-            fold_idx=config["fold_idx"],
-            caption_source=config["caption_source"],
-        )
-
-    if config["data_module"] == "BACE":
-        task = "BACE"
-        output_dim = 1
-        dm = GraphDataModule(
-            config,
-            pretrained_text_model=config["pretrained_text_model"],
-            batch_size=config["batch_size"],
-            trunc_length=config["trunc_length"],
-            task=task,
-            fold_idx=config["fold_idx"],
-        )
-    if config["data_module"] == "CapBACE":
-        task = "BACE"
-        output_dim = 1
-        dm = GraphDataModule(
-            config,
-            pretrained_text_model=config["pretrained_text_model"],
-            batch_size=config["batch_size"],
-            trunc_length=config["trunc_length"],
-            task=task,
-            fold_idx=config["fold_idx"],
-            caption_source=config["caption_source"],
-        )
-
-    if config["data_module"] == "ClinTox":
-        task = "ClinTox"
-        output_dim = 1
-        dm = GraphDataModule(
-            config,
-            pretrained_text_model=config["pretrained_text_model"],
-            batch_size=config["batch_size"],
-            trunc_length=config["trunc_length"],
-            task=task,
-            fold_idx=config["fold_idx"],
-        )
-    if config["data_module"] == "CapClinTox":
-        task = "ClinTox"
-        output_dim = 1
-        dm = GraphDataModule(
-            config,
-            pretrained_text_model=config["pretrained_text_model"],
-            batch_size=config["batch_size"],
-            trunc_length=config["trunc_length"],
-            task=task,
-            fold_idx=config["fold_idx"],
-            caption_source=config["caption_source"],
-        )
-
-    if config["data_module"] == "ESOL":
-        task = "ESOL"
-        output_dim = 1
-        dm = GraphDataModule(
-            config,
-            pretrained_text_model=config["pretrained_text_model"],
-            batch_size=config["batch_size"],
-            trunc_length=config["trunc_length"],
-            task=task,
-            fold_idx=config["fold_idx"],
-        )
-    if config["data_module"] == "CapESOL":
-        task = "ESOL"
-        output_dim = 1
-        dm = GraphDataModule(
-            config,
-            pretrained_text_model=config["pretrained_text_model"],
-            batch_size=config["batch_size"],
-            trunc_length=config["trunc_length"],
-            task=task,
-            fold_idx=config["fold_idx"],
-            caption_source=config["caption_source"],
-        )
-
-    if config["data_module"] == "FreeSolv":
-        task = "FreeSolv"
-        output_dim = 1
-        dm = GraphDataModule(
-            config,
-            pretrained_text_model=config["pretrained_text_model"],
-            batch_size=config["batch_size"],
-            trunc_length=config["trunc_length"],
-            task=task,
-            fold_idx=config["fold_idx"],
-        )
-    if config["data_module"] == "CapFreeSolv":
-        task = "FreeSolv"
-        output_dim = 1
-        dm = GraphDataModule(
-            config,
-            pretrained_text_model=config["pretrained_text_model"],
-            batch_size=config["batch_size"],
-            trunc_length=config["trunc_length"],
-            task=task,
-            fold_idx=config["fold_idx"],
-            caption_source=config["caption_source"],
-        )
-
-    if config["data_module"] == "Lipo":
-        task = "Lipo"
-        output_dim = 1
-        dm = GraphDataModule(
-            config,
-            pretrained_text_model=config["pretrained_text_model"],
-            batch_size=config["batch_size"],
-            trunc_length=config["trunc_length"],
-            task=task,
-            fold_idx=config["fold_idx"],
-        )
-    if config["data_module"] == "CapLipo":
-        task = "Lipo"
-        output_dim = 1
-        dm = GraphDataModule(
-            config,
-            pretrained_text_model=config["pretrained_text_model"],
-            batch_size=config["batch_size"],
-            trunc_length=config["trunc_length"],
-            task=task,
-            fold_idx=config["fold_idx"],
-            caption_source=config["caption_source"],
-        )
-
-    config["task"] = task
-
-    model_type = MoleculeTextModel
-
-    if config["model"] == "GNN":
-        encoder_type = GNNOnlyModel
-    elif config["model"] == "Caption":
-        encoder_type = CaptionOnlyModel
-    elif config["model"] == "CaptionGNN":
-        encoder_type = GNNCaptionModel
-
-    encoder = encoder_type(config, output_dim=output_dim)
-    if config["freeze_text_encoder"]:
-        encoder.freeze_text_model()
-
-    if config["freeze_GNN"]:
-        encoder.freeze_mol_model()
-
-    if config["loss"] == "BCE":
-        task_type = "binary_classification"
-    elif config["loss"] == "MSE":
-        task_type = "regression"
-
-    model = model_type(
-        config,
-        encoder=encoder,
-        task=task_type,
-        final_relu=False,
-        lr=config["lr"],
-        weight_decay=config["weight_decay"],
-    )
-
-    if config["load_GNN_ckpt"] != None:
-        gnn_ckpt_sd = MoleculeTextModel.load_from_checkpoint(
-            config["load_GNN_ckpt"],
-            config=config,
-            encoder=GNNOnlyModel(config, output_dim=output_dim),
-        ).encoder.mol_encoder.state_dict()
-        gnn_ckpt_sd.pop("classifier.1.weight")
-        gnn_ckpt_sd.pop("classifier.1.bias")
-
-        model.encoder.mol_encoder.load_state_dict(gnn_ckpt_sd, strict=False)
-
-    if config["load_BERT_ckpt"] != None:
-        bert_ckpt_sd = MoleculeTextModel.load_from_checkpoint(
-            config["load_BERT_ckpt"],
-            config=config,
-            encoder=CaptionOnlyModel(config, output_dim=output_dim),
-        ).encoder.text_encoder_model.state_dict()
-
-        model.encoder.text_encoder_model.load_state_dict(bert_ckpt_sd, strict=False)
 
     if config["caption_source"] != None:
         name = (
@@ -353,7 +199,7 @@ if __name__ == "__main__":
     if config["resume_wandb_run"] != None:
         wandb_logger = WandbLogger(
             entity="",
-            project="MolCapArena",
+            project="mCLM",
             config=config,
             id=config["resume_wandb_run"],
             resume="must",
@@ -362,7 +208,7 @@ if __name__ == "__main__":
     else:
         wandb_logger = WandbLogger(
             entity="",
-            project="MolCapArena",
+            project="mCLM",
             config=config,
             name=name,
         )
@@ -394,6 +240,12 @@ if __name__ == "__main__":
     if config["resume_from_checkpoint"] != None:
         trainer.fit(model, datamodule=dm, ckpt_path=config["resume_from_checkpoint"])
     else:
-        if config["loss"] != "MSE":
-            trainer.validate(model, datamodule=dm)  # bug in regression it seems
+        trainer.validate(model, datamodule=dm)  # bug in regression it seems
+        zz
         trainer.fit(model, datamodule=dm)
+
+    tokenizer.save_model(dirpath)
+    trainer.save_model(dirpath)
+
+
+
