@@ -1,3 +1,7 @@
+# This file contains deprecated code for mCLM.
+# It is kept for reference only.
+
+
 import os
 from typing import List, Dict, Callable, Union, Tuple
 
@@ -96,7 +100,7 @@ class mCLM(L.LightningModule):
         self.validation_step_outputs = []
         self.test_step_outputs = []
 
-        
+
 
         self.model = AutoModelForCausalLM.from_pretrained(
             config['base_model'],
@@ -114,7 +118,7 @@ class mCLM(L.LightningModule):
         self,
     ) -> Dict[str, Callable[[torch.tensor, torch.tensor], torch.tensor]]:
         metrics = dict()
-        
+
         #metrics["auc"] = torchmetrics.classification.BinaryAUROC()
         #metrics["auprc"] = torchmetrics.classification.BinaryAveragePrecision()
         #metrics["accuracy"] = torchmetrics.classification.BinaryAccuracy()

@@ -219,3 +219,6 @@ class GNNMolEncoder(nn.Module):
         out = self.compute_readout(graph_repr, restrict_output_layers)
         return out
 
+    # TODO list
+    # - should be able to forward() moledule ids
+
