@@ -317,7 +317,7 @@ def BreakSynthBonds(mol, reduce=True, ring=True, addLabels=True):
         
     for i,bond in enumerate(bond_list):
         #mol=fragment_on_bond_order(mol, bond[0][0], bond[0][1], int(bond[1][0]), int(bond[1][1]), addLabel=addLabels)
-        mol=fragment_on_bond_order(mol, bond[0][0], bond[0][1], int(bond[1][0]), int(bond[1][1]), label=i+1)
+        mol=fragment_on_bond_order(mol, bond[0][0], bond[0][1], int(bond[1][0]), int(bond[1][1]), label=i+2)
 
     return mol
 
@@ -380,13 +380,13 @@ def reorder_fragments(frags):
     for i in range(len(new_frags)-1):
         nf = new_frags[i]
         nf2 = new_frags[i+1]
-        new_frags2.append(nf.replace(f'{index}*', '0*').replace(f'{old_index}*', '1*'))
+        new_frags2.append(nf.replace(f'{index}*', '1*').replace(f'{old_index}*', '2*'))
 
         old_index = index
         index = remove_number_from_tuple(extract_numbers(nf2), old_index)
 
     #print(index, old_index)
-    new_frags2.append(new_frags[-1].replace(f'{old_index}*', '1*'))
+    new_frags2.append(new_frags[-1].replace(f'{old_index}*', '2*'))
 
     #print('.'.join(new_frags))
     #print('.'.join(new_frags2))
@@ -398,7 +398,7 @@ def reverse_rfrags(frags):
 
     frags = frags.split('.')[::-1]
 
-    return '.'.join(frags).replace('0*', '2*').replace('1*', '0*').replace('2*', '1*')
+    return '.'.join(frags).replace('1*', '3*').replace('2*', '1*').replace('3*', '2*')
 
 
 
@@ -407,7 +407,7 @@ if __name__ == '__main__':
     import pandas as pd
 
     outpath = '/shared/nas/data/m1/shared-resource/MoleculeLanguage/data/blockified/'
-    file = 'test_input.txt'
+    file = 'train_input.txt'
 
     df = pd.read_csv(f"/shared/nas/data/m1/shared-resource/MoleculeLanguage/data/{file}", delimiter='\t', header=None)
     df.columns = ['name', 'description']
@@ -452,22 +452,38 @@ if __name__ == '__main__':
 
     df.to_csv(f"{outpath}{file}")
 
-    zz
+    #zz
 
     out = []
     for s in preprocessed:
         for s2 in preprocessed[s].split('.'):
-          out.append(s2)
+          out.append(s2.replace('2*', '*').replace('1*', '*'))
+
+    rev = {}
+    for s in preprocessed:
+        for s2 in preprocessed[s].split('.'):
+            s2 = s2.replace('2*', '*').replace('1*', '*')
+            s = s.replace('r_', '')
+            if s2 in rev:
+                rev[s2].add(s)
+            else:
+                rev[s2] = set([s])
+    for k in rev: rev[k] = list(rev[k])
 
     counts = dict()
     for b in out:
         counts[b] = counts.get(b, 0) + 1
+        
+    for b in counts: counts[b] = int(counts[b]/2)
 
     counts = sorted(counts.items(), key=lambda x: x[1], reverse=True)
     
     with open(outpath+'kinase_counts.txt', 'w') as convert_file: 
-     convert_file.write(json.dumps(counts))
+        convert_file.write(json.dumps(counts, indent=4))
 
     with open(outpath+'kinase_tokens.txt', 'w') as convert_file: 
-     convert_file.write(json.dumps(preprocessed))
+        convert_file.write(json.dumps(preprocessed, indent=4))
+
+    with open(outpath+'kinase_tokens_rev.txt', 'w') as convert_file: 
+        convert_file.write(json.dumps(rev, indent=4))
 

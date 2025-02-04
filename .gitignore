@@ -3,3 +3,13 @@ train_input.txt
 valid_input.txt
 kinase_counts.txt
 kinase_data.zip
+
+tmp/
+
+kinase_data_processing/test_input.txt
+kinase_data_processing/train_input.txt
+kinase_data_processing/valid_input.txt
+kinase_data_processing/kinase_data.zip
+kinase_data_processing/kinase_test.csv
+kinase_data_processing/kinase_train.csv
+kinase_data_processing/kinase_valid.csv
