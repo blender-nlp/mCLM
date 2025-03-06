@@ -19,19 +19,20 @@ dependencies:
   - tqdm=4.66.5=pyhd8ed1ab_0
   - pip:
       - dgllife==0.3.2
-      - fastparquet==2024.5.0
-      - matplotlib==3.8.3
-      - pandas==2.2.2
-      - pyarrow==16.1.0
+      - fastparquet
+      - matplotlib
+      - pandas
+      - pyarrow
       - rdkit==2023.3.2
-      - tokenizers==0.19.1
+      - tokenizers
       - torch==2.3.1
-      - torch-scatter==2.1.2
-      - torchaudio==2.3.1
-      - torchdata==0.7.1
-      - torcheval==0.0.7
-      - torchsampler==0.1.2
-      - torchvision==0.18.1
-      - transformers==4.46.3
-      - wandb==0.16.4
+      - torch-scatter
+      - torchaudio
+      - torchdata
+      - torcheval
+      - torchsampler
+      - torchvision
+      - transformers
+      - wandb
+      - datasets
 prefix: /home/edwarc24/miniforge3/envs/mCLM
