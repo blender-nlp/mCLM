@@ -13,3 +13,12 @@ kinase_data_processing/kinase_data.zip
 kinase_data_processing/kinase_test.csv
 kinase_data_processing/kinase_train.csv
 kinase_data_processing/kinase_valid.csv
+
+oracle_models/original_splits/
+
+oracle_models/tanimoto_similarity_matrix.parquet
+oracle_models/data.csv
+oracle_models/data_scaffolds.csv
+oracle_models/data_full.csv
+
+
