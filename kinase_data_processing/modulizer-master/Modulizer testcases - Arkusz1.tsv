@@ -1,0 +1,5 @@
+target	Monofunctional deprotected	Difunctional deprotected
+CS(=O)(=O)CCNCc1ccc(o1)c2ccc3c(c2)c(ncn3)Nc4ccc(c(c4)Cl)OCc5cccc(c5)F	CC(C)(C)OC(=O)[1N](CCS(C)(=O)=O)Cc1ccc(Br)o1.CC(C)(C)OC(=O)[1N](CCS(C)(=O)=O)Cc1ccc(o1)B(O)O	Nc1ncnc2ccc(Br)cc12.Brc1ccc2ncnc(B(O)O)c2c1.OB(O)c1ccc2ncnc(Br)c2c1
+Cc1ccc(cc1Nc2nccc(n2)c3cccnc3)NC(=O)c4ccc(cc4)CN5CCN(CC5)C	BrC1=CN=CC=C1.OB(O)C1=CN=CC=C1.CN1CCN(CC2=CC=C(C=C2)C(O)=O)CC1	NC1=NC=CC(Br)=N1.CC1=C(Br)C=C(N)C=C1.OB(O)C1=NC(Br)=NC=C1
+COC1=CC=C(CN2CCN(CC2)C2=CC=C(C=N2)C2=CC(OCC(C)(C)O)=CN3N=CC(C#N)=C23)C=N1	CC(C)(O)COc1cc(Br)c2c(cnn2c1)C#N.CC(C)(O)COc1cc(B(O)O)c2c(cnn2c1)C#N.COc1ccc(CN2CCNCC2)cn1	OB(O)c1ccc(Br)nc1.OB(O)c1ccc(Br)cn1
+CNC(=O)C1=CC=CC=C1SC1=CC2=C(C=C1)C(\C=C\C1=NC=CC=C1)=NN2		

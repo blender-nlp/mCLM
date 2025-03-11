@@ -1,0 +1,86 @@
+MRC	PKI	smiles
+Abemaciclib	Abemaciclib	CCN1CCN(CC2=CC=C(NC3=NC=C(F)C(=N3)C3=CC(F)=C4N=C(C)N(C(C)C)C4=C3)N=C2)CC1
+Abrocitinib	Abrocitinib	CCCS(=O)(=O)N[C@H]1C[C@H](C1)N(C)C1=C2C=CNC2=NC=N1
+Acalabrutinib	Acalabrutinib	CC#CC(=O)N1CCC[C@H]1C1=NC(=C2N1C=CN=C2N)C1=CC=C(C=C1)C(=O)NC1=CC=CC=N1
+Afatinib	Afatinib	CN(C)C\C=C\C(=O)NC1=C(O[C@H]2CCOC2)C=C2N=CN=C(NC3=CC(Cl)=C(F)C=C3)C2=C1
+Alectinib	Alectinib	CCC1=CC2=C(C=C1N1CCC(CC1)N1CCOCC1)C(C)(C)C1=C(C3=CC=C(C=C3N1)C#N)C2=O
+Alpelisib		CC1=C(SC(NC(=O)N2CCC[C@H]2C(N)=O)=N1)C1=CC(=NC=C1)C(C)(C)C(F)(F)F
+Apatinib	Apatinib	O=C(NC1=CC=C(C=C1)C1(CCCC1)C#N)C1=CC=CN=C1NCC1=CC=NC=C1
+Asciminib	Asciminib	O[C@@H]1CCN(C1)C1=C(C=C(C=N1)C(=O)NC1=CC=C(OC(F)(F)Cl)C=C1)C1=CC=NN1
+Avapritinib	Avapritinib	CN1C=C(C=N1)C1=CN2N=CN=C(N3CCN(CC3)C3=NC=C(C=N3)[C@@](C)(N)C3=CC=C(F)C=C3)C2=C1
+Axitinib	Axitinib	CNC(=O)C1=C(SC2=CC=C3C(NN=C3\C=C\C3=CC=CC=N3)=C2)C=CC=C1
+Baricitinib	Baricitinib	CCS(=O)(=O)N1CC(CC#N)(C1)N1C=C(C=N1)C1=C2C=CNC2=NC=N1
+Binimetinib	Binimetinib	CN1C=NC2=C(F)C(NC3=CC=C(Br)C=C3F)=C(C=C12)C(=O)NOCCO
+Bosutinib	Bosutinib	COC1=CC(NC2=C(C=NC3=CC(OCCCN4CCN(C)CC4)=C(OC)C=C23)C#N)=C(Cl)C=C1Cl
+Brigatinib	Brigatinib	COC1=CC(=CC=C1NC1=NC=C(Cl)C(NC2=CC=CC=C2P(C)(C)=O)=N1)N1CCC(CC1)N1CCN(C)CC1
+Cabozantinib	Cabozantinib	COC1=CC2=C(C=C1OC)C(OC1=CC=C(NC(=O)C3(CC3)C(=O)NC3=CC=C(F)C=C3)C=C1)=CC=N2
+Capmatinib	Capmatinib	CNC(=O)C1=C(F)C=C(C=C1)C1=NN2C(CC3=CC4=C(C=C3)N=CC=C4)=CN=C2N=C1
+Ceritinib	Ceritinib	CC(C)OC1=C(NC2=NC(NC3=CC=CC=C3S(=O)(=O)C(C)C)=C(Cl)C=N2)C=C(C)C(=C1)C1CCNCC1
+Cobimetinib	Cobimetinib	OC1(CN(C1)C(=O)C1=C(NC2=C(F)C=C(I)C=C2)C(F)=C(F)C=C1)[C@@H]1CCCCN1
+Copanlisib		COC1=C(OCCCN2CCOCC2)C=CC2=C1N=C(NC(=O)C1=CN=C(N)N=C1)N1CCN=C21
+Crizotinib	Crizotinib	[H][C@](C)(OC1=CC(=CN=C1N)C1=CN(N=C1)C1CCNCC1)C1=C(Cl)C=CC(F)=C1Cl
+Dabrafenib	Dabrafenib	CC(C)(C)C1=NC(=C(S1)C1=NC(N)=NC=C1)C1=C(F)C(NS(=O)(=O)C2=C(F)C=CC=C2F)=CC=C1
+Dacomitinib	Dacomitinib	COC1=C(NC(=O)\C=C\CN2CCCCC2)C=C2C(NC3=CC(Cl)=C(F)C=C3)=NC=NC2=C1
+Dasatinib	Dasatinib	CC1=NC(NC2=NC=C(S2)C(=O)NC2=C(C)C=CC=C2Cl)=CC(=N1)N1CCN(CCO)CC1
+Deucravacitinib	Deucravacitinib	[2H]C([2H])([2H])NC(=O)C1=C(NC2=CC=CC(C3=NN(C)C=N3)=C2OC)C=C(NC(=O)C2CC2)N=N1
+Duvelisib		C[C@H](NC1=C2N=CNC2=NC=N1)C1=CC2=CC=CC(Cl)=C2C(=O)N1C1=CC=CC=C1
+Encorafenib	Encorafenib	COC(=O)N[C@@H](C)CNC1=NC=CC(=N1)C1=CN(N=C1C1=CC(Cl)=CC(NS(C)(=O)=O)=C1F)C(C)C
+Entrectinib	Entrectinib	CN1CCN(CC1)C1=CC=C(C(=O)NC2=NNC3=CC=C(CC4=CC(F)=CC(F)=C4)C=C23)C(NC2CCOCC2)=C1
+Erdafitinib	Erdafitinib	COC1=CC(=CC(OC)=C1)N(CCNC(C)C)C1=CC=C2N=CC(=NC2=C1)C1=CN(C)N=C1
+Erlotinib	Erlotinib	COCCOC1=CC2=C(C=C1OCCOC)C(NC1=CC(=CC=C1)C#C)=NC=N2
+Everolimus	Everolimus	[H][C@@]1(C[C@@H](C)[C@]2([H])CC(=O)[C@H](C)\C=C(C)\[C@@H](O)[C@@H](OC)C(=O)[C@H](C)C[C@H](C)\C=C\C=C\C=C(C)\[C@H](C[C@]3([H])CC[C@@H](C)[C@@](O)(O3)C(=O)C(=O)N3CCCC[C@@]3([H])C(=O)O2)OC)CC[C@@H](OCCO)[C@@H](C1)OC
+Fedratinib	Fedratinib	CC1=CN=C(NC2=CC=C(OCCN3CCCC3)C=C2)N=C1NC1=CC=CC(=C1)S(=O)(=O)NC(C)(C)C
+Fostamatinib	Fostamatinib	COC1=CC(NC2=NC=C(F)C(NC3=NC4=C(OC(C)(C)C(=O)N4COP(O)(O)=O)C=C3)=N2)=CC(OC)=C1OC
+Futibatinib	Futibatinib	COC1=CC(=CC(OC)=C1)C#CC1=NN([C@H]2CCN(C2)C(=O)C=C)C2=C1C(N)=NC=N2
+Gefitinib	Gefitinib	COC1=C(OCCCN2CCOCC2)C=C2C(NC3=CC(Cl)=C(F)C=C3)=NC=NC2=C1
+Gilteritinib	Gilteritinib	CCC1=C(NC2CCOCC2)N=C(NC2=CC=C(N3CCC(CC3)N3CCN(C)CC3)C(OC)=C2)C(=N1)C(N)=O
+Ibrutinib	Ibrutinib	NC1=NC=NC2=C1C(=NN2[C@@H]1CCCN(C1)C(=O)C=C)C1=CC=C(OC2=CC=CC=C2)C=C1
+Idelalisib		[H][C@@](CC)(NC1=NC=NC2=C1N=CN2)C1=NC2=CC=CC(F)=C2C(=O)N1C1=CC=CC=C1
+Imatinib	Imatinib	CN1CCN(CC2=CC=C(C=C2)C(=O)NC2=CC(NC3=NC=CC(=N3)C3=CN=CC=C3)=C(C)C=C2)CC1
+Ivosidenib		[H][C@@](N(C(=O)[C@]1([H])CCC(=O)N1C1=NC=CC(=C1)C#N)C1=CC(F)=CN=C1)(C(=O)NC1CC(F)(F)C1)C1=C(Cl)C=CC=C1
+Lapatinib	Lapatinib	CS(=O)(=O)CCNCC1=CC=C(O1)C1=CC2=C(C=C1)N=CN=C2NC1=CC(Cl)=C(OCC2=CC(F)=CC=C2)C=C1
+Larotrectinib	Larotrectinib	O[C@H]1CCN(C1)C(=O)NC1=C2N=C(C=CN2N=C1)N1CCC[C@@H]1C1=C(F)C=CC(F)=C1
+Leniolisib		CCC(=O)N1CC[C@@H](C1)NC1=C2CN(CCC2=NC=N1)C1=CN=C(OC)C(=C1)C(F)(F)F
+Lenvatinib	Lenvatinib	COC1=C(C=C2C(OC3=CC=C(NC(=O)NC4CC4)C(Cl)=C3)=CC=NC2=C1)C(N)=O
+Lorlatinib	Lorlatinib	C[C@H]1OC2=C(N)N=CC(=C2)C2=C(C#N)N(C)N=C2CN(C)C(=O)C2=C1C=C(F)C=C2
+Midostaurin	Midostaurin	CO[C@@H]1[C@@H](C[C@H]2O[C@]1(C)N1C3=C(C=CC=C3)C3=C1C1=C(C4=C(C=CC=C4)N21)C1=C3CNC1=O)N(C)C(=O)C1=CC=CC=C1
+Mobocertinib	Mobocertinib	COC1=C(NC2=NC=C(C(=O)OC(C)C)C(=N2)C2=CN(C)C3=C2C=CC=C3)C=C(NC(=O)C=C)C(=C1)N(C)CCN(C)C
+Neratinib	Neratinib	CCOC1=C(NC(=O)\C=C\CN(C)C)C=C2C(NC3=CC=C(OCC4=CC=CC=N4)C(Cl)=C3)=C(C=NC2=C1)C#N
+Netarsudil	Netarsudil	CC1=CC(C)=C(C=C1)C(=O)OCC1=CC=C(C=C1)[C@@H](CN)C(=O)NC1=CC=C2C=NC=CC2=C1
+Nilotinib	Nilotinib	CC1=CN(C=N1)C1=CC(NC(=O)C2=CC=C(C)C(NC3=NC=CC(=N3)C3=CN=CC=C3)=C2)=CC(=C1)C(F)(F)F
+Nintedanib	Nintedanib	COC(=O)C1=CC=C2C(NC(=O)\C2=C(/NC2=CC=C(C=C2)N(C)C(=O)CN2CCN(C)CC2)C2=CC=CC=C2)=C1
+Osimertinib	Osimertinib	COC1=C(NC2=NC=CC(=N2)C2=CN(C)C3=C2C=CC=C3)C=C(NC(=O)C=C)C(=C1)N(C)CCN(C)C
+Pacritinib	Pacritinib	C(CN1CCCC1)OC1=CC=C2NC3=NC=CC(=N3)C3=CC(COC\C=C\COCC1=C2)=CC=C3
+Palbociclib	Palbociclib	CC(=O)C1=C(C)C2=CN=C(NC3=NC=C(C=C3)N3CCNCC3)N=C2N(C2CCCC2)C1=O
+Pazopanib	Pazopanib	CN(C1=CC2=NN(C)C(C)=C2C=C1)C1=CC=NC(NC2=CC=C(C)C(=C2)S(N)(=O)=O)=N1
+Pemigatinib	Pemigatinib	CCN1C(=O)N(CC2=CN=C3NC(CN4CCOCC4)=CC3=C12)C1=C(F)C(OC)=CC(OC)=C1F
+Pexidartinib	Pexidartinib	FC(F)(F)C1=CC=C(CNC2=NC=C(CC3=CNC4=NC=C(Cl)C=C34)C=C2)C=N1
+Pirtobrutinib	Pirtobrutinib	COC1=C(C=C(F)C=C1)C(=O)NCC1=CC=C(C=C1)C1=NN([C@@H](C)C(F)(F)F)C(N)=C1C(N)=O
+Ponatinib	Ponatinib	CN1CCN(CC2=CC=C(NC(=O)C3=CC(C#CC4=CN=C5C=CC=NN45)=C(C)C=C3)C=C2C(F)(F)F)CC1
+Pralsetinib	Pralsetinib	CO[C@@]1(CC[C@@H](CC1)C1=NC(NC2=NNC(C)=C2)=CC(C)=N1)C(=O)N[C@@H](C)C1=CC=C(N=C1)N1C=C(F)C=N1
+Quizartinib	Quizartinib	CC(C)(C)C1=CC(NC(=O)NC2=CC=C(C=C2)C2=CN3C(SC4=C3C=CC(OCCN3CCOCC3)=C4)=N2)=NO1
+Regorafenib	Regorafenib	CNC(=O)C1=CC(OC2=CC(F)=C(NC(=O)NC3=CC=C(Cl)C(=C3)C(F)(F)F)C=C2)=CC=N1
+Ribociclib	Ribociclib	CN(C)C(=O)C1=CC2=CN=C(NC3=CC=C(C=N3)N3CCNCC3)N=C2N1C1CCCC1
+Ripretinib	Ripretinib	CCN1C(=O)C(=CC2=C1C=C(NC)N=C2)C1=C(Br)C=C(F)C(NC(=O)NC2=CC=CC=C2)=C1
+Ritlecitinib	Ritlecitinib	C[C@H]1CC[C@H](CN1C(=O)C=C)NC1=NC=NC2=C1C=CN2
+Ruxolitinib	Ruxolitinib	N#CC[C@H](C1CCCC1)N1C=C(C=N1)C1=C2C=CNC2=NC=N1
+Selpercatinib	Selpercatinib	COC1=NC=C(CN2C3CC2CN(C3)C2=CC=C(C=N2)C2=CC(OCC(C)(C)O)=CN3N=CC(C#N)=C23)C=C1
+Selumetinib	Selumetinib	CN1C=NC2=C(F)C(NC3=C(Cl)C=C(Br)C=C3)=C(C=C12)C(=O)NOCCO
+Sirolimus	Sirolimus	[H][C@@]1(C[C@@H](C)[C@]2([H])CC(=O)[C@H](C)\C=C(C)\[C@@H](O)[C@@H](OC)C(=O)[C@H](C)C[C@H](C)\C=C\C=C\C=C(C)\[C@H](C[C@]3([H])CC[C@@H](C)[C@@](O)(O3)C(=O)C(=O)N3CCCC[C@@]3([H])C(=O)O2)OC)CC[C@@H](O)[C@@H](C1)OC
+Sorafenib	Sorafenib	CNC(=O)C1=NC=CC(OC2=CC=C(NC(=O)NC3=CC(=C(Cl)C=C3)C(F)(F)F)C=C2)=C1
+Sotorasib		CC(C)C1=NC=CC(C)=C1N1C(=O)N=C(N2CCN(C[C@@H]2C)C(=O)C=C)C2=CC(F)=C(N=C12)C1=C(O)C=CC=C1F
+Sunitinib	Sunitinib	CCN(CC)CCNC(=O)C1=C(C)NC(\C=C2/C(=O)NC3=C2C=C(F)C=C3)=C1C
+Temsirolimus	Temsirolimus	OCC(C)(CO)C(=O)O[C@@H]1CC[C@@H](C[C@@H](C)[C@]2([H])CC(=O)[C@H](C)\C=C(C)\[C@@H](O)[C@@H](OC)C(=O)[C@H](C)C[C@H](C)\C=C\C=C\C=C(C)\[C@@H](OC)C[C@]3([H])CC[C@@H](C)[C@@](O)(O3)C(=O)C(=O)N3CCCC[C@H]3C(=O)O2)C[C@H]1OC
+Tepotinib	Tepotinib	CN1CCC(COC2=CN=C(N=C2)C2=CC(CN3N=C(C=CC3=O)C3=CC(=CC=C3)C#N)=CC=C2)CC1
+Tirbanibulin		O=C(CC1=CC=C(C=N1)C1=CC=C(OCCN2CCOCC2)C=C1)NCC1=CC=CC=C1
+Tivozanib	Tivozanib	COC1=C(OC)C=C2C(OC3=CC(Cl)=C(NC(=O)NC4=NOC(C)=C4)C=C3)=CC=NC2=C1
+Tofacitinib	Tofacitinib	C[C@@H]1CCN(C[C@@H]1N(C)C1=NC=NC2=C1C=CN2)C(=O)CC#N
+Trametinib	Trametinib	CN1C(=O)C(C)=C2N(C(=O)N(C3CC3)C(=O)C2=C1NC1=CC=C(I)C=C1F)C1=CC(NC(C)=O)=CC=C1
+Trilaciclib	Trilaciclib	CN1CCN(CC1)C1=CN=C(NC2=NC3=C(C=C4N3C3(CCCCC3)CNC4=O)C=N2)C=C1
+Tucatinib	Tucatinib	CC1=CC(NC2=NC=NC3=CC=C(NC4=NC(C)(C)CO4)C=C23)=CC=C1OC1=CC2=NC=NN2C=C1
+Upadacitinib	Upadacitinib	CC[C@@H]1CN(C[C@@H]1C1=CN=C2C=NC3=C(C=CN3)N12)C(=O)NCC(F)(F)F
+Vandetanib	Vandetanib	COC1=C(OCC2CCN(C)CC2)C=C2N=CN=C(NC3=C(F)C=C(Br)C=C3)C2=C1
+Vemurafenib	Vemurafenib	CCCS(=O)(=O)NC1=C(F)C(C(=O)C2=CNC3=NC=C(C=C23)C2=CC=C(Cl)C=C2)=C(F)C=C1
+Zanubrutinib	Zanubrutinib	NC(=O)C1=C2NCC[C@@H](C3CCN(CC3)C(=O)C=C)N2N=C1C1=CC=C(OC2=CC=CC=C2)C=C1
+Belumosudil	Belumosudil	CC(C)NC(=O)COC1=CC=CC(=C1)C1=NC2=C(C=CC=C2)C(NC2=CC=C3NN=CC3=C2)=N1
+Momelotinib	Momelotinib	O=C(NCC#N)C1=CC=C(C=C1)C1=CC=NC(NC2=CC=C(C=C2)N2CCOCC2)=N1

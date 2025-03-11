@@ -5,7 +5,7 @@ setup(
     version="0.0",
     author="Carl Edwards",
     author_email="cne2@illinois.edu",
-    packages=["mCLM"],
+    packages=["mCLM", 'mCLM_tokenizer'],
     install_requires=[],
 )
 

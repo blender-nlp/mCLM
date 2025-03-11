@@ -1,0 +1,684 @@
+{
+    "[*]c1cccnc1": [
+        "CC1=C(C=C(C=C1)C(=O)NC2=CC(=CC(=C2)C(F)(F)F)N3C=C(N=C3)C)NC4=NC=CC(=N4)C5=CN=CC=C5",
+        "CC1=C(C=C(C=C1)NC(=O)C2=CC=C(C=C2)CN3CCN(CC3)C)NC4=NC=CC(=N4)C5=CN=CC=C5",
+        "CC1=C(C=C(C=N1)NC(=O)C2=CC(=C(C=C2)CN3CCN(CC3)C)C(F)(F)F)NC4=NC=CC(=N4)C5=CN=CC=C5"
+    ],
+    "[*]c1ccnc(N[*])n1": [
+        "CC1=C(C=C(C=C1)C(=O)NC2=CC(=CC(=C2)C(F)(F)F)N3C=C(N=C3)C)NC4=NC=CC(=N4)C5=CN=CC=C5",
+        "CC1=C(C=C(C=N1)NC(=O)C2=CC(=C(C=C2)CN3CCN(CC3)C)C(F)(F)F)NC4=NC=CC(=N4)C5=CN=CC=C5",
+        "CN1C=C(C2=CC=CC=C21)C3=NC(=NC=C3)NC4=C(C=C(C(=C4)NC(=O)C=C)N(C)CCN(C)C)OC",
+        "CC1=C(C=C(C=C1)NC(=O)C2=CC=C(C=C2)CN3CCN(CC3)C)NC4=NC=CC(=N4)C5=CN=CC=C5",
+        "CC1=C(C=C(C=C1)C(=O)NC2=CC(=CC(=C2)C(F)(F)F)N3C=C(N=C3)C)NC4=NC=CC(=N4)C5=NC=CN=C5"
+    ],
+    "[*]c1cc([*])ccc1C": [
+        "CC1=C(C=C(C=C1)NC(=O)C2=CC=C(C=C2)CN3CCN(CC3)C)NC4=NC=CC(=N4)C5=CN=CC=C5"
+    ],
+    "[*]c1ccc(C(=O)N[*])cc1": [
+        "CC1=C(C=C(C=C1)NC(=O)C2=CC=C(C=C2)CN3CCN(CC3)C)NC4=NC=CC(=N4)C5=CN=CC=C5"
+    ],
+    "[*]CN1CCN(C)CC1": [
+        "CC1=C(C=C(C=C1)C(=O)NC2=CC(=C(C=C2)CN3CCN(CC3)C)C(F)(F)F)C#CC4=CN=C5N4N=CC=C5",
+        "CC1=C(C=C(C=C1)NC(=O)C2=CC=C(C=C2)CN3CCN(CC3)C)NC4=NC=CC(=N4)C5=CN=CC=C5",
+        "CC1=C(C=C(C=N1)NC(=O)C2=CC(=C(C=C2)CN3CCN(CC3)C)C(F)(F)F)NC4=NC=CC(=N4)C5=CN=CC=C5"
+    ],
+    "[*]c1ccnc2cc(OC)c(C(N)=O)cc12": [
+        "COC1=CC2=NC=CC(=C2C=C1C(=O)N)OC3=CC(=C(C=C3)NC(=O)NC4CC4)Cl"
+    ],
+    "[*]Oc1ccc([*])c(Cl)c1": [
+        "COC1=CC2=NC=CC(=C2C=C1C(=O)N)OC3=CC(=C(C=C3)NC(=O)NC4CC4)Cl"
+    ],
+    "[*]NC(=O)NC1CC1": [
+        "COC1=CC2=NC=CC(=C2C=C1C(=O)N)OC3=CC(=C(C=C3)NC(=O)NC4CC4)Cl"
+    ],
+    "[*]Nc1ccc(I)cc1F": [
+        "CC1=C2C(=C(N(C1=O)C)NC3=C(C=C(C=C3)I)F)C(=O)N(C(=O)N2C4=CC=CC(=C4)NC(=O)C)C5CC5",
+        "C1CCNC(C1)C2(CN(C2)C(=O)C3=C(C(=C(C=C3)F)F)NC4=C(C=C(C=C4)I)F)O"
+    ],
+    "[*]c1c2c(=O)n(C3CC3)c(=O)n([*])c2c(C)c(=O)n1C": [
+        "CC1=C2C(=C(N(C1=O)C)NC3=C(C=C(C=C3)I)F)C(=O)N(C(=O)N2C4=CC=CC(=C4)NC(=O)C)C5CC5"
+    ],
+    "[*]c1cccc(NC(C)=O)c1": [
+        "CC1=C2C(=C(N(C1=O)C)NC3=C(C=C(C=C3)I)F)C(=O)N(C(=O)N2C4=CC=CC(=C4)NC(=O)C)C5CC5"
+    ],
+    "[*]c1ccc(Cl)cc1": [
+        "CCCS(=O)(=O)NC1=C(C(=C(C=C1)F)C(=O)C2=CNC3=C2C=C(C=N3)C4=CC=C(C=C4)Cl)F"
+    ],
+    "[*]c1cnc2[nH]cc(C(=O)c3c(F)ccc(NS(=O)(=O)CCC)c3F)c2c1": [
+        "CCCS(=O)(=O)NC1=C(C(=C(C=C1)F)C(=O)C2=CNC3=C2C=C(C=N3)C4=CC=C(C=C4)Cl)F"
+    ],
+    "[*]OCCCN1CCN(C)CC1": [
+        "CN1CCN(CC1)CCCOC2=C(C=C3C(=C2)N=CC(=C3NC4=CC(=C(C=C4Cl)Cl)OC)C#N)OC"
+    ],
+    "[*]c1cc2ncc(C#N)c([*])c2cc1OC": [
+        "CN1CCN(CC1)CCCOC2=C(C=C3C(=C2)N=CC(=C3NC4=CC(=C(C=C4Cl)Cl)OC)C#N)OC"
+    ],
+    "[*]Nc1cc(OC)c(Cl)cc1Cl": [
+        "CN1CCN(CC1)CCCOC2=C(C=C3C(=C2)N=CC(=C3NC4=CC(=C(C=C4Cl)Cl)OC)C#N)OC"
+    ],
+    "": [
+        "CC1CCC2CC(C(=CC=CC=CC(CC(C(=O)C(C(C(=CC(C(=O)CC(OC(=O)C3CCCCN3C(=O)C(=O)C1(O2)O)C(C)CC4CCC(C(C4)OC)OCCO)C)C)O)OC)C)C)C)OC",
+        "CC1CCC2CC(C(=CC=CC=CC(CC(C(=O)C(C(C(=CC(C(=O)CC(OC(=O)C3CCCCN3C(=O)C(=O)C1(O2)O)C(C)CC4CCC(C(C4)OC)O)C)C)O)OC)C)C)C)OC"
+    ],
+    "[*]c1cnn(C2CCNCC2)c1": [
+        "CC(C1=C(C=CC(=C1Cl)F)Cl)OC2=C(N=CC(=C2)C3=CN(N=C3)C4CCNCC4)N"
+    ],
+    "[*]c1cnc(N)c(OC([*])C)c1": [
+        "CC(C1=C(C=CC(=C1Cl)F)Cl)OC2=C(N=CC(=C2)C3=CN(N=C3)C4CCNCC4)N"
+    ],
+    "[*]c1c(Cl)ccc(F)c1Cl": [
+        "CC(C1=C(C=CC(=C1Cl)F)Cl)OC2=C(N=CC(=C2)C3=CN(N=C3)C4CCNCC4)N"
+    ],
+    "[*]C(=O)c1ccc(C)c(C#Cc2cnc3cccnn23)c1": [
+        "CC1=C(C=C(C=C1)C(=O)NC2=CC(=C(C=C2)CN3CCN(CC3)C)C(F)(F)F)C#CC4=CN=C5N4N=CC=C5"
+    ],
+    "[*]Nc1ccc([*])c(C(F)(F)F)c1": [
+        "CC1=C(C=C(C=C1)C(=O)NC2=CC(=C(C=C2)CN3CCN(CC3)C)C(F)(F)F)C#CC4=CN=C5N4N=CC=C5"
+    ],
+    "[*]Oc1ccnc(C(=O)NC)c1": [
+        "CNC(=O)C1=NC=CC(=C1)OC2=CC=C(C=C2)NC(=O)NC3=CC(=C(C=C3)Cl)C(F)(F)F",
+        "CNC(=O)C1=NC=CC(=C1)OC2=CC(=C(C=C2)NC(=O)NC3=CC(=C(C=C3)Cl)C(F)(F)F)F"
+    ],
+    "[*]c1ccc([*])c(F)c1": [
+        "CNC(=O)C1=NC=CC(=C1)OC2=CC(=C(C=C2)NC(=O)NC3=CC(=C(C=C3)Cl)C(F)(F)F)F"
+    ],
+    "[*]NC(=O)Nc1ccc(Cl)c(C(F)(F)F)c1": [
+        "CNC(=O)C1=NC=CC(=C1)OC2=CC=C(C=C2)NC(=O)NC3=CC(=C(C=C3)Cl)C(F)(F)F",
+        "CNC(=O)C1=NC=CC(=C1)OC2=CC(=C(C=C2)NC(=O)NC3=CC(=C(C=C3)Cl)C(F)(F)F)F"
+    ],
+    "[*]OCCCN1CCOCC1": [
+        "COC1=C(C=CC2=C3NCCN3C(=NC(=O)C4=CN=C(N=C4)N)N=C21)OCCCN5CCOCC5",
+        "COC1=C(C=C2C(=C1)N=CN=C2NC3=CC(=C(C=C3)F)Cl)OCCCN4CCOCC4"
+    ],
+    "[*]c1cc2c([*])ncnc2cc1OC": [
+        "COC1=C(C=C2C(=C1)N=CN=C2NC3=CC(=C(C=C3)F)Cl)NC(=O)C=CCN4CCCCC4",
+        "COC1=C(C=C2C(=C1)N=CN=C2NC3=CC(=C(C=C3)F)Cl)OCCCN4CCOCC4"
+    ],
+    "[*]Nc1ccc(F)c(Cl)c1": [
+        "CN(C)CC=CC(=O)NC1=C(C=C2C(=C1)C(=NC=N2)NC3=CC(=C(C=C3)F)Cl)OC4CCOC4",
+        "COC1=C(C=C2C(=C1)N=CN=C2NC3=CC(=C(C=C3)F)Cl)NC(=O)C=CCN4CCCCC4",
+        "COC1=C(C=C2C(=C1)N=CN=C2NC3=CC(=C(C=C3)F)Cl)OCCCN4CCOCC4"
+    ],
+    "[*]Nc1ccc(C)c(S(N)(=O)=O)c1": [
+        "CC1=C(C=C(C=C1)NC2=NC=CC(=N2)N(C)C3=CC4=NN(C(=C4C=C3)C)C)S(=O)(=O)N"
+    ],
+    "[*]c1nccc([*])n1": [
+        "CC1=C(C=C(C=C1)NC2=NC=CC(=N2)N(C)C3=CC4=NN(C(=C4C=C3)C)C)S(=O)(=O)N"
+    ],
+    "[*]N(C)c1ccc2c(C)n(C)nc2c1": [
+        "CC1=C(C=C(C=C1)NC2=NC=CC(=N2)N(C)C3=CC4=NN(C(=C4C=C3)C)C)S(=O)(=O)N"
+    ],
+    "[*]N1CCN(C)CC1": [
+        "CN1CCN(CC1)C2=CC(=C(C=C2)C(=O)NC3=NNC4=C3C=C(C=C4)CC5=CC(=CC(=C5)F)F)NC6CCOCC6",
+        "CN1CCN(CC1)C2=CC=C(C=C2)NC3=NC4=C(C(=N3)OC5=CC=CC(=C5)NC(=O)C=C)SC=C4",
+        "CN1CCN(CC1)C2=CN=C(C=C2)NC3=NC=C4C=C5C(=O)NCC6(N5C4=N3)CCCCC6"
+    ],
+    "[*]c1ccc(N[*])cc1": [
+        "CN1CCN(CC1)C2=CC=C(C=C2)NC3=NC4=C(C(=N3)OC5=CC=CC(=C5)NC(=O)C=C)SC=C4",
+        "CCN1CCN(CC1)C2=CC=C(C=C2)NC3=CC(=NC=N3)N(C)C(=O)NC4=C(C(=CC(=C4Cl)OC)OC)Cl"
+    ],
+    "[*]c1nc([*])c2sccc2n1": [
+        "CN1CCN(CC1)C2=CC=C(C=C2)NC3=NC4=C(C(=N3)OC5=CC=CC(=C5)NC(=O)C=C)SC=C4"
+    ],
+    "[*]Oc1cccc(NC(=O)C=C)c1": [
+        "CN1CCN(CC1)C2=CC=C(C=C2)NC3=NC4=C(C(=N3)OC5=CC=CC(=C5)NC(=O)C=C)SC=C4"
+    ],
+    "[*]c1cn(C)c2ccccc12": [
+        "CN1C=C(C2=CC=CC=C21)C3=NC(=NC=C3)NC4=C(C=C(C(=C4)NC(=O)C=C)N(C)CCN(C)C)OC"
+    ],
+    "[*]c1cc(NC(=O)C=C)c(N(C)CCN(C)C)cc1OC": [
+        "CN1C=C(C2=CC=CC=C21)C3=NC(=NC=C3)NC4=C(C=C(C(=C4)NC(=O)C=C)N(C)CCN(C)C)OC"
+    ],
+    "[*]C(=O)c1c(C)[nH]c(C=C2C(=O)Nc3ccc(F)cc32)c1C": [
+        "CCN(CC)CCNC(=O)C1=C(NC(=C1C)C=C2C3=C(C=CC(=C3)F)NC2=O)C"
+    ],
+    "[*]NCCN(CC)CC": [
+        "CCN(CC)CCNC(=O)C1=C(NC(=C1C)C=C2C3=C(C=CC(=C3)F)NC2=O)C"
+    ],
+    "[*]Nc1c(C)cccc1Cl": [
+        "CC1=C(C(=CC=C1)Cl)NC(=O)C2=CN=C(S2)NC3=CC(=NC(=N3)C)N4CCN(CC4)CCO"
+    ],
+    "[*]C(=O)c1cnc([*])s1": [
+        "CC1=C(C(=CC=C1)Cl)NC(=O)C2=CN=C(S2)NC3=CC(=NC(=N3)C)N4CCN(CC4)CCO"
+    ],
+    "[*]Nc1cc([*])nc(C)n1": [
+        "CC1=C(C(=CC=C1)Cl)NC(=O)C2=CN=C(S2)NC3=CC(=NC(=N3)C)N4CCN(CC4)CCO"
+    ],
+    "[*]N1CCN(CCO)CC1": [
+        "CC1=C(C(=CC=C1)Cl)NC(=O)C2=CN=C(S2)NC3=CC(=NC(=N3)C)N4CCN(CC4)CCO"
+    ],
+    "[*]c1ccc([*])cc1": [
+        "CC#CC(=O)N1CCC(C1)N2C3=NC=NC(=C3N(C2=O)C4=CC=C(C=C4)OC5=CC=CC=C5)N",
+        "COC1=CC2=C(C=CN=C2C=C1OC)OC3=CC=C(C=C3)NC(=O)C4(CC4)C(=O)NC5=CC=C(C=C5)F",
+        "C=CC(=O)N1CCCC(C1)N2C3=NC=NC(=C3C(=N2)C4=CC=C(C=C4)OC5=CC=CC=C5)N",
+        "CNC(=O)C1=NC=CC(=C1)OC2=CC=C(C=C2)NC(=O)NC3=CC(=C(C=C3)Cl)C(F)(F)F",
+        "C=CC(=O)N1CCC(CC1)C2CCNC3=C(C(=NN23)C4=CC=C(C=C4)OC5=CC=CC=C5)C(=O)N",
+        "C1CC1C(=O)NC2=NN3C(=N2)C=CC=C3C4=CC=C(C=C4)CN5CCS(=O)(=O)CC5"
+    ],
+    "[*]c1ccnc(N)n1": [
+        "CC(C)(C)C1=NC(=C(S1)C2=NC(=NC=C2)N)C3=C(C(=CC=C3)NS(=O)(=O)C4=C(C=CC=C4F)F)F"
+    ],
+    "[*]c1nc(C(C)(C)C)sc1[*]": [
+        "CC(C)(C)C1=NC(=C(S1)C2=NC(=NC=C2)N)C3=C(C(=CC=C3)NS(=O)(=O)C4=C(C=CC=C4F)F)F"
+    ],
+    "[*]c1cccc([*])c1F": [
+        "CC(C)(C)C1=NC(=C(S1)C2=NC(=NC=C2)N)C3=C(C(=CC=C3)NS(=O)(=O)C4=C(C=CC=C4F)F)F"
+    ],
+    "[*]NS(=O)(=O)c1c(F)cccc1F": [
+        "CC(C)(C)C1=NC(=C(S1)C2=NC(=NC=C2)N)C3=C(C(=CC=C3)NS(=O)(=O)C4=C(C=CC=C4F)F)F"
+    ],
+    "[*]Nc1cccc(C#C)c1": [
+        "C#CC1=CC(=CC=C1)NC2=NC=NC3=CC4=C(C=C32)OCCOCCOCCO4",
+        "COCCOC1=C(C=C2C(=C1)C(=NC=N2)NC3=CC=CC(=C3)C#C)OCCOC"
+    ],
+    "[*]c1ncnc2cc(OCCOC)c(OCCOC)cc12": [
+        "COCCOC1=C(C=C2C(=C1)C(=NC=N2)NC3=CC=CC(=C3)C#C)OCCOC"
+    ],
+    "[*]Nc1ccc(N2CCNCC2)cn1": [
+        "CN(C)C(=O)C1=CC2=CN=C(N=C2N1C3CCCC3)NC4=NC=C(C=C4)N5CCNCC5",
+        "CC1=C(C(=O)N(C2=NC(=NC=C12)NC3=NC=C(C=C3)N4CCNCC4)C5CCCC5)C(=O)C"
+    ],
+    "[*]c1ncc2c(C)c(C(C)=O)c(=O)n(C3CCCC3)c2n1": [
+        "CC1=C(C(=O)N(C2=NC(=NC=C12)NC3=NC=C(C=C3)N4CCNCC4)C5CCCC5)C(=O)C"
+    ],
+    "[*]C(=O)c1ccc(C)c([*])c1": [
+        "CC1=C(C=C(C=C1)C(=O)NC2=CC(=CC(=C2)C(F)(F)F)N3C=C(N=C3)C)NC4=NC=CC(=N4)C5=CN=CC=C5",
+        "CC1=C(C=C(C=C1)C(=O)NC2=CC(=CC(=C2)C(F)(F)F)N3C=C(N=C3)C)NC4=NC=CC(=N4)C5=NC=CN=C5"
+    ],
+    "[*]Nc1cc([*])cc(C(F)(F)F)c1": [
+        "CC1=C(C=C(C=C1)C(=O)NC2=CC(=CC(=C2)C(F)(F)F)N3C=C(N=C3)C)NC4=NC=CC(=N4)C5=CN=CC=C5",
+        "CC1=C(C=C(C=C1)C(=O)NC2=CC(=CC(=C2)C(F)(F)F)N3C=C(N=C3)C)NC4=NC=CC(=N4)C5=NC=CN=C5"
+    ],
+    "[*]n1cnc(C)c1": [
+        "CC1=C(C=C(C=C1)C(=O)NC2=CC(=CC(=C2)C(F)(F)F)N3C=C(N=C3)C)NC4=NC=CC(=N4)C5=CN=CC=C5",
+        "CC1=C(C=C(C=C1)C(=O)NC2=CC(=CC(=C2)C(F)(F)F)N3C=C(N=C3)C)NC4=NC=CC(=N4)C5=NC=CN=C5"
+    ],
+    "[*]NC(=O)C=CCN(C)C": [
+        "CN(C)CC=CC(=O)NC1=C(C=C2C(=C1)C(=NC=N2)NC3=CC(=C(C=C3)F)Cl)OC4CCOC4",
+        "CCOC1=C(C=C2C(=C1)N=CC(=C2NC3=CC(=C(C=C3)OCC4=CC=CC=N4)Cl)C#N)NC(=O)C=CCN(C)C"
+    ],
+    "[*]c1cc2c([*])ncnc2cc1OC1CCOC1": [
+        "CN(C)CC=CC(=O)NC1=C(C=C2C(=C1)C(=NC=N2)NC3=CC(=C(C=C3)F)Cl)OC4CCOC4"
+    ],
+    "[*]Oc1ccnc2cc(OC)c(OC)cc12": [
+        "CC1=CC(=NO1)NC(=O)NC2=C(C=C(C=C2)OC3=C4C=C(C(=CC4=NC=C3)OC)OC)Cl",
+        "COC1=CC2=C(C=CN=C2C=C1OC)OC3=CC=C(C=C3)NC(=O)C4(CC4)C(=O)NC5=CC=C(C=C5)F"
+    ],
+    "[*]NC(=O)C1(C(=O)N[*])CC1": [
+        "COC1=CC2=C(C=CN=C2C=C1OC)OC3=CC=C(C=C3)NC(=O)C4(CC4)C(=O)NC5=CC=C(C=C5)F"
+    ],
+    "[*]c1ccc(F)cc1": [
+        "COC1=CC2=C(C=CN=C2C=C1OC)OC3=CC=C(C=C3)NC(=O)C4(CC4)C(=O)NC5=CC=C(C=C5)F"
+    ],
+    "[*]OCC1CCN(C)CC1": [
+        "CN1CCC(CC1)COC2=CN=C(N=C2)C3=CC=CC(=C3)CN4C(=O)C=CC(=N4)C5=CC=CC(=C5)C#N",
+        "CN1CCC(CC1)COC2=C(C=C3C(=C2)N=CN=C3NC4=C(C=C(C=C4)Br)F)OC"
+    ],
+    "[*]c1cc2ncnc([*])c2cc1OC": [
+        "CN1CCC(CC1)COC2=C(C=C3C(=C2)N=CN=C3NC4=C(C=C(C=C4)Br)F)OC"
+    ],
+    "[*]Nc1ccc(Br)cc1F": [
+        "CN1CCC(CC1)COC2=C(C=C3C(=C2)N=CN=C3NC4=C(C=C(C=C4)Br)F)OC",
+        "CN1C=NC2=C1C=C(C(=C2F)NC3=C(C=C(C=C3)Br)F)C(=O)NOCCO"
+    ],
+    "[*]CNCCS(C)(=O)=O": [
+        "CS(=O)(=O)CCNCC1=CC=C(O1)C2=CC3=C(C=C2)N=CN=C3NC4=CC(=C(C=C4)OCC5=CC(=CC=C5)F)Cl"
+    ],
+    "[*]c1ccc([*])o1": [
+        "CS(=O)(=O)CCNCC1=CC=C(O1)C2=CC3=C(C=C2)N=CN=C3NC4=CC(=C(C=C4)OCC5=CC(=CC=C5)F)Cl"
+    ],
+    "[*]c1ccc2ncnc([*])c2c1": [
+        "CS(=O)(=O)CCNCC1=CC=C(O1)C2=CC3=C(C=C2)N=CN=C3NC4=CC(=C(C=C4)OCC5=CC(=CC=C5)F)Cl"
+    ],
+    "[*]COc1ccc(N[*])cc1Cl": [
+        "CCOC1=C(C=C2C(=C1)N=CC(=C2NC3=CC(=C(C=C3)OCC4=CC=CC=N4)Cl)C#N)NC(=O)C=CCN(C)C",
+        "CCOC1=C(C=C2C(=C1)N=CC(=C2NC3=CC(=C(C=C3)OCC4=CC=CC=N4)Cl)C#N)NC(=O)C=CC5CCCN5C",
+        "CS(=O)(=O)CCNCC1=CC=C(O1)C2=CC3=C(C=C2)N=CN=C3NC4=CC(=C(C=C4)OCC5=CC(=CC=C5)F)Cl"
+    ],
+    "[*]c1cccc(F)c1": [
+        "CC(C)OC1=C(C=C(C=C1)C2=NN(C3=NC=NC(=C23)N)C(C)C4=C(C(=O)C5=C(O4)C=CC(=C5)F)C6=CC(=CC=C6)F)F",
+        "CS(=O)(=O)CCNCC1=CC=C(O1)C2=CC3=C(C=C2)N=CN=C3NC4=CC(=C(C=C4)OCC5=CC(=CC=C5)F)Cl"
+    ],
+    "[*]Nc1ccc(C2(C#N)CCCC2)cc1": [
+        "C1CCC(C1)(C#N)C2=CC=C(C=C2)NC(=O)C3=C(N=CC=C3)NCC4=CC=NC=C4"
+    ],
+    "[*]C(=O)c1cccnc1NC[*]": [
+        "C1CCC(C1)(C#N)C2=CC=C(C=C2)NC(=O)C3=C(N=CC=C3)NCC4=CC=NC=C4"
+    ],
+    "[*]c1ccncc1": [
+        "C1CCC(C1)(C#N)C2=CC=C(C=C2)NC(=O)C3=C(N=CC=C3)NCC4=CC=NC=C4"
+    ],
+    "[*]c1cnn(C(CC#N)C2CCCC2)c1": [
+        "C1CCC(C1)C(CC#N)N2C=C(C=N2)C3=C4C=CNC4=NC=N3"
+    ],
+    "[*]c1ncnc2[nH]ccc12": [
+        "C1CCC(C1)C(CC#N)N2C=C(C=N2)C3=C4C=CNC4=NC=N3",
+        "CC1CCN(CC1N(C)C2=NC=NC3=C2C=CN3)C(=O)CC#N",
+        "CCS(=O)(=O)N1CC(C1)(CC#N)N2C=C(C=N2)C3=C4C=CNC4=NC=N3",
+        "CC1CN(C12CCN(C2)C3=NC=NC4=C3C=CN4)C(=O)CC#N"
+    ],
+    "[*]Nc1ccc(Br)cc1Cl": [
+        "CN1C=NC2=C1C=C(C(=C2F)NC3=C(C=C(C=C3)Br)Cl)C(=O)NOCCO"
+    ],
+    "[*]c1c(C(=O)NOCCO)cc2c(ncn2C)c1F": [
+        "CN1C=NC2=C1C=C(C(=C2F)NC3=C(C=C(C=C3)Br)F)C(=O)NOCCO",
+        "CN1C=NC2=C1C=C(C(=C2F)NC3=C(C=C(C=C3)Br)Cl)C(=O)NOCCO"
+    ],
+    "[*]C(=O)c1ccccc1": [
+        "CC12C(C(CC(O1)N3C4=CC=CC=C4C5=C6C(=C7C8=CC=CC=C8N2C7=C53)CNC6=O)N(C)C(=O)C9=CC=CC=C9)OC"
+    ],
+    "[*]N(C)C1CC2OC(C)(C1OC)n1c3ccccc3c3c4c(c5c6ccccc6n2c5c31)C(=O)NC4": [
+        "CC12C(C(CC(O1)N3C4=CC=CC=C4C5=C6C(=C7C8=CC=CC=C8N2C7=C53)CNC6=O)N(C)C(=O)C9=CC=CC=C9)OC"
+    ],
+    "[*]C(=O)C#CC": [
+        "CC#CC(=O)N1CCCC1C2=NC(=C3N2C=CN=C3N)C4=CC=C(C=C4)C(=O)NC5=CC=CC=N5",
+        "CC#CC(=O)N1CCC(C1)N2C3=NC=NC(=C3N(C2=O)C4=CC=C(C=C4)OC5=CC=CC=C5)N"
+    ],
+    "[*]N1CCCC1[*]": [
+        "CC#CC(=O)N1CCCC1C2=NC(=C3N2C=CN=C3N)C4=CC=C(C=C4)C(=O)NC5=CC=CC=N5"
+    ],
+    "[*]c1nc([*])n2ccnc(N)c12": [
+        "CC#CC(=O)N1CCCC1C2=NC(=C3N2C=CN=C3N)C4=CC=C(C=C4)C(=O)NC5=CC=CC=N5"
+    ],
+    "[*]C(=O)c1ccc([*])cc1": [
+        "CC#CC(=O)N1CCCC1C2=NC(=C3N2C=CN=C3N)C4=CC=C(C=C4)C(=O)NC5=CC=CC=N5"
+    ],
+    "[*]Nc1ccccn1": [
+        "CC#CC(=O)N1CCCC1C2=NC(=C3N2C=CN=C3N)C4=CC=C(C=C4)C(=O)NC5=CC=CC=N5"
+    ],
+    "[*]c1nn(C2CCCN(C(=O)C=C)C2)c2ncnc(N)c12": [
+        "C=CC(=O)N1CCCC(C1)N2C3=NC=NC(=C3C(=N2)C4=CC=C(C=C4)OC5=CC=CC=C5)N"
+    ],
+    "[*]Oc1ccccc1": [
+        "C=CC(=O)N1CCC(CC1)C2CCNC3=C(C(=NN23)C4=CC=C(C=C4)OC5=CC=CC=C5)C(=O)N",
+        "CC#CC(=O)N1CCC(C1)N2C3=NC=NC(=C3N(C2=O)C4=CC=C(C=C4)OC5=CC=CC=C5)N",
+        "C=CC(=O)N1CCCC(C1)N2C3=NC=NC(=C3C(=N2)C4=CC=C(C=C4)OC5=CC=CC=C5)N"
+    ],
+    "[*]N1CC(O)(C2CCCCN2)C1": [
+        "C1CCNC(C1)C2(CN(C2)C(=O)C3=C(C(=C(C=C3)F)F)NC4=C(C=C(C=C4)I)F)O"
+    ],
+    "[*]C(=O)c1ccc(F)c(F)c1[*]": [
+        "C1CCNC(C1)C2(CN(C2)C(=O)C3=C(C(=C(C=C3)F)F)NC4=C(C=C(C=C4)I)F)O"
+    ],
+    "[*]Cc1c[nH]c2ncc(Cl)cc12": [
+        "C1=CC(=NC=C1CC2=CNC3=C2C=C(C=N3)Cl)NCC4=CN=C(C=C4)C(F)(F)F"
+    ],
+    "[*]c1ccc(NC[*])nc1": [
+        "C1=CC(=NC=C1CC2=CNC3=C2C=C(C=N3)Cl)NCC4=CN=C(C=C4)C(F)(F)F"
+    ],
+    "[*]c1ccc(C(F)(F)F)nc1": [
+        "C1=CC(=NC=C1CC2=CNC3=C2C=C(C=N3)Cl)NCC4=CN=C(C=C4)C(F)(F)F"
+    ],
+    "[*]c1c(O)[nH]c2cc(C(=O)OC)ccc12": [
+        "CN1CCN(CC1)CC(=O)N(C)C2=CC=C(C=C2)N=C(C3=CC=CC=C3)C4=C(NC5=C4C=CC(=C5)C(=O)OC)O"
+    ],
+    "[*]C(=Nc1ccc([*])cc1)c1ccccc1": [
+        "CN1CCN(CC1)CC(=O)N(C)C2=CC=C(C=C2)N=C(C3=CC=CC=C3)C4=C(NC5=C4C=CC(=C5)C(=O)OC)O"
+    ],
+    "[*]N(C)C(=O)CN1CCN(C)CC1": [
+        "CN1CCN(CC1)CC(=O)N(C)C2=CC=C(C=C2)N=C(C3=CC=CC=C3)C4=C(NC5=C4C=CC(=C5)C(=O)OC)O"
+    ],
+    "[*]C(=O)C(C)(CO)CO": [
+        "CC1CCC2CC(C(=CC=CC=CC(CC(C(=O)C(C(C(=CC(C(=O)CC(OC(=O)C3CCCCN3C(=O)C(=O)C1(O2)O)C(C)CC4CCC(C(C4)OC)OC(=O)C(C)(CO)CO)C)C)O)OC)C)C)C)OC"
+    ],
+    "[*]OC1CCC(CC(C)C2CC(=O)C(C)C=C(C)C(O)C(OC)C(=O)C(C)CC(C)C=CC=CC=C(C)C(OC)CC3CCC(C)C(O)(O3)C(=O)C(=O)N3CCCCC3C(=O)O2)CC1OC": [
+        "CC1CCC2CC(C(=CC=CC=CC(CC(C(=O)C(C(C(=CC(C(=O)CC(OC(=O)C3CCCCN3C(=O)C(=O)C1(O2)O)C(C)CC4CCC(C(C4)OC)OC(=O)C(C)(CO)CO)C)C)O)OC)C)C)C)OC"
+    ],
+    "O=S(=O)(c1cccc2cnccc12)N1CCCNCC1": [
+        "C1CNCCN(C1)S(=O)(=O)C2=CC=CC3=C2C=CN=C3"
+    ],
+    "[*]C(CC)Nc1ncnc2nc[nH]c12": [
+        "CCC(C1=NC2=C(C(=CC=C2)F)C(=O)N1C3=CC=CC=C3)NC4=NC=NC5=C4NC=N5"
+    ],
+    "[*]c1nc2cccc(F)c2c(=O)n1[*]": [
+        "CCC(C1=NC2=C(C(=CC=C2)F)C(=O)N1C3=CC=CC=C3)NC4=NC=NC5=C4NC=N5"
+    ],
+    "[*]c1ccccc1": [
+        "CC(C1=CC2=C(C(=CC=C2)Cl)C(=O)N1C3=CC=CC=C3)NC4=NC=NC5=C4NC=N5",
+        "CCC(C1=NC2=C(C(=CC=C2)F)C(=O)N1C3=CC=CC=C3)NC4=NC=NC5=C4NC=N5"
+    ],
+    "[*]c1ccnc(C(C)(C)C(F)(F)F)c1": [
+        "CC1=C(SC(=N1)NC(=O)N2CCCC2C(=O)N)C3=CC(=NC=C3)C(C)(C)C(F)(F)F"
+    ],
+    "[*]c1sc([*])nc1C": [
+        "CC1=C(SC(=N1)NC(=O)N2CCCC2C(=O)N)C3=CC(=NC=C3)C(C)(C)C(F)(F)F"
+    ],
+    "[*]NC(=O)N1CCCC1C(N)=O": [
+        "CC1=C(SC(=N1)NC(=O)N2CCCC2C(=O)N)C3=CC(=NC=C3)C(C)(C)C(F)(F)F"
+    ],
+    "[*]c1ccccn1": [
+        "CCOC1=C(C=C2C(=C1)N=CC(=C2NC3=CC(=C(C=C3)OCC4=CC=CC=N4)Cl)C#N)NC(=O)C=CCN(C)C",
+        "CCOC1=C(C=C2C(=C1)N=CC(=C2NC3=CC(=C(C=C3)OCC4=CC=CC=N4)Cl)C#N)NC(=O)C=CC5CCCN5C"
+    ],
+    "[*]c1cc2c([*])c(C#N)cnc2cc1OCC": [
+        "CCOC1=C(C=C2C(=C1)N=CC(=C2NC3=CC(=C(C=C3)OCC4=CC=CC=N4)Cl)C#N)NC(=O)C=CCN(C)C",
+        "CCOC1=C(C=C2C(=C1)N=CC(=C2NC3=CC(=C(C=C3)OCC4=CC=CC=N4)Cl)C#N)NC(=O)C=CC5CCCN5C"
+    ],
+    "[*]C=Cc1ccccn1": [
+        "CNC(=O)C1=CC=CC=C1SC2=CC3=C(C=C2)C(=NN3)C=CC4=CC=CC=N4"
+    ],
+    "[*]c1n[nH]c2cc(Sc3ccccc3C(=O)NC)ccc12": [
+        "CNC(=O)C1=CC=CC=C1SC2=CC3=C(C=C2)C(=NN3)C=CC4=CC=CC=N4"
+    ],
+    "[*]Nc1cc(C)c(C2CCNCC2)cc1OC(C)C": [
+        "CC1=CC(=C(C=C1C2CCNCC2)OC(C)C)NC3=NC=C(C(=N3)NC4=CC=CC=C4S(=O)(=O)C(C)C)Cl"
+    ],
+    "[*]c1ncc(Cl)c([*])n1": [
+        "CC1=CC(=C(C=C1C2CCNCC2)OC(C)C)NC3=NC=C(C(=N3)NC4=CC=CC=C4S(=O)(=O)C(C)C)Cl"
+    ],
+    "[*]Nc1ccccc1S(=O)(=O)C(C)C": [
+        "CC1=CC(=C(C=C1C2CCNCC2)OC(C)C)NC3=NC=C(C(=N3)NC4=CC=CC=C4S(=O)(=O)C(C)C)Cl"
+    ],
+    "[*]c1ncc2cc(C(=O)N(C)C)n(C3CCCC3)c2n1": [
+        "CN(C)C(=O)C1=CC2=CN=C(N=C2N1C3CCCC3)NC4=NC=C(C=C4)N5CCNCC5"
+    ],
+    "[*]NC(=O)C=CCN1CCCCC1": [
+        "COC1=C(C=C2C(=C1)N=CN=C2NC3=CC(=C(C=C3)F)Cl)NC(=O)C=CCN4CCCCC4"
+    ],
+    "[*]c1cc(Cl)cc(NS(C)(=O)=O)c1F": [
+        "CC(C)N1C=C(C(=N1)C2=C(C(=CC(=C2)Cl)NS(=O)(=O)C)F)C3=NC(=NC=C3)NCC(C)NC(=O)OC"
+    ],
+    "[*]c1cn(C(C)C)nc1[*]": [
+        "CC(C)N1C=C(C(=N1)C2=C(C(=CC(=C2)Cl)NS(=O)(=O)C)F)C3=NC(=NC=C3)NCC(C)NC(=O)OC"
+    ],
+    "[*]c1ccnc([*])n1": [
+        "CC(C)N1C=C(C(=N1)C2=C(C(=CC(=C2)Cl)NS(=O)(=O)C)F)C3=NC(=NC=C3)NCC(C)NC(=O)OC"
+    ],
+    "[*]NCC(C)NC(=O)OC": [
+        "CC(C)N1C=C(C(=N1)C2=C(C(=CC(=C2)Cl)NS(=O)(=O)C)F)C3=NC(=NC=C3)NCC(C)NC(=O)OC"
+    ],
+    "[*]C(=O)CC#N": [
+        "CC1CCN(CC1N(C)C2=NC=NC3=C2C=CN3)C(=O)CC#N",
+        "CC1CN(C12CCN(C2)C3=NC=NC4=C3C=CN4)C(=O)CC#N"
+    ],
+    "[*]N1CCC(C)C(N([*])C)C1": [
+        "CC1CCN(CC1N(C)C2=NC=NC3=C2C=CN3)C(=O)CC#N"
+    ],
+    "[*]C(=O)NCC(F)(F)F": [
+        "CCC1CN(CC1C2=CN=C3N2C4=C(NC=C4)N=C3)C(=O)NCC(F)(F)F"
+    ],
+    "[*]N1CC([*])C(CC)C1": [
+        "CCC1CN(CC1C2=CN=C3N2C4=C(NC=C4)N=C3)C(=O)NCC(F)(F)F"
+    ],
+    "[*]c1cnc2cnc3[nH]ccc3n12": [
+        "CCC1CN(CC1C2=CN=C3N2C4=C(NC=C4)N=C3)C(=O)NCC(F)(F)F"
+    ],
+    "[*]N1CCC(n2c(=O)n([*])c3c(N)ncnc32)C1": [
+        "CC#CC(=O)N1CCC(C1)N2C3=NC=NC(=C3N(C2=O)C4=CC=C(C=C4)OC5=CC=CC=C5)N"
+    ],
+    "[*]N1CCC(N2CCOCC2)CC1": [
+        "CCC1=CC2=C(C=C1N3CCC(CC3)N4CCOCC4)C(C5=C(C2=O)C6=C(N5)C=C(C=C6)C#N)(C)C"
+    ],
+    "[*]c1cc2c(cc1CC)C(=O)c1c([nH]c3cc(C#N)ccc13)C2(C)C": [
+        "CCC1=CC2=C(C=C1N3CCC(CC3)N4CCOCC4)C(C5=C(C2=O)C6=C(N5)C=C(C=C6)C#N)(C)C"
+    ],
+    "[*]c1ncnc2cc3c(cc12)OCCOCCOCCO3": [
+        "C#CC1=CC(=CC=C1)NC2=NC=NC3=CC4=C(C=C32)OCCOCCOCCO4"
+    ],
+    "[*]c1cc(F)c2nc(C)n(C(C)C)c2c1": [
+        "CCN1CCN(CC1)CC2=CN=C(C=C2)NC3=NC=C(C(=N3)C4=CC5=C(C(=C4)F)N=C(N5C(C)C)C)F"
+    ],
+    "[*]c1nc([*])ncc1F": [
+        "CCN1CCN(CC1)CC2=CN=C(C=C2)NC3=NC=C(C(=N3)C4=CC5=C(C(=C4)F)N=C(N5C(C)C)C)F",
+        "CC1(C(=O)N(C2=C(O1)C=CC(=N2)NC3=NC(=NC=C3F)NC4=CC(=C(C(=C4)OC)OC)OC)COP(=O)(O)O)C"
+    ],
+    "[*]c1ccc(N[*])nc1": [
+        "CCN1CCN(CC1)CC2=CN=C(C=C2)NC3=NC=C(C(=N3)C4=CC5=C(C(=C4)F)N=C(N5C(C)C)C)F",
+        "CN1CCN(CC1)C2=CN=C(C=C2)NC3=NC=C4C=C5C(=O)NCC6(N5C4=N3)CCCCC6"
+    ],
+    "[*]CN1CCN(CC)CC1": [
+        "CCN1CCN(CC1)CC2=CN=C(C=C2)NC3=NC=C(C(=N3)C4=CC5=C(C(=C4)F)N=C(N5C(C)C)C)F"
+    ],
+    "[*]c1ccc2c3n(c(=NC(=O)c4cnc(N)nc4)nc2c1OC)CCN3": [
+        "COC1=C(C=CC2=C3NCCN3C(=NC(=O)C4=CN=C(N=C4)N)N=C21)OCCCN5CCOCC5"
+    ],
+    "[*]c1cnn(C2(CC#N)CN(S(=O)(=O)CC)C2)c1": [
+        "CCS(=O)(=O)N1CC(C1)(CC#N)N2C=C(C=N2)C3=C4C=CNC4=NC=N3"
+    ],
+    "[*]c1cc(C)on1": [
+        "CC1=CC(=NO1)NC(=O)NC2=C(C=C(C=C2)OC3=C4C=C(C(=CC4=NC=C3)OC)OC)Cl"
+    ],
+    "[*]NC(=O)Nc1ccc([*])cc1Cl": [
+        "CC1=CC(=NO1)NC(=O)NC2=C(C=C(C=C2)OC3=C4C=C(C(=CC4=NC=C3)OC)OC)Cl"
+    ],
+    "[*]C(C)Nc1ncnc2nc[nH]c12": [
+        "CC(C1=CC2=C(C(=CC=C2)Cl)C(=O)N1C3=CC=CC=C3)NC4=NC=NC5=C4NC=N5"
+    ],
+    "[*]c1cc2cccc(Cl)c2c(=O)n1[*]": [
+        "CC(C1=CC2=C(C(=CC=C2)Cl)C(=O)N1C3=CC=CC=C3)NC4=NC=NC5=C4NC=N5"
+    ],
+    "[*]Nc1ccc2c(n1)N(COP(=O)(O)O)C(=O)C(C)(C)O2": [
+        "CC1(C(=O)N(C2=C(O1)C=CC(=N2)NC3=NC(=NC=C3F)NC4=CC(=C(C(=C4)OC)OC)OC)COP(=O)(O)O)C"
+    ],
+    "[*]Nc1cc(OC)c(OC)c(OC)c1": [
+        "CC1(C(=O)N(C2=C(O1)C=CC(=N2)NC3=NC(=NC=C3F)NC4=CC(=C(C(=C4)OC)OC)OC)COP(=O)(O)O)C"
+    ],
+    "CC1CNCCCN1S(=O)(=O)c1cccc2cncc(F)c12": [
+        "CC1CNCCCN1S(=O)(=O)C2=CC=CC3=CN=CC(=C32)F"
+    ],
+    "[*]Oc1ccc2[nH]c(C)cc2c1F": [
+        "CC1=CC2=C(N1)C=CC(=C2F)OC3=C4C=C(C(=CC4=NC=C3)OCC5(CC5)N)OC"
+    ],
+    "[*]c1ccnc2cc([*])c(OC)cc12": [
+        "CC1=CC2=C(N1)C=CC(=C2F)OC3=C4C=C(C(=CC4=NC=C3)OCC5(CC5)N)OC"
+    ],
+    "[*]OCC1(N)CC1": [
+        "CC1=CC2=C(N1)C=CC(=C2F)OC3=C4C=C(C(=CC4=NC=C3)OCC5(CC5)N)OC"
+    ],
+    "[*]N1CCC(N2CCN(C)CC2)CC1": [
+        "CCC1=C(N=C(C(=N1)C(=O)N)NC2=CC(=C(C=C2)N3CCC(CC3)N4CCN(CC4)C)OC)NC5CCOCC5",
+        "CN1CCN(CC1)C2CCN(CC2)C3=CC(=C(C=C3)NC4=NC=C(C(=N4)NC5=CC=CC=C5P(=O)(C)C)Cl)OC"
+    ],
+    "[*]c1ccc([*])c(OC)c1": [
+        "CCC1=C(N=C(C(=N1)C(=O)N)NC2=CC(=C(C=C2)N3CCC(CC3)N4CCN(CC4)C)OC)NC5CCOCC5",
+        "CN1CCN(CC1)C2CCN(CC2)C3=CC(=C(C=C3)NC4=NC=C(C(=N4)NC5=CC=CC=C5P(=O)(C)C)Cl)OC"
+    ],
+    "[*]Nc1ncc(Cl)c([*])n1": [
+        "CN1CCN(CC1)C2CCN(CC2)C3=CC(=C(C=C3)NC4=NC=C(C(=N4)NC5=CC=CC=C5P(=O)(C)C)Cl)OC"
+    ],
+    "[*]Nc1ccccc1P(C)(C)=O": [
+        "CN1CCN(CC1)C2CCN(CC2)C3=CC(=C(C=C3)NC4=NC=C(C(=N4)NC5=CC=CC=C5P(=O)(C)C)Cl)OC"
+    ],
+    "[*]Oc1ncnc2cc(OC)c(OC)cc12": [
+        "CC1=C(C2=C(O1)C=C(C=C2)OC3=NC=NC4=CC(=C(C=C43)OC)OC)C(=O)NC"
+    ],
+    "[*]c1ccc2c(C(=O)NC)c(C)oc2c1": [
+        "CC1=C(C2=C(O1)C=C(C=C2)OC3=NC=NC4=CC(=C(C=C43)OC)OC)C(=O)NC"
+    ],
+    "[*]NC(=O)N1CCC(O)C1": [
+        "C1CC(N(C1)C2=NC3=C(C=NN3C=C2)NC(=O)N4CCC(C4)O)C5=C(C=CC(=C5)F)F"
+    ],
+    "[*]c1cnn2ccc(N3CCCC3c3cc(F)ccc3F)nc12": [
+        "C1CC(N(C1)C2=NC3=C(C=NN3C=C2)NC(=O)N4CCC(C4)O)C5=C(C=CC(=C5)F)F"
+    ],
+    "[*]N1CC(C)C12CCN([*])C2": [
+        "CC1CN(C12CCN(C2)C3=NC=NC4=C3C=CN4)C(=O)CC#N"
+    ],
+    "[*]Cc1cc(F)cc(F)c1": [
+        "CN1CCN(CC1)C2=CC(=C(C=C2)C(=O)NC3=NNC4=C3C=C(C=C4)CC5=CC(=CC(=C5)F)F)NC6CCOCC6"
+    ],
+    "[*]Nc1n[nH]c2ccc([*])cc12": [
+        "CN1CCN(CC1)C2=CC(=C(C=C2)C(=O)NC3=NNC4=C3C=C(C=C4)CC5=CC(=CC(=C5)F)F)NC6CCOCC6"
+    ],
+    "[*]C(=O)c1ccc([*])cc1NC1CCOCC1": [
+        "CN1CCN(CC1)C2=CC(=C(C=C2)C(=O)NC3=NNC4=C3C=C(C=C4)CC5=CC(=CC(=C5)F)F)NC6CCOCC6"
+    ],
+    "[*]c1ccc(C(=O)NC)c(F)c1": [
+        "CNC(=O)C1=C(C=C(C=C1)C2=NN3C(=CN=C3N=C2)CC4=CC5=C(C=C4)N=CC=C5)F"
+    ],
+    "[*]c1cnc2ncc([*])n2n1": [
+        "CNC(=O)C1=C(C=C(C=C1)C2=NN3C(=CN=C3N=C2)CC4=CC5=C(C=C4)N=CC=C5)F"
+    ],
+    "[*]Cc1ccc2ncccc2c1": [
+        "CNC(=O)C1=C(C=C(C=C1)C2=NN3C(=CN=C3N=C2)CC4=CC5=C(C=C4)N=CC=C5)F"
+    ],
+    "[*]C(=O)c1ccc(C)cc1C": [
+        "CC1=CC(=C(C=C1)C(=O)OCC2=CC=C(C=C2)C(CN)C(=O)NC3=CC4=C(C=C3)C=NC=C4)C"
+    ],
+    "[*]OCc1ccc([*])cc1": [
+        "CC1=CC(=C(C=C1)C(=O)OCC2=CC=C(C=C2)C(CN)C(=O)NC3=CC4=C(C=C3)C=NC=C4)C"
+    ],
+    "[*]C(=O)C([*])CN": [
+        "CC1=CC(=C(C=C1)C(=O)OCC2=CC=C(C=C2)C(CN)C(=O)NC3=CC4=C(C=C3)C=NC=C4)C"
+    ],
+    "[*]Nc1ccc2cnccc2c1": [
+        "CC1=CC(=C(C=C1)C(=O)OCC2=CC=C(C=C2)C(CN)C(=O)NC3=CC4=C(C=C3)C=NC=C4)C"
+    ],
+    "CC1Oc2cc(cnc2N)-c2c(nn(C)c2C#N)CN(C)C(=O)c2ccc(F)cc21": [
+        "CC1C2=C(C=CC(=C2)F)C(=O)N(CC3=NN(C(=C3C4=CC(=C(N=C4)N)O1)C#N)C)C"
+    ],
+    "[*]c1cccc(C#N)c1": [
+        "CN1CCC(CC1)COC2=CN=C(N=C2)C3=CC=CC(=C3)CN4C(=O)C=CC(=N4)C5=CC=CC(=C5)C#N"
+    ],
+    "[*]c1ccc(=O)n(C[*])n1": [
+        "CN1CCC(CC1)COC2=CN=C(N=C2)C3=CC=CC(=C3)CN4C(=O)C=CC(=N4)C5=CC=CC(=C5)C#N"
+    ],
+    "[*]c1cccc([*])c1": [
+        "CN1CCC(CC1)COC2=CN=C(N=C2)C3=CC=CC(=C3)CN4C(=O)C=CC(=N4)C5=CC=CC(=C5)C#N"
+    ],
+    "[*]c1ncc([*])cn1": [
+        "CN1CCC(CC1)COC2=CN=C(N=C2)C3=CC=CC(=C3)CN4C(=O)C=CC(=N4)C5=CC=CC(=C5)C#N"
+    ],
+    "[*]NC1C2CC3CC1CC(O)(C3)C2": [
+        "C1C2CC3CC(C2)(CC1C3NC4=C5C=CNC5=NC=C4C(=O)N)O"
+    ],
+    "[*]c1c(C(N)=O)cnc2[nH]ccc12": [
+        "C1C2CC3CC(C2)(CC1C3NC4=C5C=CNC5=NC=C4C(=O)N)O"
+    ],
+    "[*]c1cnccn1": [
+        "CC1=C(C=C(C=C1)C(=O)NC2=CC(=CC(=C2)C(F)(F)F)N3C=C(N=C3)C)NC4=NC=CC(=N4)C5=NC=CN=C5"
+    ],
+    "[*]CN1CCS(=O)(=O)CC1": [
+        "C1CC1C(=O)NC2=NN3C(=N2)C=CC=C3C4=CC=C(C=C4)CN5CCS(=O)(=O)CC5"
+    ],
+    "[*]c1cccc2nc([*])nn12": [
+        "C1CC1C(=O)NC2=NN3C(=N2)C=CC=C3C4=CC=C(C=C4)CN5CCS(=O)(=O)CC5"
+    ],
+    "[*]NC(=O)C1CC1": [
+        "C1CC1C(=O)NC2=NN3C(=N2)C=CC=C3C4=CC=C(C=C4)CN5CCS(=O)(=O)CC5"
+    ],
+    "[*]c1ncc2cc3n(c2n1)C1(CCCCC1)CNC3=O": [
+        "CN1CCN(CC1)C2=CN=C(C=C2)NC3=NC=C4C=C5C(=O)NCC6(N5C4=N3)CCCCC6"
+    ],
+    "[*]c1nn2c(c1C(N)=O)NCCC2C1CCN(C(=O)C=C)CC1": [
+        "C=CC(=O)N1CCC(CC1)C2CCNC3=C(C(=NN23)C4=CC=C(C=C4)OC5=CC=CC=C5)C(=O)N"
+    ],
+    "[*]N1Cc2cnc3[nH]c(CN4CCOCC4)cc3c2N(CC)C1=O": [
+        "CCN1C2=C3C=C(NC3=NC=C2CN(C1=O)C4=C(C(=CC(=C4F)OC)OC)F)CN5CCOCC5"
+    ],
+    "[*]c1c(F)c(OC)cc(OC)c1F": [
+        "CCN1C2=C3C=C(NC3=NC=C2CN(C1=O)C4=C(C(=CC(=C4F)OC)OC)F)CN5CCOCC5"
+    ],
+    "[*]N1CCN(CC)CC1": [
+        "CCN1CCN(CC1)C2=CC=C(C=C2)NC3=CC(=NC=N3)N(C)C(=O)NC4=C(C(=CC(=C4Cl)OC)OC)Cl"
+    ],
+    "[*]c1cc([*])ncn1": [
+        "CCN1CCN(CC1)C2=CC=C(C=C2)NC3=CC(=NC=N3)N(C)C(=O)NC4=C(C(=CC(=C4Cl)OC)OC)Cl"
+    ],
+    "[*]N(C)C(=O)N[*]": [
+        "CCN1CCN(CC1)C2=CC=C(C=C2)NC3=CC(=NC=N3)N(C)C(=O)NC4=C(C(=CC(=C4Cl)OC)OC)Cl"
+    ],
+    "[*]c1c(Cl)c(OC)cc(OC)c1Cl": [
+        "CCN1CCN(CC1)C2=CC=C(C=C2)NC3=CC(=NC=N3)N(C)C(=O)NC4=C(C(=CC(=C4Cl)OC)OC)Cl"
+    ],
+    "[*]Nc1cccc(S(=O)(=O)NC(C)(C)C)c1": [
+        "CC1=CN=C(N=C1NC2=CC(=CC=C2)S(=O)(=O)NC(C)(C)C)NC3=CC=C(C=C3)OCCN4CCCC4"
+    ],
+    "[*]c1ncc(C)c([*])n1": [
+        "CC1=CN=C(N=C1NC2=CC(=CC=C2)S(=O)(=O)NC(C)(C)C)NC3=CC=C(C=C3)OCCN4CCCC4"
+    ],
+    "[*]Nc1ccc([*])cc1": [
+        "CC1=CN=C(N=C1NC2=CC(=CC=C2)S(=O)(=O)NC(C)(C)C)NC3=CC=C(C=C3)OCCN4CCCC4"
+    ],
+    "[*]OCCN1CCCC1": [
+        "CC1=CN=C(N=C1NC2=CC(=CC=C2)S(=O)(=O)NC(C)(C)C)NC3=CC=C(C=C3)OCCN4CCCC4"
+    ],
+    "[*]Nc1nc(NC2CCOCC2)c(CC)nc1C(N)=O": [
+        "CCC1=C(N=C(C(=N1)C(=O)N)NC2=CC(=C(C=C2)N3CCC(CC3)N4CCN(CC4)C)OC)NC5CCOCC5"
+    ],
+    "[*]c1cnn(C)c1": [
+        "CC(C1=CC=C(C=C1)F)(C2=CN=C(N=C2)N3CCN(CC3)C4=NC=NN5C4=CC(=C5)C6=CN(N=C6)C)N",
+        "CC(C)NCCN(C1=CC2=NC(=CN=C2C=C1)C3=CN(N=C3)C)C4=CC(=CC(=C4)OC)OC"
+    ],
+    "[*]c1cnc2ccc([*])cc2n1": [
+        "CC(C)NCCN(C1=CC2=NC(=CN=C2C=C1)C3=CN(N=C3)C)C4=CC(=CC(=C4)OC)OC"
+    ],
+    "[*]N(CCNC(C)C)c1cc(OC)cc(OC)c1": [
+        "CC(C)NCCN(C1=CC2=NC(=CN=C2C=C1)C3=CN(N=C3)C)C4=CC(=CC(=C4)OC)OC"
+    ],
+    "[*]NC(=O)C=CC1CCCN1C": [
+        "CCOC1=C(C=C2C(=C1)N=CC(=C2NC3=CC(=C(C=C3)OCC4=CC=CC=N4)Cl)C#N)NC(=O)C=CC5CCCN5C"
+    ],
+    "[*]Oc1ccn2ncnc2c1": [
+        "CC1=C(C=CC(=C1)NC2=NC=NC3=C2C=C(C=C3)NC4=NC(CO4)(C)C)OC5=CC6=NC=NN6C=C5"
+    ],
+    "[*]c1ccc(N[*])cc1C": [
+        "CC1=C(C=CC(=C1)NC2=NC=NC3=C2C=C(C=C3)NC4=NC(CO4)(C)C)OC5=CC6=NC=NN6C=C5"
+    ],
+    "[*]c1ncnc2ccc([*])cc12": [
+        "CC1=C(C=CC(=C1)NC2=NC=NC3=C2C=C(C=C3)NC4=NC(CO4)(C)C)OC5=CC6=NC=NN6C=C5"
+    ],
+    "[*]NC1=NC(C)(C)CO1": [
+        "CC1=C(C=CC(=C1)NC2=NC=NC3=C2C=C(C=C3)NC4=NC(CO4)(C)C)OC5=CC6=NC=NN6C=C5"
+    ],
+    "[*]c1cc2c([*])ncnn2c1": [
+        "CC(C1=CC=C(C=C1)F)(C2=CN=C(N=C2)N3CCN(CC3)C4=NC=NN5C4=CC(=C5)C6=CN(N=C6)C)N"
+    ],
+    "[*]N1CCN([*])CC1": [
+        "CC(C1=CC=C(C=C1)F)(C2=CN=C(N=C2)N3CCN(CC3)C4=NC=NN5C4=CC(=C5)C6=CN(N=C6)C)N"
+    ],
+    "[*]c1ncc(C(C)(N)c2ccc(F)cc2)cn1": [
+        "CC(C1=CC=C(C=C1)F)(C2=CN=C(N=C2)N3CCN(CC3)C4=NC=NN5C4=CC(=C5)C6=CN(N=C6)C)N"
+    ],
+    "[*]c1ccc(OC(C)C)c(F)c1": [
+        "CC(C)OC1=C(C=C(C=C1)C2=NN(C3=NC=NC(=C23)N)C(C)C4=C(C(=O)C5=C(O4)C=CC(=C5)F)C6=CC(=CC=C6)F)F"
+    ],
+    "[*]c1nn(C([*])C)c2ncnc(N)c12": [
+        "CC(C)OC1=C(C=C(C=C1)C2=NN(C3=NC=NC(=C23)N)C(C)C4=C(C(=O)C5=C(O4)C=CC(=C5)F)C6=CC(=CC=C6)F)F"
+    ],
+    "[*]c1c([*])oc2ccc(F)cc2c1=O": [
+        "CC(C)OC1=C(C=C(C=C1)C2=NN(C3=NC=NC(=C23)N)C(C)C4=C(C(=O)C5=C(O4)C=CC(=C5)F)C6=CC(=CC=C6)F)F"
+    ],
+    "[*]Nc1cnc(C)c([*])c1": [
+        "CC1=C(C=C(C=N1)NC(=O)C2=CC(=C(C=C2)CN3CCN(CC3)C)C(F)(F)F)NC4=NC=CC(=N4)C5=CN=CC=C5"
+    ],
+    "[*]C(=O)c1ccc([*])c(C(F)(F)F)c1": [
+        "CC1=C(C=C(C=N1)NC(=O)C2=CC(=C(C=C2)CN3CCN(CC3)C)C(F)(F)F)NC4=NC=CC(=N4)C5=CN=CC=C5"
+    ],
+    "[*]Nc1cc(C)[nH]n1": [
+        "CC1=CC(=NN1)NC2=NC(=NC(=C2)C)C3CCC(CC3)(C(=O)NC(C)C4=CN=C(C=C4)N5C=C(C=N5)F)OC"
+    ],
+    "[*]c1nc([*])cc(C)n1": [
+        "CC1=CC(=NN1)NC2=NC(=NC(=C2)C)C3CCC(CC3)(C(=O)NC(C)C4=CN=C(C=C4)N5C=C(C=N5)F)OC"
+    ],
+    "[*]C(=O)C1(OC)CCC([*])CC1": [
+        "CC1=CC(=NN1)NC2=NC(=NC(=C2)C)C3CCC(CC3)(C(=O)NC(C)C4=CN=C(C=C4)N5C=C(C=N5)F)OC"
+    ],
+    "[*]NC(C)c1ccc([*])nc1": [
+        "CC1=CC(=NN1)NC2=NC(=NC(=C2)C)C3CCC(CC3)(C(=O)NC(C)C4=CN=C(C=C4)N5C=C(C=N5)F)OC"
+    ],
+    "[*]n1cc(F)cn1": [
+        "CC1=CC(=NN1)NC2=NC(=NC(=C2)C)C3CCC(CC3)(C(=O)NC(C)C4=CN=C(C=C4)N5C=C(C=N5)F)OC"
+    ],
+    "[*]c1cc2cnc(NC)cc2n(CC)c1=O": [
+        "CCN1C2=CC(=NC=C2C=C(C1=O)C3=CC(=C(C=C3Br)F)NC(=O)NC4=CC=CC=C4)NC"
+    ],
+    "[*]c1cc([*])c(F)cc1Br": [
+        "CCN1C2=CC(=NC=C2C=C(C1=O)C3=CC(=C(C=C3Br)F)NC(=O)NC4=CC=CC=C4)NC"
+    ],
+    "[*]NC(=O)Nc1ccccc1": [
+        "CCN1C2=CC(=NC=C2C=C(C1=O)C3=CC(=C(C=C3Br)F)NC(=O)NC4=CC=CC=C4)NC"
+    ],
+    "[*]c1cc(OCC(C)(C)O)cn2ncc(C#N)c12": [
+        "CC(C)(COC1=CN2C(=C(C=N2)C#N)C(=C1)C3=CN=C(C=C3)N4CC5CC(C4)N5CC6=CN=C(C=C6)OC)O"
+    ],
+    "[*]c1ccc([*])nc1": [
+        "CC(C)(COC1=CN2C(=C(C=N2)C#N)C(=C1)C3=CN=C(C=C3)N4CC5CC(C4)N5CC6=CN=C(C=C6)OC)O"
+    ],
+    "[*]CN1C2CC1CN([*])C2": [
+        "CC(C)(COC1=CN2C(=C(C=N2)C#N)C(=C1)C3=CN=C(C=C3)N4CC5CC(C4)N5CC6=CN=C(C=C6)OC)O"
+    ],
+    "[*]c1ccc(OC)nc1": [
+        "CC(C)(COC1=CN2C(=C(C=N2)C#N)C(=C1)C3=CN=C(C=C3)N4CC5CC(C4)N5CC6=CN=C(C=C6)OC)O"
+    ]
+}
