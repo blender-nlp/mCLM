@@ -43,7 +43,7 @@ def join_fragments(fragment_string: str) -> Chem.Mol:
     Returns:
         Chem.Mol: A single RDKit molecule object after joining fragments.
     """
-    fragments = [Chem.MolFromSmiles(frag) for frag in fragment_string.split('.')]
+    fragments = [Chem.MolFromSmiles(frag) for frag in fragment_string.split('^')]
     
     if None in fragments:
         raise ValueError("One or more fragments could not be parsed.")
