@@ -93,9 +93,9 @@ df2 = df2.drop(['blocks', 'rblocks', 'name'], axis=1)
 df3 = df3.drop(['blocks', 'rblocks', 'name'], axis=1)
 
 # Save DataFrames to CSV files
-df1.to_csv("kinase_train.csv")
-df2.to_csv("kinase_valid.csv")
-df3.to_csv("kinase_test.csv")
+df1.to_csv("kinase_train.csv", index=False)
+df2.to_csv("kinase_valid.csv", index=False)
+df3.to_csv("kinase_test.csv", index=False)
 
 with open('mapping.jsonl', 'w') as f:
     for key, value in mapping.items():

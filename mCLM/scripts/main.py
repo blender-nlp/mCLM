@@ -10,10 +10,11 @@ from lightning.pytorch.loggers import WandbLogger
 
 import pandas as pd
 
-from MolCapArena.data.dataloaders import GraphDataModule
-from MolCapArena.model.models import (
+from mCLM.data.dataloaders import KinaseDataModule
+from mCLM.model.models import (
     mCLM,
 )
+from mCLM_tokenizer.tokenizer import get_blocks
 
 import subprocess
 
@@ -60,7 +61,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--num_warmup_steps", default=1000, type=int)
     parser.add_argument("--max_epochs", default=2, type=int)
-    parser.add_argument("--batch_size", default=128, type=int)
+    parser.add_argument("--batch_size", default=4, type=int)
     parser.add_argument("--val_batch_size", default=None, type=int)
 
     parser.add_argument("--node_dim", default=133, type=int)
@@ -82,6 +83,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--seed", default=42, type=int)
 
+    parser.add_argument("--model", default="mCLM", type=str)
     parser.add_argument("--base_model", default="meta-llama/Llama-3.1-8B-Instruct", type=str)
     #parser.add_argument(
     #    "--freeze_text_encoder", type=bool, action=argparse.BooleanOptionalAction
@@ -97,7 +99,7 @@ if __name__ == "__main__":
     parser.add_argument("--task", default=None, type=str)
     parser.add_argument("--weight_decay", default=0.0, type=float)
 
-    parser.add_argument("--data_module", type=str)
+    parser.add_argument("--data_module", type=str, default='Kinase')
     parser.add_argument("--caption_source", type=str)
     parser.add_argument("--fold_idx", type=int)
 
@@ -116,45 +118,35 @@ if __name__ == "__main__":
 
     seed_everything(config["seed"])
 
-    if config["caption_source"] != None:
-        experiment_id = (
-            config["model"]
-            + ":"
-            + config["data_module"]
-            + ":"
-            + str(config["fold_idx"])
-            + ":"
-            + config["caption_source"]
-        )
-    else:
-        experiment_id = (
-            config["model"]
-            + ":"
-            + config["data_module"]
-            + ":"
-            + str(config["fold_idx"])
-            + ":"
-            + "GNN"
-        )
+    experiment_id = (
+        config["model"]
+        + ":"
+        + config["data_module"]
+        + ":"
+        + str(config["fold_idx"])
+        + ":"
+        + "mCLM"
+    )
 
 
-    config["task"] = task
+    config["task"] = args.task
 
     model_type = mCLM
 
     task_type = 'NTP' #next token prediction
 
-    model = model_type(
-        config,
-        task=task_type,
-        lr=config["lr"],
-        weight_decay=config["weight_decay"],
-    )
+    if False: #debug
+        model = model_type(
+            config,
+            task=task_type,
+            lr=config["lr"],
+            weight_decay=config["weight_decay"],
+        )
 
-    molecule_tokenizer = mCLMGNNModel()
+    molecule_tokenizer = get_blocks
 
 
-    if config["load_GNN_ckpt"] != None:
+    if False: #config["load_GNN_ckpt"] != None:
         gnn_ckpt_sd = MoleculeTextModel.load_from_checkpoint(
             config["load_GNN_ckpt"],
             config=config,
@@ -164,37 +156,37 @@ if __name__ == "__main__":
         #gnn_ckpt_sd.pop("classifier.1.bias")
 
         molecule_tokenizer.encoder.load_state_dict(gnn_ckpt_sd, strict=True)
-
-
-    processor = mCLMProcessor(molecule_tokenizer=molecule_tokenizer)
-
     
 
 
-    if config["data_module"] == "BBBP":
-        task = "BBBP"
+    if config["data_module"] == "Kinase":
         output_dim = 1
-        dm = GraphDataModule(
+        dm = KinaseDataModule(
             config,
-            pretrained_text_model=config["pretrained_text_model"],
+            molecule_tokenizer = molecule_tokenizer,
+            data_path = 'kinase_data_processing/',
+            base_model=config["base_model"],
             batch_size=config["batch_size"],
             trunc_length=config["trunc_length"],
-            task=task,
-            fold_idx=config["fold_idx"],
         )
 
-    if config["caption_source"] != None:
-        name = (
-            task
-            + "_"
-            + config["model"]
-            + "_"
-            + config["caption_source"]
-            + "_"
-            + str(config["fold_idx"])
-        )
-    else:
-        name = task + "_" + config["model"] + "_" + str(config["fold_idx"])
+    if True: #testing
+        dm.setup('test')
+        test_loader = dm.test_dataloader()
+
+        block_ID_to_data = dm.GNN_input_map
+        print('GNN Input Dict')
+        print(block_ID_to_data)
+
+        print('Data Loading Test')
+        for data in test_loader:
+            print(data)
+            zz
+
+    zz
+
+
+    name = task + "_" + config["model"] 
 
     if config["resume_wandb_run"] != None:
         wandb_logger = WandbLogger(
@@ -244,7 +236,7 @@ if __name__ == "__main__":
         zz
         trainer.fit(model, datamodule=dm)
 
-    tokenizer.save_model(dirpath)
+    #tokenizer.save_model(dirpath)
     trainer.save_model(dirpath)
 
 
