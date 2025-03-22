@@ -209,13 +209,13 @@ class mCLMConfig(PretrainedConfig):
 
         # mCLM specific configuration
         self.molecule_config = {
-            "node_dim": 128,
-            "edge_dim": 128,
+            "node_dim": 133,
+            "edge_dim": 12,
             "hidden_dim_graph": 512,
             "hidden_dim_ffn": 512,
-            "num_mp_layers": 3,
-            "num_readout_layers": 2,
-            "out_channels": 128,
+            "num_mp_layers": 5,
+            "num_readout_layers": 1,
+            "out_channels": hidden_size,
             "dropout": 0.1,
             "aggr": "mean",
             "jk": "cat",

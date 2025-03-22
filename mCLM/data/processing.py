@@ -468,7 +468,7 @@ def index_predetermined_split(
     val = MolecularSubset(dataset, val_ix)
     test = MolecularSubset(dataset, test_ix)
     return train, val, test
-    
+
 
 def extract_mol_content(text):
     pattern = re.compile(r'\[MOL\](.*?)\[/MOL\]', re.DOTALL)

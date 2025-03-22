@@ -163,7 +163,7 @@ def insert_sublists(main_list, sublists, start=2, end=4):
                 result.append(main_list[i+1])
             i += 1  # Skip the next element (end)
         i += 1
-    
+
     return result
 
 def find_first_occurrence(tensor, num):
@@ -174,7 +174,7 @@ def find_first_occurrence(tensor, num):
 class KinaseDataset(Dataset):
 
     def __init__(
-        self, data, tokenizer, trunc_length=512, block_to_idx=None, split=None, 
+        self, data, tokenizer, trunc_length=512, block_to_idx=None, split=None,
     ):
         self.data = data
         self.tokenizer = tokenizer
@@ -190,7 +190,7 @@ class KinaseDataset(Dataset):
         return len(self.data)
 
     def get(self, idx):
-        
+
         d = self.data.iloc[idx]
         #print(d)
 
@@ -208,7 +208,7 @@ class KinaseDataset(Dataset):
             padding="max_length",
             return_tensors="pt",
         )
-        
+
         #print(token_input)
 
         token_input['input_ids'] = torch.Tensor(insert_sublists(token_input['input_ids'].squeeze(), frags, self.MOL_start, self.MOL_end)[:self.trunc_length]).to(torch.int)#, dtype=torch.int32)
@@ -265,6 +265,10 @@ class KinaseDataModule(LightningDataModule):
         train_data = pd.read_csv(self.data_path + 'kinase_train.csv')
         valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv')
         test_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+
+        # FIXME: test only
+        train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+        valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
 
         #train_data[['mol_list', 'cleaned_text']] = train_data['description'].apply(extract_mol_content)
         train_data[['mol_list', 'cleaned_text']] = train_data['description'].progress_apply(lambda x: pd.Series(extract_mol_content(x)))

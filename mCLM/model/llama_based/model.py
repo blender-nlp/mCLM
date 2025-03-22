@@ -3,6 +3,8 @@ from typing import Callable, List, Optional, Tuple, Union
 import torch
 import torch.utils.checkpoint
 from torch import nn
+import torch.nn.functional as F
+from torch.nn import CrossEntropyLoss
 
 from transformers.activations import ACT2FN
 from transformers.cache_utils import Cache, DynamicCache, StaticCache
@@ -37,7 +39,7 @@ from transformers.models.llama.modeling_llama import (
 
 from ..components import GNNMolEncoder
 from .configuration import mCLMConfig
-from .utils import embed_chemical_language, molecule_adaptation_layer, \
+from .utils import embed_chemical_language, \
     finalized_molecule_embeddings, mclm_logit_head
 
 
@@ -64,11 +66,12 @@ class LlamaModel(LlamaPreTrainedModel):
 
         config = mCLMConfig.from_dict(config.to_dict())
         self.padding_idx = config.pad_token_id
-        self.vocab_size = config.vocab_size
+        self.config = config
 
         # mCLM GNN model
-        self.embed_molecules = GNNMolEncoder(
+        self.mol_gnn = GNNMolEncoder(
             **config.molecule_config)
+        self.mol_vocab = None
 
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size, self.padding_idx)
         self.layers = nn.ModuleList(
@@ -86,6 +89,40 @@ class LlamaModel(LlamaPreTrainedModel):
 
     def set_input_embeddings(self, value):
         self.embed_tokens = value
+
+    @property
+    def vocab_size(self):
+        return self.config.vocab_size
+
+    def extend_text_vocab_size(self, new_vocab_size):
+        assert new_vocab_size > self.vocab_size
+        self.embed_tokens.weight = nn.Parameter(
+            F.pad(self.embed_tokens.weight,
+                  (0, 0, 0, new_vocab_size - self.vocab_size), "constant", 0)
+        )
+        self.config.vocab_size = new_vocab_size
+
+    def embed_molecules(self, mol_input_ids):
+        output_features = torch.zeros(
+            mol_input_ids.size() + (self.config.molecule_config["out_channels"],),
+            dtype=self.dtype,
+        )
+        if mol_input_ids.ndim == 2:
+            for i in range(mol_input_ids.size(0)):
+                for j in range(mol_input_ids.size(1)):
+                    if mol_input_ids[i, j] >= 0:
+                        graph = self.mol_vocab[mol_input_ids[i, j].item()]
+                        output_features[i, j] = self.mol_gnn(graph)
+        elif mol_input_ids.ndim == 1:
+            for i in range(mol_input_ids.size(0)):
+                if mol_input_ids[i] >= 0:
+                    graph = self.mol_vocab[mol_input_ids[i].item()]
+                    output_features[i] = self.mol_gnn(graph)
+        else:
+            print(mol_input_ids.shape)
+            raise ValueError("mol_input_ids should be 1D or 2D tensor")
+
+        return output_features
 
     @add_start_docstrings_to_model_forward(LLAMA_INPUTS_DOCSTRING)
     def forward(
@@ -288,22 +325,15 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
 
     def __init__(self, config):
         super().__init__(config)
-        self.model = LlamaModel(config)
         config = mCLMConfig.from_dict(config.to_dict())
-        self.vocab_size = config.vocab_size
-
-        # mCLM vocab sizes
-        self.mol_vocab_size = config.mol_vocab_size
-        self.total_vocab_size = self.vocab_size + self.mol_vocab_size
+        self.config = config
+        self.model = LlamaModel(config)
 
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
-        # mCLM molecule adaptation layer for logits
-        self.molecule_mlp = molecule_adaptation_layer(
-            config.hidden_size, ACT2FN[config.hidden_act]
-        )
 
         # Initialize weights and apply final processing
         self.post_init()
+        self.finalized_molecule_embeddings = None
 
     def get_input_embeddings(self):
         return self.model.embed_tokens
@@ -322,6 +352,32 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
 
     def get_decoder(self):
         return self.model
+
+    @property
+    def vocab_size(self):
+        return self.config.vocab_size
+
+    @property
+    def mol_vocab_size(self):
+        return self.config.mol_vocab_size
+
+    @property
+    def total_vocab_size(self):
+        return self.vocab_size + self.mol_vocab_size
+
+    def extend_text_vocab_size(self, new_vocab_size):
+        assert new_vocab_size > self.vocab_size
+        self.lm_head.weight = nn.Parameter(
+            F.pad(self.lm_head.weight,
+                  (0, 0, 0, new_vocab_size - self.vocab_size), "constant", 0)
+        )
+        self.model.extend_text_vocab_size(new_vocab_size)
+        self.config.vocab_size = new_vocab_size
+
+    def set_mol_vocab(self, mol_vocab):
+        self.mol_vocab = mol_vocab
+        self.model.mol_vocab = mol_vocab
+        self.config.mol_vocab_size = len(mol_vocab)
 
     @add_start_docstrings_to_model_forward(LLAMA_INPUTS_DOCSTRING)
     @replace_return_docstrings(output_type=CausalLMOutputWithPast, config_class=_CONFIG_FOR_DOC)
@@ -387,23 +443,28 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
         hidden_states = outputs[0]
         # mCLM logit head
         logits = mclm_logit_head(
-            self.lm_head, self.molecule_mlp, self.embed_molecules,
+            self.lm_head, self.model.embed_molecules,
             self.finalized_molecule_embeddings,
             self.vocab_size, self.mol_vocab_size, self.total_vocab_size,
             self.config.negative_sampling_size,
             hidden_states,
             is_training=self.training,
-            molecule_ids_to_keep=labels,
+            labels=labels,
         )
 
+        # mCLM loss
         loss = None
         if labels is not None:
-            # loss = self.loss_function(logits=logits, labels=labels, vocab_size=self.config.vocab_size, **kwargs)
-            # mCLM loss function
-            loss = self.loss_function(
-                logits=logits, labels=labels,
-                vocab_size=self.total_vocab_size,
-                **kwargs)
+            # Shift so that tokens < n predict n
+            shift_logits = logits[..., :-1, :].contiguous()
+            shift_labels = labels[..., 1:].contiguous()
+            # Flatten the tokens
+            loss_fct = CrossEntropyLoss()
+            shift_logits = shift_logits.view(-1, self.total_vocab_size)
+            shift_labels = shift_labels.view(-1)
+            # Enable model parallelism
+            shift_labels = shift_labels.to(shift_logits.device)
+            loss = loss_fct(shift_logits, shift_labels.to(torch.long))
 
         if not return_dict:
             output = (logits,) + outputs[1:]
@@ -419,7 +480,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
 
     def post_training(self):
         self.finalized_molecule_embeddings = finalized_molecule_embeddings(
-            self.mol_vocab_size, self.embed_molecules,
+            self.vocab_size, self.mol_vocab_size, self.model.embed_molecules,
             self.config.hidden_size, self.device)
 
     def prepare_inputs_for_generation(

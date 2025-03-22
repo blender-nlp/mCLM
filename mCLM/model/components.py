@@ -117,10 +117,14 @@ class GNNMolEncoder(nn.Module):
         for _ in range(num_mp_layers):
             mlp = nn.Sequential(
                 nn.Linear(hidden_dim_graph, 2 * hidden_dim_graph),
-                nn.BatchNorm1d(2 * hidden_dim_graph),
+                # chi: when batch size == 1, BatchNorm1d will throw an error
+                # nn.BatchNorm1d(2 * hidden_dim_graph),
+                nn.LayerNorm(2 * hidden_dim_graph),
                 nn.ReLU(inplace=True),
                 nn.Linear(2 * hidden_dim_graph, hidden_dim_graph),
-                nn.BatchNorm1d(hidden_dim_graph),
+                # chi: when batch size == 1, BatchNorm1d will throw an error
+                # nn.BatchNorm1d(hidden_dim_graph),
+                nn.LayerNorm(hidden_dim_graph),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout),
             )
@@ -162,7 +166,9 @@ class GNNMolEncoder(nn.Module):
             input_dim = hidden_channels_mol if layer == 0 else ffn_hidden_size
             mlp = nn.Sequential(
                 nn.Linear(input_dim, ffn_hidden_size),
-                nn.BatchNorm1d(ffn_hidden_size),
+                # chi: when batch size == 1, BatchNorm1d will throw an error
+                # nn.BatchNorm1d(ffn_hidden_size),
+                nn.LayerNorm(ffn_hidden_size),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout),
             )
