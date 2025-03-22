@@ -12,7 +12,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import torch_geometric
-from MolCapArena.data.processing import PropTask
+from mCLM.data.processing import PropTask
 from pl_bolts.optimizers import LinearWarmupCosineAnnealingLR
 from torch import optim, nn, utils, Tensor
 from transformers import AutoConfig, AutoModel
@@ -179,6 +179,7 @@ class mCLM(L.LightningModule):
         self.validation_step_outputs.clear()
 
     def on_test_epoch_end(self):
+        pass
         #all_test_probs = torch.cat([i["probs"] for i in self.test_step_outputs])
         #all_test_labels = torch.cat([i["labels"] for i in self.test_step_outputs])
         #self._log_metric("test", all_test_probs, all_test_labels)

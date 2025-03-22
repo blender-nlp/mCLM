@@ -3,7 +3,7 @@ from lightning import LightningDataModule
 import sys
 import torch
 import torch.utils.data
-from mCLM.data.processing import smiles_to_data, smiles_list_to_mols
+from mCLM.data.processing import smiles_to_data, smiles_list_to_mols, extract_mol_content
 from collections.abc import Mapping
 from datasets import load_dataset
 from torch.utils.data import Dataset, DataLoader
@@ -13,13 +13,14 @@ from torch_geometric.data.data import BaseData
 from torch_geometric.data.datapipes import DatasetAdapter
 from transformers import AutoTokenizer
 from typing import Any, List, Optional, Sequence, Union
-from tqdm import tqdm
 
 import pandas as pd
 
+from tqdm import tqdm
+tqdm.pandas()
+
 from sklearn.model_selection import train_test_split
 
-from rdkit.Chem.inchi import MolToInchi
 from rdkit import Chem
 
 import numpy as np
@@ -34,7 +35,7 @@ import os.path as osp
 
 import pickle
 
-from MolCapArena.data.processing import (
+from mCLM.data.processing import (
     MolecularDataset,
     index_predetermined_split,
     MolecularSubset,
@@ -147,56 +148,87 @@ class CustomDataLoader(torch.utils.data.DataLoader):
         )
 
 
+def insert_sublists(main_list, sublists, start=2, end=4):
+    result = []
+    sublist_index = 0  # Track which sublist to insert
+
+    i = 0
+    while i < len(main_list):
+        result.append(main_list[i])
+        if main_list[i] == start and i + 1 < len(main_list) and main_list[i + 1] == end:
+            # Insert the next sublist
+            if sublist_index < len(sublists):
+                result.extend(sublists[sublist_index])
+                sublist_index += 1
+                result.append(main_list[i+1])
+            i += 1  # Skip the next element (end)
+        i += 1
+    
+    return result
+
+def find_first_occurrence(tensor, num):
+    indices = torch.where(tensor == num)[0]  # Get indices where tensor equals num
+    return indices[0].item() if indices.numel() > 0 else len(tensor)
+
 
 class KinaseDataset(Dataset):
 
     def __init__(
-        self, data, tokenizer, trunc_length=512, split=None, caption_data=None
+        self, data, tokenizer, trunc_length=512, block_to_idx=None, split=None, 
     ):
         self.data = data
         self.tokenizer = tokenizer
+        self.MOL_start = tokenizer.convert_tokens_to_ids('[MOL]')
+        self.MOL_end = tokenizer.convert_tokens_to_ids('[/MOL]')
 
         self._indices = None
         self.transform = None
         self.trunc_length = trunc_length
-        self.caption_data = caption_data
+        self.block_to_idx = block_to_idx
 
     def len(self):
         return len(self.data)
 
     def get(self, idx):
-        SMILES = self.data.smiles[idx]
-        y = self.data.y[idx]
+        
+        d = self.data.iloc[idx]
+        #print(d)
 
-        act = torch.tensor(y, dtype=float).float()
+        raw_text = d['description']
+        cleaned_text = d['cleaned_text']
+        mol_list = d['mol_list']
 
-        molecule_input = smiles_to_data(SMILES)
+        frags = [[self.block_to_idx[m] for m in mol.split('^')] for mol in mol_list]
+        #print(frags)
 
-        if self.caption_data is not None:
-            text_caption = self.caption_data.loc[SMILES]["captions"]
-            if type(text_caption) != str:  # it's a blank
-                text_caption = ""
-            caption = self.tokenizer(
-                text_caption,
-                truncation=True,
-                max_length=self.trunc_length,
-                padding="max_length",
-                return_tensors="pt",
-            )
-            for key in caption:
-                caption[key] = caption[key].squeeze()
-        else:
-            text_caption = caption = "None"
+        token_input = self.tokenizer(
+            cleaned_text,
+            truncation=True,
+            max_length=self.trunc_length,
+            padding="max_length",
+            return_tensors="pt",
+        )
+        
+        #print(token_input)
+
+        token_input['input_ids'] = torch.Tensor(insert_sublists(token_input['input_ids'].squeeze(), frags, self.MOL_start, self.MOL_end)[:self.trunc_length]).to(torch.int)#, dtype=torch.int32)
+        pad_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer.pad_token)
+        #print(token_input['input_ids'], pad_id)
+        num_attn = find_first_occurrence(token_input['input_ids'], pad_id)
+        token_input['attention_mask'][:,:num_attn] = 1
+        token_input['input_ids'] = token_input['input_ids'].unsqueeze(0)
+
+        #print(token_input)
+        #zz
+        #for key in caption:
+        #    caption[key] = caption[key].squeeze()
 
         rv = {
-            "SMILES": SMILES,
-            "SMILES": SMILES,
             "task_id": 0,
-            "caption": text_caption,
+            "raw_text": raw_text,
             "input": {
-                "molecule": molecule_input,
-                "activity": act,
-                "caption": caption,
+                "input_ids": token_input['input_ids'],
+                "attention_mask": token_input['attention_mask'],
             },
         }
         return rv
@@ -207,44 +239,77 @@ class KinaseDataModule(LightningDataModule):
     def __init__(
         self,
         config,
-        pretrained_text_model,
+        base_model,
         batch_size=4,
         trunc_length=512,
-        fold_idx=0,
         data_path="captions/",
-        caption_source=None,
+        molecule_tokenizer= None,
     ):
         super().__init__()
         self.prepare_data_per_node = True
 
-        self.pretrained_text_model = pretrained_text_model
+        self.base_model = base_model
         self.batch_size = batch_size
         self.trunc_length = trunc_length
         self.data_path = data_path
         self.config = config
-        self.fold_idx = fold_idx
-        self.caption_source = caption_source
+        self.molecule_tokenizer = molecule_tokenizer
 
     def setup(self, stage: str):
-        self.tokenizer = AutoTokenizer.from_pretrained(self.pretrained_text_model)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.base_model)
+        self.tokenizer.pad_token = self.tokenizer.eos_token #llama3
+
+        self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
+        #model.resize_token_embeddings(len(tokenizer)) #put this somewhere
+
+        train_data = pd.read_csv(self.data_path + 'kinase_train.csv')
+        valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv')
+        test_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+
+        #train_data[['mol_list', 'cleaned_text']] = train_data['description'].apply(extract_mol_content)
+        train_data[['mol_list', 'cleaned_text']] = train_data['description'].progress_apply(lambda x: pd.Series(extract_mol_content(x)))
+        valid_data[['mol_list', 'cleaned_text']] = valid_data['description'].progress_apply(lambda x: pd.Series(extract_mol_content(x)))
+        test_data[['mol_list', 'cleaned_text']] = test_data['description'].progress_apply(lambda x: pd.Series(extract_mol_content(x)))
+
+        #print(train_data)
+        #zz
+
+        start_idx = len(self.tokenizer)
+        block_to_idx = {}
+        for df in [train_data, valid_data, test_data]:
+            for d in df['mol_list']:
+                for mol in d:
+                    for block in mol.split('^'):
+                        if block not in block_to_idx:
+                            block_to_idx[block] = start_idx + len(block_to_idx)
+
+        #print(block_to_idx)
+        #zz
+        #if False:
+        self.GNN_input_map = {}
+        for block in tqdm(block_to_idx, desc='Creating GNN Input'):
+            self.GNN_input_map[block_to_idx[block]] = smiles_to_data(block)
 
         self.train_ds = KinaseDataset(
+            train_data,
             self.tokenizer,
             split="train",
             trunc_length=self.trunc_length,
-            caption_data=caption_data,
+            block_to_idx = block_to_idx,
         )
         self.valid_ds = KinaseDataset(
+            valid_data,
             self.tokenizer,
             split="valid",
             trunc_length=self.trunc_length,
-            caption_data=caption_data,
+            block_to_idx = block_to_idx,
         )
         self.test_ds = KinaseDataset(
+            test_data,
             self.tokenizer,
             split="test",
             trunc_length=self.trunc_length,
-            caption_data=caption_data,
+            block_to_idx = block_to_idx,
         )
 
     def train_dataloader(self):

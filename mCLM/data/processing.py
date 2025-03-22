@@ -18,6 +18,7 @@ from typing import Union, List
 import dgllife
 from dgllife.utils import smiles_to_bigraph
 
+import re
 
 from rdkit import Chem
 
@@ -468,3 +469,11 @@ def index_predetermined_split(
     test = MolecularSubset(dataset, test_ix)
     return train, val, test
     
+
+def extract_mol_content(text):
+    pattern = re.compile(r'\[MOL\](.*?)\[/MOL\]', re.DOTALL)
+    mol_list = pattern.findall(text)  # Extract MOL contents
+    mol_list = [m.strip() for m in mol_list]
+
+    cleaned_text = pattern.sub('[MOL][/MOL]', text)  # Remove MOL content from text
+    return mol_list, cleaned_text.strip()
