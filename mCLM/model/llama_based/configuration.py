@@ -19,11 +19,11 @@
 # limitations under the License.
 """LLaMA model configuration"""
 
-from ...configuration_utils import PretrainedConfig
-from ...modeling_rope_utils import rope_config_validation
+from transformers.configuration_utils import PretrainedConfig
+# from transformers.modeling_rope_utils import rope_config_validation
 
 
-class LlamaConfig(PretrainedConfig):
+class mCLMConfig(PretrainedConfig):
     r"""
     This is the configuration class to store the configuration of a [`LlamaModel`]. It is used to instantiate an LLaMA
     model according to the specified arguments, defining the model architecture. Instantiating a configuration with the
@@ -205,7 +205,24 @@ class LlamaConfig(PretrainedConfig):
         # BC: if there is a 'type' field, copy it it to 'rope_type'.
         if self.rope_scaling is not None and "type" in self.rope_scaling:
             self.rope_scaling["rope_type"] = self.rope_scaling["type"]
-        rope_config_validation(self)
+        # rope_config_validation(self)
+
+        # mCLM specific configuration
+        self.molecule_config = {
+            "node_dim": 128,
+            "edge_dim": 128,
+            "hidden_dim_graph": 512,
+            "hidden_dim_ffn": 512,
+            "num_mp_layers": 3,
+            "num_readout_layers": 2,
+            "out_channels": 128,
+            "dropout": 0.1,
+            "aggr": "mean",
+            "jk": "cat",
+            "mol_features_size": 128,
+        }
+        self.negative_sampling_size = 50
+        self.mol_vocab_size = 3000
 
         super().__init__(
             pad_token_id=pad_token_id,
@@ -216,4 +233,4 @@ class LlamaConfig(PretrainedConfig):
         )
 
 
-__all__ = ["LlamaConfig"]
+__all__ = ["mCLMConfig"]

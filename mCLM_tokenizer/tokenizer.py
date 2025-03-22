@@ -30,7 +30,7 @@ def canonicalize(smi):
 def get_aromatic_scaffold(mol):
     # Generate Murcko scaffold
     scaffold = MurckoScaffold.GetScaffoldForMol(mol)
-    
+
     # Identify aromatic atoms and their direct connections
     non_aromatic_atoms = set()
     for ring in Chem.GetSymmSSSR(scaffold):
@@ -39,37 +39,37 @@ def get_aromatic_scaffold(mol):
                 non_aromatic_atoms.add(atom)
                 for neighbor in scaffold.GetAtomWithIdx(atom).GetNeighbors():
                     non_aromatic_atoms.add(neighbor.GetIdx())
-    
+
     # Create new molecule with only aromatic systems and their connections
     new_mol = Chem.RWMol()
     atom_map = {}
-    
+
     for atom in scaffold.GetAtoms():
         if atom.GetIdx() not in non_aromatic_atoms:
             new_idx = new_mol.AddAtom(Chem.Atom(atom.GetAtomicNum()))
             atom_map[atom.GetIdx()] = new_idx
-    
+
     for bond in scaffold.GetBonds():
         a1, a2 = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
         if a1 in atom_map and a2 in atom_map:
             new_mol.AddBond(atom_map[a1], atom_map[a2], bond.GetBondType())
-    
+
     return new_mol.GetMol()
 
 def find_main_chain(mol):
     scaffold = get_aromatic_scaffold(mol)
     substructure_match = mol.GetSubstructMatch(scaffold)
-    
+
     return scaffold, substructure_match
 
 def sub_idx(mol, substructure):
 
     all_indices = set(range(mol.GetNumAtoms()))
-    
+
     substructure_match = mol.GetSubstructMatch(substructure)
     substructure_indices = set(substructure_match)
     non_substructure_indices = list(all_indices - substructure_indices)
-    
+
     edit_mol = Chem.EditableMol(Chem.Mol())
     for idx in non_substructure_indices:
         edit_mol.AddAtom(mol.GetAtomWithIdx(idx))
@@ -84,18 +84,18 @@ def sub_idx(mol, substructure):
     for fragment in fragments:
         group = [non_substructure_indices[idx] for idx in fragment]
         connected_groups.append(group)
-    
+
     return connected_groups
 
 def atom_idx(mol):
     scaffold, main_idx = find_main_chain(mol)
     subs_idx = sub_idx(mol, scaffold)
-    
+
     for sub in subs_idx:
         if len(sub) > 7:
             for item in sub:
                 main_idx+=(item, )
-    
+
     return main_idx
 
 import copy
@@ -120,7 +120,7 @@ environs = {
     'L3':'[#6;^3;d{2-3}]', # C(sp3) primary/secondary alkyl
     'L5':'[#6X3](=[OX1])', # Carbonyl group [#6X3;!$([#6X3](=[OX1])(-[#7])(-[#7]))](=[OX1])]
     'L6':'[#7&X3,#8&X2;^2;!d1]', # N,O for C-N, C-O bond
-    
+
     # Ring (RS >= 8)
     'L4':'[C;X3;r{8-}](=[OX1])', # cyclic carbonyl group
     'L7':'[N&X3,O;^2;r{8-}]', # N, O for cyclic amide / ester bond
@@ -141,25 +141,25 @@ reactionDefs = (
     ('2', '3', '-;!@'), # sp2-sp3 primary, secondary alkyl
     ('2', '6', '-;!@'), # sp2-N, O
   ],
-    
+
   # L3, L4
   # None left
-    
+
   #L5
   [
     ('4', '7', '-'), # cyclic amide bond, ester bond (RS>=8)
   ],
-    
+
   #L6, L7
   # None left
-    
+
   #L8
   [
     ('8', '8', '-'), # cyclic sp2-sp2
     ('8', '9', '-'), # cyclic sp2-sp3 primary/seconday
     ('8', '10', '-'), # cyclic sp2-N, O
   ],
-    
+
 )
 smartsGps = copy.deepcopy(reactionDefs)
 for gp in smartsGps:
@@ -206,7 +206,7 @@ for i, rxnSet in enumerate(smartsGps):
     labels = re.findall(r'\[([0-9]+?)\*\]', ps)
     rxn._matchers = [Chem.MolFromSmiles('[%s*]' % x) for x in labels]
     reverseReactions.append(rxn)
-    
+
 def FindSynthBonds(mol, randomizeOrder=False, silent=True):
   """ returns the machine synthesizable bonds in a molecule  """
   letter = re.compile('[a-z,A-Z]')
@@ -215,8 +215,8 @@ def FindSynthBonds(mol, randomizeOrder=False, silent=True):
   if randomizeOrder:
     random.shuffle(indices, random=random.random)
 
-  atom_path = atom_idx(mol) 
- 
+  atom_path = atom_idx(mol)
+
   envMatches = {}
   for env, patt in environMatchers.items():
     envMatches[env] = mol.HasSubstructMatch(patt)
@@ -243,28 +243,28 @@ def fragment_on_bond(mol, atom1, atom2, bondtp1, bondtp2, addLabel=True):
     # Function to count dummy atoms in a molecule
     def count_dummy_atoms(molecule):
         return sum(1 for atom in molecule.GetAtoms() if atom.GetAtomicNum() == 0)
-    
+
     bond = mol.GetBondBetweenAtoms(atom1, atom2)
     new_mol = Chem.FragmentOnBonds(mol, [bond.GetIdx()], addDummies=addLabel, dummyLabels=[(0,0)])
     fragments = Chem.GetMolFrags(new_mol, asMols=True)
-    
+
     if any(count_dummy_atoms(frag) > 2 or (frag.GetNumAtoms()-count_dummy_atoms(frag)) < 5 for frag in fragments):
         return mol
-    
+
     return new_mol
-    
+
 def fragment_on_bond_order(mol, atom1, atom2, bondtp1, bondtp2, label=0):
     # Function to count dummy atoms in a molecule
     def count_dummy_atoms(molecule):
         return sum(1 for atom in molecule.GetAtoms() if atom.GetAtomicNum() == 0)
-    
+
     bond = mol.GetBondBetweenAtoms(atom1, atom2)
     new_mol = Chem.FragmentOnBonds(mol, [bond.GetIdx()], addDummies=True, dummyLabels=[(label, label)])
     fragments = Chem.GetMolFrags(new_mol, asMols=True)
-    
+
     if any(count_dummy_atoms(frag) > 2 or (frag.GetNumAtoms()-count_dummy_atoms(frag)) < 5 for frag in fragments):
         return mol
-    
+
     return new_mol
 
 
@@ -290,7 +290,7 @@ def ReduceSynthBonds(bond_list, mol, ring=True, fragment_sizes=None):
                     # Get fragment sizes for both bonds
                     size_i = get_fragment_size(mol, tuple1[0], tuple1[1])
                     size_j = get_fragment_size(mol, tuple2[0], tuple2[1])
-                    
+
                     # Compare fragment sizes first, then bond priorities
                     if size_i > size_j:
                         indices.append(j)
@@ -302,13 +302,13 @@ def ReduceSynthBonds(bond_list, mol, ring=True, fragment_sizes=None):
                             indices.append(j)
                         else:
                             indices.append(i)
-    
+
     for k in sorted(indices, reverse=True):
         del bond_list[k]
     return bond_list
 
 
-def BreakSynthBonds(mol, reduce=True, ring=True, addLabels=True): 
+def BreakSynthBonds(mol, reduce=True, ring=True, addLabels=True):
 # reduce: pick one from crashing priorities / ring: include ring or not / addLabels: whether to add labels - possibly useful for enumerating module
     bonds_list = []
     if reduce==True:
@@ -318,7 +318,7 @@ def BreakSynthBonds(mol, reduce=True, ring=True, addLabels=True):
             bond_list = ReduceSynthBonds(list(FindSynthBonds(mol)), mol)
     else:
         bond_list = list(FindSynthBonds(mol))
-        
+
     for i,bond in enumerate(bond_list):
         #mol=fragment_on_bond_order(mol, bond[0][0], bond[0][1], int(bond[1][0]), int(bond[1][1]), addLabel=addLabels)
         mol=fragment_on_bond_order(mol, bond[0][0], bond[0][1], int(bond[1][0]), int(bond[1][1]), label=i+2)
@@ -430,7 +430,7 @@ def get_blocks(smi, preprocessed=None):
         if smi in preprocessed: return preprocessed[smi]
 
     s_mol = Chem.MolFromSmiles(smi)
-    
+
     if s_mol == None: return ""
 
     frag_mol = BreakSynthBonds(s_mol, reduce=True, ring=True, addLabels=True)
@@ -444,6 +444,7 @@ def get_blocks(smi, preprocessed=None):
         preprocessed['r_'+smi] = rrfrags
 
     return rfrags, rrfrags
+
 
 if __name__ == '__main__':
 
@@ -470,7 +471,7 @@ if __name__ == '__main__':
         if smi in preprocessed: return preprocessed[smi]
 
         s_mol = Chem.MolFromSmiles(smi)
-        
+
         if s_mol == None: return ""
 
         frag_mol = BreakSynthBonds(s_mol, reduce=True, ring=True, addLabels=True)
@@ -516,17 +517,17 @@ if __name__ == '__main__':
     counts = dict()
     for b in out:
         counts[b] = counts.get(b, 0) + 1
-        
+
     for b in counts: counts[b] = int(counts[b]/2)
 
     counts = sorted(counts.items(), key=lambda x: x[1], reverse=True)
-    
-    with open(outpath+'kinase_counts.txt', 'w') as convert_file: 
+
+    with open(outpath+'kinase_counts.txt', 'w') as convert_file:
         convert_file.write(json.dumps(counts, indent=4))
 
-    with open(outpath+'kinase_tokens.txt', 'w') as convert_file: 
+    with open(outpath+'kinase_tokens.txt', 'w') as convert_file:
         convert_file.write(json.dumps(preprocessed, indent=4))
 
-    with open(outpath+'kinase_tokens_rev.txt', 'w') as convert_file: 
+    with open(outpath+'kinase_tokens_rev.txt', 'w') as convert_file:
         convert_file.write(json.dumps(rev, indent=4))
 
