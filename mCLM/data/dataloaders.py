@@ -14,6 +14,9 @@ from torch_geometric.data.datapipes import DatasetAdapter
 from transformers import AutoTokenizer
 from typing import Any, List, Optional, Sequence, Union
 
+from mCLM.tokenizer.molecule_tokenizer import MoleculeTokenizer
+
+
 import pandas as pd
 
 from tqdm import tqdm
@@ -174,17 +177,17 @@ def find_first_occurrence(tensor, num):
 class KinaseDataset(Dataset):
 
     def __init__(
-        self, data, tokenizer, trunc_length=512, block_to_idx=None, split=None,
+        self, data, tokenizer, mol_tokenizer, trunc_length=512, block_to_idx=None, split=None,
     ):
         self.data = data
         self.tokenizer = tokenizer
+        self.mol_tokenizer = mol_tokenizer
         self.MOL_start = tokenizer.convert_tokens_to_ids('[MOL]')
         self.MOL_end = tokenizer.convert_tokens_to_ids('[/MOL]')
 
         self._indices = None
         self.transform = None
         self.trunc_length = trunc_length
-        self.block_to_idx = block_to_idx
 
     def len(self):
         return len(self.data)
@@ -198,7 +201,7 @@ class KinaseDataset(Dataset):
         cleaned_text = d['cleaned_text']
         mol_list = d['mol_list']
 
-        frags = [[self.block_to_idx[m] for m in mol.split('^')] for mol in mol_list]
+        frags = [[self.mol_tokenizer.get_Idx(m) for m in mol.split('^')] for mol in mol_list]
         #print(frags)
 
         token_input = self.tokenizer(
@@ -216,7 +219,8 @@ class KinaseDataset(Dataset):
         #print(token_input['input_ids'], pad_id)
         num_attn = find_first_occurrence(token_input['input_ids'], pad_id)
         token_input['attention_mask'][:,:num_attn] = 1
-        token_input['input_ids'] = token_input['input_ids'].unsqueeze(0)
+        token_input['attention_mask'] = token_input['attention_mask'].squeeze()
+        token_input['input_ids'] = token_input['input_ids']#.unsqueeze(0)
 
         #print(token_input)
         #zz
@@ -228,6 +232,7 @@ class KinaseDataset(Dataset):
             "raw_text": raw_text,
             "input": {
                 "input_ids": token_input['input_ids'],
+                "labels": token_input['input_ids'],
                 "attention_mask": token_input['attention_mask'],
             },
         }
@@ -243,7 +248,6 @@ class KinaseDataModule(LightningDataModule):
         batch_size=4,
         trunc_length=512,
         data_path="captions/",
-        molecule_tokenizer= None,
     ):
         super().__init__()
         self.prepare_data_per_node = True
@@ -253,7 +257,6 @@ class KinaseDataModule(LightningDataModule):
         self.trunc_length = trunc_length
         self.data_path = data_path
         self.config = config
-        self.molecule_tokenizer = molecule_tokenizer
 
     def setup(self, stage: str):
         self.tokenizer = AutoTokenizer.from_pretrained(self.base_model)
@@ -261,6 +264,9 @@ class KinaseDataModule(LightningDataModule):
 
         self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
         #model.resize_token_embeddings(len(tokenizer)) #put this somewhere
+        
+        start_idx = len(self.tokenizer)
+        self.molecule_tokenizer = MoleculeTokenizer(start_idx)
 
         train_data = pd.read_csv(self.data_path + 'kinase_train.csv')
         valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv')
@@ -278,25 +284,20 @@ class KinaseDataModule(LightningDataModule):
         #print(train_data)
         #zz
 
-        start_idx = len(self.tokenizer)
+        #Preprocess molecule tokenizer
         block_to_idx = {}
         for df in [train_data, valid_data, test_data]:
             for d in df['mol_list']:
                 for mol in d:
                     for block in mol.split('^'):
-                        if block not in block_to_idx:
-                            block_to_idx[block] = start_idx + len(block_to_idx)
+                        self.molecule_tokenizer.add_block(block)
 
-        #print(block_to_idx)
-        #zz
-        #if False:
-        self.GNN_input_map = {}
-        for block in tqdm(block_to_idx, desc='Creating GNN Input'):
-            self.GNN_input_map[block_to_idx[block]] = smiles_to_data(block)
+        self.molecule_tokenizer.create_input()
 
         self.train_ds = KinaseDataset(
             train_data,
             self.tokenizer,
+            self.molecule_tokenizer,
             split="train",
             trunc_length=self.trunc_length,
             block_to_idx = block_to_idx,
@@ -304,6 +305,7 @@ class KinaseDataModule(LightningDataModule):
         self.valid_ds = KinaseDataset(
             valid_data,
             self.tokenizer,
+            self.molecule_tokenizer,
             split="valid",
             trunc_length=self.trunc_length,
             block_to_idx = block_to_idx,
@@ -311,6 +313,7 @@ class KinaseDataModule(LightningDataModule):
         self.test_ds = KinaseDataset(
             test_data,
             self.tokenizer,
+            self.molecule_tokenizer,
             split="test",
             trunc_length=self.trunc_length,
             block_to_idx = block_to_idx,

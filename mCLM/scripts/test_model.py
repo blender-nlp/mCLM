@@ -136,7 +136,6 @@ if __name__ == "__main__":
         output_dim = 1
         dm = KinaseDataModule(
             config,
-            molecule_tokenizer = molecule_tokenizer,
             data_path = config["data_path"],
             base_model=config["base_model"],
             batch_size=config["batch_size"],
@@ -147,9 +146,9 @@ if __name__ == "__main__":
     test_loader = dm.test_dataloader()
 
     # test GNN input dict
-    block_ID_to_data = dm.GNN_input_map
-    print('GNN Input Dict')
-    print(block_ID_to_data)
+    block_ID_to_data = dm.molecule_tokenizer.GNN_input_map
+    #print('GNN Input Dict')
+    #print(block_ID_to_data)
 
     # model loading
     from mCLM.model.llama_based.model import LlamaForCausalLM
@@ -158,28 +157,31 @@ if __name__ == "__main__":
 
     model.extend_text_vocab_size(len(dm.tokenizer.vocab))
     model.set_mol_vocab(block_ID_to_data)
-    print(model.config)
+    #print(model.config)
 
     # test graph forwarding
     if False:
         graph = block_ID_to_data[128258]
         graph_feature = model.model.embed_molecules(graph)
 
+
     # model forwarding, testing mode
     test_iter = iter(test_loader)
     item = next(test_iter)
+    #print(item["input"]["input_ids"].shape, item["input"]["attention_mask"].shape,
+    #    item["input"]["input_ids"].shape)
     model.train(False)
     model.post_training()
     inference_output = model(
-        input_ids=item["input"]["input_ids"][:, 0],
-        attention_mask=item["input"]["attention_mask"][:, 0],
-        labels=item["input"]["input_ids"][:, 0]
+        input_ids=item["input"]["input_ids"],
+        attention_mask=item["input"]["attention_mask"],
+        #labels=item["input"]["input_ids"]
     )
 
     # model forwarding, training mode
     model.train(True)
     training_output = model(
-        input_ids=item["input"]["input_ids"][:, 0],
-        attention_mask=item["input"]["attention_mask"][:, 0],
-        labels=item["input"]["input_ids"][:, 0]
+        input_ids=item["input"]["input_ids"],
+        attention_mask=item["input"]["attention_mask"],
+        labels=item["input"]["labels"]
     )

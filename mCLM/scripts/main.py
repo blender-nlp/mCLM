@@ -4,7 +4,7 @@ import os.path as osp
 import lightning as L
 import sys
 import torch
-from lightning import Trainer, seed_everything
+from lightning import Trainer, seed_everything, Callback
 from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from lightning.pytorch.loggers import WandbLogger
 
@@ -14,7 +14,6 @@ from mCLM.data.dataloaders import KinaseDataModule
 from mCLM.model.models import (
     mCLM,
 )
-from mCLM_tokenizer.tokenizer import get_blocks
 
 import subprocess
 
@@ -61,7 +60,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--num_warmup_steps", default=1000, type=int)
     parser.add_argument("--max_epochs", default=2, type=int)
-    parser.add_argument("--batch_size", default=4, type=int)
+    parser.add_argument("--batch_size", default=2, type=int)
     parser.add_argument("--val_batch_size", default=None, type=int)
 
     parser.add_argument("--node_dim", default=133, type=int)
@@ -88,7 +87,6 @@ if __name__ == "__main__":
     #parser.add_argument(
     #    "--freeze_text_encoder", type=bool, action=argparse.BooleanOptionalAction
     #)
-
     parser.add_argument(
         "--freeze_GNN", type=bool, action=argparse.BooleanOptionalAction
     )
@@ -96,7 +94,7 @@ if __name__ == "__main__":
     parser.add_argument("--resume_from_checkpoint", default=None, type=str)
     parser.add_argument("--resume_wandb_run", default=None, type=str)
 
-    parser.add_argument("--task", default=None, type=str)
+    parser.add_argument("--task", default='Kinase', type=str)
     parser.add_argument("--weight_decay", default=0.0, type=float)
 
     parser.add_argument("--data_module", type=str, default='Kinase')
@@ -131,8 +129,6 @@ if __name__ == "__main__":
 
     config["task"] = args.task
 
-    model_type = mCLM
-
     task_type = 'NTP' #next token prediction
 
     if False: #debug
@@ -143,7 +139,6 @@ if __name__ == "__main__":
             weight_decay=config["weight_decay"],
         )
 
-    molecule_tokenizer = get_blocks
 
 
     if False: #config["load_GNN_ckpt"] != None:
@@ -163,30 +158,28 @@ if __name__ == "__main__":
         output_dim = 1
         dm = KinaseDataModule(
             config,
-            molecule_tokenizer = molecule_tokenizer,
             data_path = 'kinase_data_processing/',
             base_model=config["base_model"],
             batch_size=config["batch_size"],
             trunc_length=config["trunc_length"],
         )
 
-    if True: #testing
+    if False: #testing
         dm.setup('test')
         test_loader = dm.test_dataloader()
 
         block_ID_to_data = dm.GNN_input_map
-        print('GNN Input Dict')
-        print(block_ID_to_data)
+        #print('GNN Input Dict')
+        #print(block_ID_to_data)
 
-        print('Data Loading Test')
-        for data in test_loader:
-            print(data)
-            zz
-
-    zz
+        #print('Data Loading Test')
+        #for data in test_loader:
+        #    print(data)
+        #    zz
 
 
-    name = task + "_" + config["model"] 
+
+    name = config['task'] + "_" + config["model"] 
 
     if config["resume_wandb_run"] != None:
         wandb_logger = WandbLogger(
@@ -220,6 +213,32 @@ if __name__ == "__main__":
     )
     callbacks.append(val_checkpoint)
 
+    
+    ckpt_path = config["pretrained_text_model"]
+    #model = LlamaForCausalLM.from_pretrained(ckpt_path)
+    model = mCLM(config)
+
+    #model.extend_text_vocab_size(len(dm.tokenizer.vocab))
+    #model.set_mol_vocab(block_ID_to_data)
+
+    class SetupCallback(Callback):
+        def on_fit_start(self, trainer, pl_module):
+            #print(dir(trainer))
+            pl_module.model.extend_text_vocab_size(len(trainer.datamodule.tokenizer.vocab))
+            pl_module.model.set_mol_vocab(trainer.datamodule.molecule_tokenizer.GNN_input_map)
+
+    class MoveMoleculeDevice(Callback):
+        def setup(self, trainer, pl_module, stage):
+            GNN_input_map = trainer.datamodule.molecule_tokenizer.GNN_input_map
+            #print(pl_module.device)
+            
+            for key in GNN_input_map:
+                trainer.datamodule.molecule_tokenizer.GNN_input_map[key] = GNN_input_map[key].to(pl_module.device)
+
+
+    callbacks.append(SetupCallback())
+    callbacks.append(MoveMoleculeDevice())
+
     trainer = Trainer(
         default_root_dir=dirpath,
         max_epochs=config["max_epochs"],
@@ -229,15 +248,15 @@ if __name__ == "__main__":
         callbacks=callbacks,
     )
 
+
     if config["resume_from_checkpoint"] != None:
         trainer.fit(model, datamodule=dm, ckpt_path=config["resume_from_checkpoint"])
     else:
-        trainer.validate(model, datamodule=dm)  # bug in regression it seems
-        zz
+        #trainer.validate(model, datamodule=dm) 
         trainer.fit(model, datamodule=dm)
 
     #tokenizer.save_model(dirpath)
-    trainer.save_model(dirpath)
+    #trainer.save_model(dirpath)
 
 
 

@@ -23,6 +23,8 @@ from transformers.utils import (
     logging,
     replace_return_docstrings,
 )
+import lightning as L
+
 # from transformers.utils.deprecation import deprecate_kwarg
 
 # Llama imports
@@ -106,12 +108,16 @@ class LlamaModel(LlamaPreTrainedModel):
         output_features = torch.zeros(
             mol_input_ids.size() + (self.config.molecule_config["out_channels"],),
             dtype=self.dtype,
+            device=mol_input_ids.device,
         )
         if mol_input_ids.ndim == 2:
             for i in range(mol_input_ids.size(0)):
                 for j in range(mol_input_ids.size(1)):
                     if mol_input_ids[i, j] >= 0:
                         graph = self.mol_vocab[mol_input_ids[i, j].item()]
+                        #print(graph.x.device)
+                        #print(self.mol_gnn(graph).device)
+                        #zz
                         output_features[i, j] = self.mol_gnn(graph)
         elif mol_input_ids.ndim == 1:
             for i in range(mol_input_ids.size(0)):
@@ -331,6 +337,8 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
 
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
 
+        self.is_training = True
+
         # Initialize weights and apply final processing
         self.post_init()
         self.finalized_molecule_embeddings = None
@@ -394,6 +402,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
         cache_position: Optional[torch.LongTensor] = None,
+        stage = None,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
         r"""
         Args:
@@ -448,7 +457,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
             self.vocab_size, self.mol_vocab_size, self.total_vocab_size,
             self.config.negative_sampling_size,
             hidden_states,
-            is_training=self.training,
+            is_training=self.is_training, #we can't use basic torch self.training #self.training,
             labels=labels,
         )
 
@@ -479,6 +488,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
         )
 
     def post_training(self):
+        self.is_training = False
         self.finalized_molecule_embeddings = finalized_molecule_embeddings(
             self.vocab_size, self.mol_vocab_size, self.model.embed_molecules,
             self.config.hidden_size, self.device)

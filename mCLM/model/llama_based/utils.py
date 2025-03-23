@@ -14,6 +14,7 @@ def embed_chemical_language(
     mol_input_ids[is_text] = -1
     mol_inputs_embeds = embed_molecules(mol_input_ids)
 
+    #print(inputs_embeds.device, mol_inputs_embeds.device, is_text.device)
     inputs_embeds = inputs_embeds * is_text[..., None] + \
         mol_inputs_embeds * (~is_text[..., None])
     return inputs_embeds
@@ -63,8 +64,9 @@ def mclm_logit_head(
             sorted(list(
                 set(negative_set) |
                 set(filter(lambda x: x >= vocab_size, labels.flatten().tolist()))
-            ))
-        )
+            )),
+        ).to(hidden_states.device)
+        #print(hidden_states.device, molecule_ids_trained.device, embed_molecules(molecule_ids_trained).device)
         trained_mol_logits = hidden_states.matmul(
             embed_molecules(molecule_ids_trained).transpose(0, 1)
         )
