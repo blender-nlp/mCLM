@@ -144,6 +144,7 @@ if __name__ == "__main__":
         )
 
     dm.setup('test')
+    llama_tokenizer = dm.tokenizer
     test_loader = dm.test_dataloader()
 
     # test GNN input dict
@@ -153,21 +154,23 @@ if __name__ == "__main__":
 
     # model loading
     from mCLM.model.llama_based.model import LlamaForCausalLM
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     ckpt_path = config["pretrained_text_model"]
     model = LlamaForCausalLM.from_pretrained(ckpt_path)
+    model.to(device)
 
     model.extend_text_vocab_size(len(dm.tokenizer.vocab))
     model.set_mol_vocab(block_ID_to_data)
     print(model.config)
 
-    # test graph forwarding
-    if False:
-        graph = block_ID_to_data[128258]
-        graph_feature = model.model.embed_molecules(graph)
-
-    # model forwarding, testing mode
     test_iter = iter(test_loader)
     item = next(test_iter)
+
+    # test graph forwarding
+    graph = block_ID_to_data[128258]
+    graph_feature = model.model.embed_molecules(graph)
+
+    # model forwarding, testing mode
     model.train(False)
     model.post_training()
     inference_output = model(
@@ -183,3 +186,28 @@ if __name__ == "__main__":
         attention_mask=item["input"]["attention_mask"][:, 0],
         labels=item["input"]["input_ids"][:, 0]
     )
+
+    # test generation
+    model.train(False)
+    model.post_training()
+    prompt = item["input"]["input_ids"][0, 0].tolist()
+    prompt = prompt[:prompt.index(llama_tokenizer.eos_token_id)]
+    generated = model.generate(
+        input_ids=torch.tensor([prompt]).to(device),
+        max_new_tokens=50,
+        num_beams=1,
+        do_sample=False,
+    )
+    print(llama_tokenizer.decode(prompt))
+    print(llama_tokenizer.decode(generated[0].tolist()[len(prompt):]))
+
+    # test generation ending with [MOL]
+    generated = model.generate(
+        input_ids=torch.tensor([prompt[:-2]]).to(device),
+        max_new_tokens=50,
+        num_beams=1,
+        do_sample=False,
+    )
+    print("prompt:\n", llama_tokenizer.decode(prompt[:-2]))
+    print("generated:\n",
+          llama_tokenizer.decode(generated[0].tolist()[len(prompt)-2:]))
