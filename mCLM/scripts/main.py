@@ -284,8 +284,4 @@ if __name__ == "__main__":
         #trainer.validate(model, datamodule=dm) 
         trainer.fit(model, datamodule=dm)
 
-    #tokenizer.save_model(dirpath)
-    trainer.save_model(dirpath)
-
-
 

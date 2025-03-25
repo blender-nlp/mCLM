@@ -86,7 +86,7 @@ if __name__ == "__main__":
     parser.add_argument("--latent_size", default=256, type=int)
     parser.add_argument("--validate_every_n", default=1000, type=int)
     parser.add_argument("--lr", default=5e-5, type=float)
-    parser.add_argument("--ckpt_path", default="ckpts/test/", type=str)
+    parser.add_argument("--ckpt_path", default="ckpts/1B/", type=str)
     parser.add_argument("--ckpt", default="best_val_checkpoint.ckpt", type=str)
     parser.add_argument("--loss", default="CLIP", type=str)
     parser.add_argument("--load_ckpt", default=None, type=str)
@@ -126,6 +126,8 @@ if __name__ == "__main__":
     seed_everything(config["seed"])
 
     print('Imports Done')
+
+    device = 'cpu'
 
     #with open(config["ckpt_path"] + "molecule_tokenizer.pkl", "rb") as f:
     #    molecule_tokenizer = pickle.load(f)
@@ -192,12 +194,17 @@ if __name__ == "__main__":
         frags = [[molecule_tokenizer.get_Idx(m) for m in mol.split('^')] for mol in mol_list]
 
         message_tokens = torch.Tensor(insert_sublists(message_tokens.squeeze(), frags, MOL_start, MOL_end)).to(torch.int)
-        #print(message_tokens)
+        #print(message_tokens, message_tokens.shape)
 
-        outputs = model.generate(message_tokens, max_new_tokens=128) 
-        out_text = tokenizer.decode(outputs[0])
+        generated = model.generate(
+            input_ids=message_tokens.unsqueeze(0),
+            max_new_tokens=128,
+            num_beams=1,
+            do_sample=False,
+        )
+        #outputs = model.generate(message_tokens, max_new_tokens=128) 
+        #out_text = tokenizer.decode(outputs[0])
 
-        print(out_text)
-
-
+        print(generated)
+        print(tokenizer.decode(generated[0].tolist()[len(message_tokens):], skip_special_tokens=True))
 

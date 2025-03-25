@@ -249,9 +249,9 @@ class KinaseDataModule(LightningDataModule):
         start_idx = len(self.tokenizer)
         self.molecule_tokenizer = MoleculeTokenizer(start_idx)
 
-        train_data = pd.read_csv(self.data_path + 'kinase_train.csv').head(2000)
-        valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv').head(1000)
-        test_data = pd.read_csv(self.data_path + 'kinase_test.csv').head(1000)
+        train_data = pd.read_csv(self.data_path + 'kinase_train.csv')#.head(2000)
+        valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv')#.head(1000)
+        test_data = pd.read_csv(self.data_path + 'kinase_test.csv')#.head(1000)
 
         # FIXME: test only
         #train_data = pd.read_csv(self.data_path + 'kinase_test.csv')

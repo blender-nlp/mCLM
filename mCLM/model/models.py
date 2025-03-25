@@ -176,6 +176,6 @@ class mCLM(L.LightningModule):
         else:
             return self.encoder(batch, get_embedding=True), batch
 
-    def generate(self, input, **kwargs):
-        return self.model.generate(input, **kwargs)
+    def generate(self, input_ids, **kwargs):
+        return self.model.generate(input_ids=input_ids, **kwargs)
 
