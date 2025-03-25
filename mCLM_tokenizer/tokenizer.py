@@ -27,6 +27,9 @@ def canonicalize(smi):
     return Chem.MolToSmiles(Chem.MolFromSmiles(smi))
 
 
+
+
+
 def get_aromatic_scaffold(mol):
     # Generate Murcko scaffold
     scaffold = MurckoScaffold.GetScaffoldForMol(mol)
@@ -531,3 +534,23 @@ if __name__ == '__main__':
     with open(outpath+'kinase_tokens_rev.txt', 'w') as convert_file:
         convert_file.write(json.dumps(rev, indent=4))
 
+
+def convert_SMILES_strings(text):    
+    pattern = re.compile(r'<SMILES>(.*?)<\/SMILES>', re.DOTALL)
+    mol_list = pattern.findall(text)  # Extract SMILES content
+    mol_list = [m.strip() for m in mol_list]
+
+    mol_list = [get_blocks(m)[0] for m in mol_list]
+    mol_list2 = copy.copy(mol_list)
+
+    def replacer(match):
+        if mol_list2:
+            return f'[MOL] {mol_list2.pop(0)} [/MOL]'
+        return match.group(0)  # Fallback in case something goes wrong
+
+    restored_text = re.sub(r'<SMILES>(.*?)<\/SMILES>', replacer, text, count=len(mol_list2))
+
+    return mol_list, restored_text.strip()
+
+
+    

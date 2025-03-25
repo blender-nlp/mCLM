@@ -10,6 +10,8 @@ from lightning.pytorch.loggers import WandbLogger
 
 import pandas as pd
 
+import pickle
+
 from mCLM.data.dataloaders import KinaseDataModule
 from mCLM.model.models import (
     mCLM,
@@ -21,7 +23,7 @@ import subprocess
 if __name__ == "__main__":
     torch.cuda.empty_cache()
 
-    subprocess.run(["nvidia-smi"])
+    #subprocess.run(["nvidia-smi"])
 
     config = {
         "pretrained_text_model": "michiyasunaga/BioLinkBERT-base",
@@ -60,7 +62,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--num_warmup_steps", default=1000, type=int)
     parser.add_argument("--max_epochs", default=2, type=int)
-    parser.add_argument("--batch_size", default=2, type=int)
+    parser.add_argument("--batch_size", default=4, type=int) #2 takes up 29733MiB
     parser.add_argument("--val_batch_size", default=None, type=int)
 
     parser.add_argument("--node_dim", default=133, type=int)
@@ -75,7 +77,7 @@ if __name__ == "__main__":
     parser.add_argument("--latent_size", default=256, type=int)
     parser.add_argument("--validate_every_n", default=1000, type=int)
     parser.add_argument("--lr", default=5e-5, type=float)
-    parser.add_argument("--ckpt_path", default="ckpts/MOA/", type=str)
+    parser.add_argument("--ckpt_path", default="ckpts/", type=str)
     parser.add_argument("--loss", default="CLIP", type=str)
     parser.add_argument("--load_ckpt", default=None, type=str)
     parser.add_argument("--load_GNN_ckpt", default=None, type=str)
@@ -100,6 +102,8 @@ if __name__ == "__main__":
     parser.add_argument("--data_module", type=str, default='Kinase')
     parser.add_argument("--caption_source", type=str)
     parser.add_argument("--fold_idx", type=int)
+
+    parser.add_argument("--check_val_every_n_steps", default=None, type=int)
 
     args = parser.parse_args()
 
@@ -211,10 +215,20 @@ if __name__ == "__main__":
         filename="best_val_checkpoint",
         save_top_k=1,
     )
+    # saves last-K checkpoints based on "step" metric
+    checkpoint_callback = ModelCheckpoint(
+        save_top_k=1,
+        monitor="step",
+        mode="max",
+        dirpath=dirpath,
+        every_n_train_steps=config['check_val_every_n_steps'],
+        filename="latest_checkpoint-{epoch:02d}-{step}",
+    )
     callbacks.append(val_checkpoint)
+    callbacks.append(checkpoint_callback)
 
     
-    ckpt_path = config["pretrained_text_model"]
+    #ckpt_path = config["pretrained_text_model"]
     #model = LlamaForCausalLM.from_pretrained(ckpt_path)
     model = mCLM(config)
 
@@ -232,21 +246,36 @@ if __name__ == "__main__":
             GNN_input_map = trainer.datamodule.molecule_tokenizer.GNN_input_map
             #print(pl_module.device)
             
+            #create a dictionary with a version of GNN_input_map for each device (the device is the key)
             for key in GNN_input_map:
                 trainer.datamodule.molecule_tokenizer.GNN_input_map[key] = GNN_input_map[key].to(pl_module.device)
+
+            with open(config["ckpt_path"] + "molecule_tokenizer.pth", "wb") as f:
+                torch.save(trainer.datamodule.molecule_tokenizer, f)
 
 
     callbacks.append(SetupCallback())
     callbacks.append(MoveMoleculeDevice())
 
-    trainer = Trainer(
-        default_root_dir=dirpath,
-        max_epochs=config["max_epochs"],
-        accelerator="auto",
-        devices="auto",
-        logger=wandb_logger,
-        callbacks=callbacks,
-    )
+    if config['check_val_every_n_steps']:
+        trainer = Trainer(
+            default_root_dir=dirpath,
+            max_epochs=config["max_epochs"],
+            accelerator="auto",
+            devices="auto",
+            logger=wandb_logger,
+            callbacks=callbacks,
+            val_check_interval=config['check_val_every_n_steps'],
+        )
+    else:
+        trainer = Trainer(
+            default_root_dir=dirpath,
+            max_epochs=config["max_epochs"],
+            accelerator="auto",
+            devices="auto",
+            logger=wandb_logger,
+            callbacks=callbacks,
+        )
 
 
     if config["resume_from_checkpoint"] != None:
@@ -256,7 +285,7 @@ if __name__ == "__main__":
         trainer.fit(model, datamodule=dm)
 
     #tokenizer.save_model(dirpath)
-    #trainer.save_model(dirpath)
+    trainer.save_model(dirpath)
 
 
 

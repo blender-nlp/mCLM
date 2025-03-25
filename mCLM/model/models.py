@@ -8,6 +8,8 @@ from pl_bolts.optimizers import LinearWarmupCosineAnnealingLR
 
 from mCLM.model.llama_based.model import LlamaForCausalLM
 
+from peft import get_peft_config, get_peft_model, LoraConfig, TaskType
+
 
 class mCLM(L.LightningModule):
     def __init__(self, config, **kwargs):
@@ -17,7 +19,27 @@ class mCLM(L.LightningModule):
         self.save_hyperparameters(ignore=[])
 
         ckpt_path = config["pretrained_text_model"]
+
+        peft_config = LoraConfig(
+            r=16,
+            lora_alpha=16,
+            lora_dropout=0.05,
+            target_modules=[
+                "q_proj",
+                "gate_proj",
+                "v_proj",
+                "o_proj",
+                "k_proj",
+                "up_proj",
+                "down_proj"
+            ],
+            bias="none",
+            task_type="CAUSAL_LM",
+        )
+
         self.model = LlamaForCausalLM.from_pretrained(ckpt_path)
+        self.model = get_peft_model(self.model, peft_config)
+        #self.model.print_trainable_parameters()
 
     def get_metrics(
         self,
@@ -153,3 +175,7 @@ class mCLM(L.LightningModule):
             return out, batch
         else:
             return self.encoder(batch, get_embedding=True), batch
+
+    def generate(self, input, **kwargs):
+        return self.model.generate(input, **kwargs)
+

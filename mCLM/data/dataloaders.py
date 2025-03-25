@@ -16,6 +16,7 @@ from typing import Any, List, Optional, Sequence, Union
 
 from mCLM.tokenizer.molecule_tokenizer import MoleculeTokenizer
 
+from mCLM.data.processing import insert_sublists, find_first_occurrence
 
 import pandas as pd
 
@@ -44,12 +45,6 @@ from mCLM.data.processing import (
     MolecularSubset,
 )
 
-
-def canonicalize(smi):
-    try:
-        return Chem.MolToSmiles(Chem.MolFromSmiles(smi))
-    except:
-        return None
 
 
 class CustomCollater:
@@ -151,28 +146,6 @@ class CustomDataLoader(torch.utils.data.DataLoader):
         )
 
 
-def insert_sublists(main_list, sublists, start=2, end=4):
-    result = []
-    sublist_index = 0  # Track which sublist to insert
-
-    i = 0
-    while i < len(main_list):
-        result.append(main_list[i])
-        if main_list[i] == start and i + 1 < len(main_list) and main_list[i + 1] == end:
-            # Insert the next sublist
-            if sublist_index < len(sublists):
-                result.extend(sublists[sublist_index])
-                sublist_index += 1
-                result.append(main_list[i+1])
-            i += 1  # Skip the next element (end)
-        i += 1
-
-    return result
-
-def find_first_occurrence(tensor, num):
-    indices = torch.where(tensor == num)[0]  # Get indices where tensor equals num
-    return indices[0].item() if indices.numel() > 0 else len(tensor)
-
 
 class KinaseDataset(Dataset):
 
@@ -204,13 +177,21 @@ class KinaseDataset(Dataset):
         frags = [[self.mol_tokenizer.get_Idx(m) for m in mol.split('^')] for mol in mol_list]
         #print(frags)
 
+        messages = [
+            {"role": "system", "content": "You are an expert chemist who designs molecules in a modular fashion or answers questions following the given instructions.",},
+            {"role": "user", "content": "Please tell me a fact about a kinase inhibitor."},
+            {"role": "assistant", "content": cleaned_text},
+        ]
+        message_chat = self.tokenizer.apply_chat_template(messages, tokenize=False)
+
         token_input = self.tokenizer(
-            cleaned_text,
+            message_chat,
             truncation=True,
             max_length=self.trunc_length,
             padding="max_length",
             return_tensors="pt",
         )
+        
 
         #print(token_input)
 
@@ -268,13 +249,13 @@ class KinaseDataModule(LightningDataModule):
         start_idx = len(self.tokenizer)
         self.molecule_tokenizer = MoleculeTokenizer(start_idx)
 
-        train_data = pd.read_csv(self.data_path + 'kinase_train.csv')
-        valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv')
-        test_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+        train_data = pd.read_csv(self.data_path + 'kinase_train.csv').head(2000)
+        valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv').head(1000)
+        test_data = pd.read_csv(self.data_path + 'kinase_test.csv').head(1000)
 
         # FIXME: test only
-        train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
-        valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+        #train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+        #valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
 
         #train_data[['mol_list', 'cleaned_text']] = train_data['description'].apply(extract_mol_content)
         train_data[['mol_list', 'cleaned_text']] = train_data['description'].progress_apply(lambda x: pd.Series(extract_mol_content(x)))

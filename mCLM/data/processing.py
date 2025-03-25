@@ -477,3 +477,33 @@ def extract_mol_content(text):
 
     cleaned_text = pattern.sub('[MOL][/MOL]', text)  # Remove MOL content from text
     return mol_list, cleaned_text.strip()
+
+
+def insert_sublists(main_list, sublists, start=2, end=4):
+    result = []
+    sublist_index = 0  # Track which sublist to insert
+
+    i = 0
+    while i < len(main_list):
+        result.append(main_list[i])
+        if main_list[i] == start and i + 1 < len(main_list) and main_list[i + 1] == end:
+            # Insert the next sublist
+            if sublist_index < len(sublists):
+                result.extend(sublists[sublist_index])
+                sublist_index += 1
+                result.append(main_list[i+1])
+            i += 1  # Skip the next element (end)
+        i += 1
+
+    return result
+
+def find_first_occurrence(tensor, num):
+    indices = torch.where(tensor == num)[0]  # Get indices where tensor equals num
+    return indices[0].item() if indices.numel() > 0 else len(tensor)
+
+
+def canonicalize(smi):
+    try:
+        return Chem.MolToSmiles(Chem.MolFromSmiles(smi))
+    except:
+        return None

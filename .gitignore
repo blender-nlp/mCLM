@@ -26,3 +26,6 @@ oracle_models/data_full.csv
 mCLM.egg-info/
 _logs/
 wandb/
+
+ckpts/
+slurm_outputs/
