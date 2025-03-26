@@ -203,7 +203,7 @@ optimizer.step()
 
 orig_model = mCLM(config)
 orig_model.model.extend_text_vocab_size(len(dm.tokenizer.vocab))
-orig_model.model.set_mol_vocab(block_ID_to_data)
+orig_model.model.set_mol_vocab(dm.molecule_tokenizer.GNN_input_map)
 
 key = 'model.base_model.model.model.mol_gnn.convs.1.nn.0.bias'
 print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())

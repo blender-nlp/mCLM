@@ -228,11 +228,11 @@ if __name__ == "__main__":
     #model.extend_text_vocab_size(len(dm.tokenizer.vocab))
     #model.set_mol_vocab(block_ID_to_data)
 
-    class SetupCallback(Callback):
-        def on_fit_start(self, trainer, pl_module):
-            #print(dir(trainer))
-            pl_module.model.extend_text_vocab_size(len(trainer.datamodule.tokenizer.vocab))
-            pl_module.model.set_mol_vocab(trainer.datamodule.molecule_tokenizer.GNN_input_map)
+    #class SetupCallback(Callback):
+    #    def on_fit_start(self, trainer, pl_module):
+    #        #print(dir(trainer))
+    #        pl_module.model.extend_text_vocab_size(len(trainer.datamodule.tokenizer.vocab))
+    #        pl_module.model.set_mol_vocab(trainer.datamodule.molecule_tokenizer.GNN_input_map)
 
     class MoveMoleculeDevice(Callback):
         def setup(self, trainer, pl_module, stage):
@@ -247,7 +247,7 @@ if __name__ == "__main__":
                 torch.save(trainer.datamodule.molecule_tokenizer, f)
 
 
-    callbacks.append(SetupCallback())
+    #callbacks.append(SetupCallback())
     callbacks.append(MoveMoleculeDevice())
 
     if config['check_val_every_n_steps']:

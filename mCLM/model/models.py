@@ -51,6 +51,10 @@ class mCLM(L.LightningModule):
     #
     #    self.model.base_model.model.model.mol_gnn.train(mode=mode)
 
+    def setup(self, stage=None):
+        self.model.extend_text_vocab_size(len(self.trainer.datamodule.tokenizer.vocab))
+        self.model.set_mol_vocab(self.trainer.datamodule.molecule_tokenizer.GNN_input_map)
+
     def get_metrics(
         self,
     ) -> Dict[str, Callable[[torch.tensor, torch.tensor], torch.tensor]]:
@@ -141,11 +145,30 @@ class mCLM(L.LightningModule):
         return step_outputs
 
     def configure_optimizers(self):
+        #have to include certain parameters separately for some reason (lightning optimizer issue)
+        #this is maybe because embed_tokens and lm_head are the same parameters under the hood
+        #all_params = list(self.parameters())
+        #embed_tokens_params = list(self.model.base_model.model.model.embed_tokens.parameters())
+        #lm_head_params = list(self.model.base_model.model.lm_head.parameters())
+        #print(embed_tokens_params)
+        #print(lm_head_params)
+
+        # Remove duplicates
+        #excluded_ids = {id(p) for p in embed_tokens_params}
+        #filtered_params = [p for p in all_params if id(p) not in excluded_ids]
+
         optimizer = torch.optim.Adam(
             self.parameters(),
+            #[
+            #    {'params': filtered_params}, 
+            #    {'params': embed_tokens_params}, 
+            #],
             lr=self.config['lr'],
             weight_decay=self.config['weight_decay'],
         )
+        #the optimizer turns off these two parameters for who knows what reasons, but some other one gets put there. 
+
+
         # don't use self.trainer.num_training_batches as it is inf here
         # num_train_batches = self.hparams.num_train_batches
         num_training_steps = self.trainer.estimated_stepping_batches
