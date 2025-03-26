@@ -12,13 +12,15 @@ class MoleculeTokenizer:
         """
         self.start_idx = start_idx
         self.block_to_idx = {}
+        self.idx_to_block = {}
         self.GNN_input_map = {}
 
 
     def add_block(self, block: str):
         if block not in self.block_to_idx:
             self.block_to_idx[block] = self.start_idx + len(self.block_to_idx)
-
+        if self.block_to_idx[block] not in self.idx_to_block:
+            self.idx_to_block[self.block_to_idx[block]] = block
 
     def create_input(self):
         for block in self.block_to_idx: #tqdm(block_to_idx, desc='Creating GNN Input'):
@@ -39,7 +41,20 @@ class MoleculeTokenizer:
         return self.block_to_idx[block]
 
 
-    def get(self, ID: str):
+    def get_block(self, ID: int):
+        """
+        Tokenizes the given block idx.
+
+        Args:
+            molecule (str): The molecular representation to tokenize.
+
+        Returns:
+            list: A list of tokens representing the molecule.
+        """
+        return self.idx_to_block[ID]
+
+
+    def get(self, ID: int):
         """
         Tokenizes the given block ID.
 

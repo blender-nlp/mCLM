@@ -52,12 +52,6 @@ if __name__ == "__main__":
     }
 
     parser = argparse.ArgumentParser(description="Biencoder")
-    parser.add_argument(
-        "--pretrained_text_model",
-        default="michiyasunaga/BioLinkBERT-base",
-        type=str,
-        help="Which text encoder to use from HuggingFace",
-    )
     parser.add_argument("--trunc_length", default=512, type=int)
 
     parser.add_argument("--num_warmup_steps", default=1000, type=int)
@@ -85,10 +79,9 @@ if __name__ == "__main__":
     parser.add_argument("--seed", default=42, type=int)
 
     parser.add_argument("--model", default="mCLM", type=str)
-    parser.add_argument("--base_model", default="meta-llama/Llama-3.1-8B-Instruct", type=str)
-    #parser.add_argument(
-    #    "--freeze_text_encoder", type=bool, action=argparse.BooleanOptionalAction
-    #)
+    parser.add_argument("--base_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
+    parser.add_argument("--pretrained_text_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
+
     parser.add_argument(
         "--freeze_GNN", type=bool, action=argparse.BooleanOptionalAction
     )

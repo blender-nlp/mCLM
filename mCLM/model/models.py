@@ -39,7 +39,17 @@ class mCLM(L.LightningModule):
 
         self.model = LlamaForCausalLM.from_pretrained(ckpt_path)
         self.model = get_peft_model(self.model, peft_config)
+
+        #PEFT turns these off
+        for param in self.model.base_model.model.model.mol_gnn.parameters():
+            param.requires_grad = True
+
         #self.model.print_trainable_parameters()
+
+    #def train(self, mode=True):
+    #    super().train(mode=mode)
+    #
+    #    self.model.base_model.model.model.mol_gnn.train(mode=mode)
 
     def get_metrics(
         self,
