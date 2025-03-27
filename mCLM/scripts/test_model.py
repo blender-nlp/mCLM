@@ -175,41 +175,41 @@ if __name__ == "__main__":
         #attention_mask=item["input"]["attention_mask"],
         #labels=item["input"]["input_ids"]
 
-optimizer = torch.optim.Adam(
-    model.parameters(),
-    lr=config['lr'],
-    weight_decay=config['weight_decay'],
-)
+    optimizer = torch.optim.Adam(
+        model.parameters(),
+        lr=config['lr'],
+        weight_decay=config['weight_decay'],
+    )
 
-# model forwarding, training mode
-model.train(True)
-training_output = model.compute_step(
-    item,
-    'train',
-)
-    #input_ids=item["input"]["input_ids"],
-    #attention_mask=item["input"]["attention_mask"],
-    #labels=item["input"]["labels"]
-training_output['loss'].backward()
+    # model forwarding, training mode
+    model.train(True)
+    training_output = model.compute_step(
+        item,
+        'train',
+    )
+        #input_ids=item["input"]["input_ids"],
+        #attention_mask=item["input"]["attention_mask"],
+        #labels=item["input"]["labels"]
+    training_output['loss'].backward()
 
-for p in model.named_parameters():
-    print(p[0], p[1].requires_grad)
+    for p in model.named_parameters():
+        print(p[0], p[1].requires_grad)
 
-grad_dict = {k:v.grad for k, v in zip(model.state_dict(), model.parameters())}
-print(grad_dict['model.base_model.model.model.mol_gnn.convs.1.nn.0.bias'])
-print(grad_dict['model.base_model.model.lm_head.weight'])
+    grad_dict = {k:v.grad for k, v in zip(model.state_dict(), model.parameters())}
+    print(grad_dict['model.base_model.model.model.mol_gnn.convs.1.nn.0.bias'])
+    print(grad_dict['model.base_model.model.lm_head.weight'])
 
-optimizer.step()
+    optimizer.step()
 
-orig_model = mCLM(config)
-orig_model.model.extend_text_vocab_size(len(dm.tokenizer.vocab))
-orig_model.model.set_mol_vocab(dm.molecule_tokenizer.GNN_input_map)
+    orig_model = mCLM(config)
+    orig_model.model.extend_text_vocab_size(len(dm.tokenizer.vocab))
+    orig_model.model.set_mol_vocab(dm.molecule_tokenizer.GNN_input_map)
 
-key = 'model.base_model.model.model.mol_gnn.convs.1.nn.0.bias'
-print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
-key = 'model.base_model.model.lm_head.weight'
-print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
-key = 'model.base_model.model.model.embed_tokens.weight'
-print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
-key = 'model.base_model.model.model.layers.15.mlp.up_proj.lora_A.default.weight'
-print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
+    key = 'model.base_model.model.model.mol_gnn.convs.1.nn.0.bias'
+    print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
+    key = 'model.base_model.model.lm_head.weight'
+    print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
+    key = 'model.base_model.model.model.embed_tokens.weight'
+    print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
+    key = 'model.base_model.model.model.layers.15.mlp.up_proj.lora_A.default.weight'
+    print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())

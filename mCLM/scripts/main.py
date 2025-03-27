@@ -93,6 +93,7 @@ if __name__ == "__main__":
     parser.add_argument("--weight_decay", default=0.0, type=float)
 
     parser.add_argument("--data_module", type=str, default='Kinase')
+    parser.add_argument("--version", type=str, default='')
     parser.add_argument("--caption_source", type=str)
     parser.add_argument("--fold_idx", type=int)
 
@@ -176,7 +177,7 @@ if __name__ == "__main__":
 
 
 
-    name = config['task'] + "_" + config["model"] 
+    name = config['task'] + "_" + config["model"] + "_" + config['version']
 
     if config["resume_wandb_run"] != None:
         wandb_logger = WandbLogger(
