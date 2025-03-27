@@ -2,8 +2,10 @@ import argparse
 import os
 import os.path as osp
 import lightning as L
+import copy
 import sys
 import io
+import re
 import torch
 from lightning import Trainer, seed_everything, Callback
 from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
@@ -12,7 +14,7 @@ from lightning.pytorch.loggers import WandbLogger
 from mCLM.tokenizer.molecule_tokenizer import MoleculeTokenizer
 from mCLM.data.processing import smiles_to_data, smiles_list_to_mols, extract_mol_content
 
-from mCLM_tokenizer.tokenizer import convert_SMILES_strings
+from mCLM_tokenizer.tokenizer import convert_SMILES_strings, join_fragments
 
 from transformers import AutoTokenizer
 
@@ -23,6 +25,8 @@ from mCLM.data.dataloaders import KinaseDataModule
 from mCLM.model.models import (
     mCLM,
 )
+
+from rdkit import Chem
 
 import subprocess
 
@@ -61,12 +65,6 @@ if __name__ == "__main__":
     }
 
     parser = argparse.ArgumentParser(description="Biencoder")
-    parser.add_argument(
-        "--pretrained_text_model",
-        default="michiyasunaga/BioLinkBERT-base",
-        type=str,
-        help="Which text encoder to use from HuggingFace",
-    )
     parser.add_argument("--trunc_length", default=512, type=int)
 
     parser.add_argument("--num_warmup_steps", default=1000, type=int)
@@ -86,7 +84,7 @@ if __name__ == "__main__":
     parser.add_argument("--latent_size", default=256, type=int)
     parser.add_argument("--validate_every_n", default=1000, type=int)
     parser.add_argument("--lr", default=5e-5, type=float)
-    parser.add_argument("--ckpt_path", default="ckpts/1B/", type=str)
+    parser.add_argument("--ckpt_path", default="ckpts/1Bv2/", type=str)
     parser.add_argument("--ckpt", default="best_val_checkpoint.ckpt", type=str)
     parser.add_argument("--loss", default="CLIP", type=str)
     parser.add_argument("--load_ckpt", default=None, type=str)
@@ -95,7 +93,8 @@ if __name__ == "__main__":
     parser.add_argument("--seed", default=42, type=int)
 
     parser.add_argument("--model", default="mCLM", type=str)
-    parser.add_argument("--base_model", default="meta-llama/Llama-3.1-8B-Instruct", type=str)
+    parser.add_argument("--base_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
+    parser.add_argument("--pretrained_text_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
     #parser.add_argument(
     #    "--freeze_text_encoder", type=bool, action=argparse.BooleanOptionalAction
     #)
@@ -169,10 +168,41 @@ if __name__ == "__main__":
     print('Model Set to Inference')
 
     ##### TMP fix for change#######
-    molecule_tokenizer.idx_to_block = {}
-    for block in molecule_tokenizer.block_to_idx:
-        molecule_tokenizer.add_block(block)
+    #molecule_tokenizer.idx_to_block = {}
+    #for block in molecule_tokenizer.block_to_idx:
+    #    molecule_tokenizer.add_block(block)
     ###############################
+
+    def extract_between_MOL(tensor):
+        tensor_list = tensor.tolist()  # Convert tensor to list
+        extracted = []
+        temp = []
+        recording = False  # Flag to start recording elements
+
+        for num in tensor_list:
+            if num == MOL_start or num == MOL_end:
+                if recording and temp:
+                    extracted.append(temp)  # Save previous group
+                temp = []  # Reset temp list
+                recording = True  # Start recording after 128256
+            elif recording:
+                temp.append(num)
+
+        if temp:
+            extracted.append(temp)  # Append last collected group if any
+
+        return extracted
+
+    def replace(text, mol_list):
+        mol_list2 = copy.copy(mol_list)
+        def replacer(match):
+            if mol_list2:
+                return f'<SMILES> {mol_list2.pop(0)} </SMILES>'
+            return match.group(0)  # Fallback in case something goes wrong
+
+        restored_text = re.sub(r'\[MOL\](.*?)\[\/MOL\]', replacer, text, count=len(mol_list2))
+        return restored_text
+
 
     while True:
         user_input = input("Enter an instruction (type 'quit' to exit): ")
@@ -232,3 +262,15 @@ if __name__ == "__main__":
 
         message = tokenizer.convert_tokens_to_string(tokens)
         print(message)
+        print()
+        
+        mol_list, message = extract_mol_content(message)
+        mol_list = [m[:-1] if m[-1]=='^' else m for m in mol_list]
+        mol_list = [Chem.MolToSmiles(join_fragments(smi)) for smi in mol_list]
+
+        #print(mol_list)
+        
+        message = replace(message, mol_list)
+
+        print(message)
+        
