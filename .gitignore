@@ -25,3 +25,5 @@ oracle_models/data_full.csv
 **/__pycache__/
 mCLM.egg-info/
 _logs/
+.DS_Store
+**/.DS_Store
