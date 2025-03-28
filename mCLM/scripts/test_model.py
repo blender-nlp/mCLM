@@ -150,15 +150,16 @@ if __name__ == "__main__":
     # test GNN input dict
     block_ID_to_data = dm.GNN_input_map
     print('GNN Input Dict')
-    print(block_ID_to_data)
+    print(dict(list(block_ID_to_data.items())[:10]))
 
-    # model loading
+    print("Loading model...")
     from mCLM.model.llama_based.model import LlamaForCausalLM
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     ckpt_path = config["pretrained_text_model"]
     model = LlamaForCausalLM.from_pretrained(ckpt_path)
     model.to(device)
 
+    print("extending text vocab size and setting molecule vocab...")
     model.extend_text_vocab_size(len(dm.tokenizer.vocab))
     model.set_mol_vocab(block_ID_to_data)
     print(model.config)
@@ -166,11 +167,19 @@ if __name__ == "__main__":
     test_iter = iter(test_loader)
     item = next(test_iter)
 
-    # test graph forwarding
+    print("Testing GNN forwarding...")
     graph = block_ID_to_data[128258]
-    graph_feature = model.model.embed_molecules(graph)
+    graph_feature = model.model.mol_gnn(graph)
 
-    # model forwarding, testing mode
+    print("Testing model training time forwarding...")
+    model.train(True)
+    training_output = model(
+        input_ids=item["input"]["input_ids"][:, 0],
+        attention_mask=item["input"]["attention_mask"][:, 0],
+        labels=item["input"]["input_ids"][:, 0]
+    )
+
+    print("Testing model inference time forwarding...")
     model.train(False)
     model.post_training()
     inference_output = model(
@@ -179,15 +188,7 @@ if __name__ == "__main__":
         labels=item["input"]["input_ids"][:, 0]
     )
 
-    # model forwarding, training mode
-    model.train(True)
-    training_output = model(
-        input_ids=item["input"]["input_ids"][:, 0],
-        attention_mask=item["input"]["attention_mask"][:, 0],
-        labels=item["input"]["input_ids"][:, 0]
-    )
-
-    # test generation
+    print("Testing model generation...")
     model.train(False)
     model.post_training()
     prompt = item["input"]["input_ids"][0, 0].tolist()
@@ -198,16 +199,6 @@ if __name__ == "__main__":
         num_beams=1,
         do_sample=False,
     )
-    print(llama_tokenizer.decode(prompt))
-    print(llama_tokenizer.decode(generated[0].tolist()[len(prompt):]))
-
-    # test generation ending with [MOL]
-    generated = model.generate(
-        input_ids=torch.tensor([prompt[:-2]]).to(device),
-        max_new_tokens=50,
-        num_beams=1,
-        do_sample=False,
-    )
-    print("prompt:\n", llama_tokenizer.decode(prompt[:-2]))
-    print("generated:\n",
-          llama_tokenizer.decode(generated[0].tolist()[len(prompt)-2:]))
+    print("prompt:", llama_tokenizer.decode(prompt))
+    print("generated:", llama_tokenizer.decode(
+        generated[0].tolist()[len(prompt):]))

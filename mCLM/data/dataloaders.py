@@ -262,13 +262,13 @@ class KinaseDataModule(LightningDataModule):
         self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
         #model.resize_token_embeddings(len(tokenizer)) #put this somewhere
 
-        train_data = pd.read_csv(self.data_path + 'kinase_train.csv')
-        valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv')
-        test_data = pd.read_csv(self.data_path + 'kinase_test.csv')
-
+        # train_data = pd.read_csv(self.data_path + 'kinase_train.csv')
+        # valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv')
         # FIXME: test only
         train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
         valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+        test_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+
 
         #train_data[['mol_list', 'cleaned_text']] = train_data['description'].apply(extract_mol_content)
         train_data[['mol_list', 'cleaned_text']] = train_data['description'].progress_apply(lambda x: pd.Series(extract_mol_content(x)))
