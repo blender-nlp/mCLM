@@ -26,7 +26,7 @@ echo "Starting Main Script"
 
 PYTHONPATH=. python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ --check_val_every_n_steps 10000 \
-    --batch_size=16 --lr 1e-5 --ckpt_path ckpts/1Bv2/ --version v2
+    --batch_size=16 --lr 1e-5 --ckpt_path ckpts/1Bv3/ --version v3
     
 #PYTHONPATH=. python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ \
 #    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ --check_val_every_n_steps 50 \

@@ -209,6 +209,7 @@ if __name__ == "__main__":
         if user_input == 'quit': break
 
         mols_list, MOL_input = convert_SMILES_strings(user_input)
+        print(mols_list)
 
         mol_list, cleaned_text = extract_mol_content(MOL_input)
 
@@ -222,20 +223,40 @@ if __name__ == "__main__":
             {"role": "user", "content": "Please tell me a fact about a kinase inhibitor."},
             {"role": "assistant", "content": cleaned_text},
         ]
-        message_tokens = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True, return_tensors="pt")
+        message_tokens = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True, return_tensors="pt")[:,:-5]
+        print(tokenizer.convert_ids_to_tokens(tokenizer.apply_chat_template(messages, add_generation_prompt=True)[:-5]))
         #print(message_tokens)
+        print()
 
         frags = [[molecule_tokenizer.get_Idx(m) for m in mol.split('^')] for mol in mol_list]
+        print(frags)
 
         message_tokens = torch.Tensor(insert_sublists(message_tokens.squeeze(), frags, MOL_start, MOL_end)).to(torch.int)
-        #print(message_tokens, message_tokens.shape)
+        message_tokens = torch.cat((message_tokens, torch.tensor([128673])))
+        print(message_tokens, message_tokens.shape)
 
         generated = model.generate(
             input_ids=message_tokens.unsqueeze(0),
-            max_new_tokens=128,
+            max_new_tokens=1,
             num_beams=1,
             do_sample=False,
+            return_dict_in_generate=True, output_scores=True,
         )
+        #print(generated.scores[0].shape)
+        print(torch.nn.functional.softmax(generated.scores[0], dim=1).sum())
+        generated_tokens = generated.sequences
+        message_ids = generated_tokens[0, len(message_tokens):]
+
+        for tok, score in enumerate(torch.nn.functional.softmax(generated.scores[0], dim=1)[0]):
+            # | token | token string | logits | probability
+            if tok <= 128257: continue
+            if score.numpy() < .0001: continue
+            #print(tok, score)
+            print(f"| {tok:5d} | {molecule_tokenizer.get_block(tok):8s} | {score.numpy():.4f}")
+            #print(f"| {tok:5d} | {tokenizer.decode(tok):8s} | {score.numpy():.4f}")
+
+
+
         #outputs = model.generate(message_tokens, max_new_tokens=128) 
         #out_text = tokenizer.decode(outputs[0])
 
@@ -246,7 +267,7 @@ if __name__ == "__main__":
         #extracted_mols = [[molecule_tokenizer.get_block(e) for e in em] for em in extracted_mols]
         #print(extracted_mols)
 
-        message_ids = generated[0, len(message_tokens):]
+        
         #print(message_ids)
 
         extracted_mols = message_ids > MOL_end

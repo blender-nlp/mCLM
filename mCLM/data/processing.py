@@ -36,6 +36,7 @@ ATOM_FEATURES = {
         Chem.rdchem.HybridizationType.SP3D,
         Chem.rdchem.HybridizationType.SP3D2,
     ],
+    "placeholders": [0, 1, 2],
 }
 
 
@@ -58,8 +59,10 @@ def atom_features(
         + onek_encoding_unk(
             int(atom.GetHybridization()), ATOM_FEATURES["hybridization"]
         )
-        + [1 if atom.GetIsAromatic() else 0]
+        + onek_encoding_unk(int(atom.GetTotalNumHs()), ATOM_FEATURES["num_Hs"])
+        + onek_encoding_unk(int(atom.GetAtomMapNum()), ATOM_FEATURES["placeholders"])
         + [atom.GetMass() * 0.01]
+        #add a one hot encoding here based on the placeholder
     )  # scaled to about the same range as other features
     if functional_groups is not None:
         features += functional_groups
@@ -97,6 +100,10 @@ def smiles_list_to_mols(smiles: List[str], parallelize: bool = False) -> List[Ch
         mols = [smiles_to_mol(s) for s in tqdm(smiles)]
     return mols
 
+import re
+
+def replace_star_notation(s):
+    return re.sub(r'\[(\d+)\*\]', r'[*:\1]', s)
 
 def smiles_to_data(
     smiles: str, y: torch.Tensor = None, mol_features: torch.Tensor = None
@@ -110,6 +117,9 @@ def smiles_to_data(
     :return:
     """
     feat = atoms_features
+
+    smiles = replace_star_notation(smiles)
+
     d = smiles_to_bigraph(
         smiles,
         node_featurizer=feat,
