@@ -208,7 +208,7 @@ if __name__ == "__main__":
         "max_epochs": 2,
         "batch_size": 128,
         "val_batch_size": None,
-        "node_dim": 133,
+        "node_dim": 142,
         "edge_dim": 12,
         "hidden_dim_graph": 512,
         "num_mp_layers": 5,
