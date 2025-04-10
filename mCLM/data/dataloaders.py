@@ -14,6 +14,8 @@ from torch_geometric.data.datapipes import DatasetAdapter
 from transformers import AutoTokenizer
 from typing import Any, List, Optional, Sequence, Union
 
+from sklearn.model_selection import train_test_split
+
 from mCLM.tokenizer.molecule_tokenizer import MoleculeTokenizer
 
 from mCLM.data.processing import insert_sublists, find_first_occurrence
@@ -458,12 +460,13 @@ class TotalDataModule(LightningDataModule):
         start_idx = len(self.tokenizer)
         self.molecule_tokenizer = MoleculeTokenizer(start_idx)
 
+        to_split_data = []
         train_data = []
         valid_data = []
         test_data = []
 
         
-        for subdir in ['pos_neg', 'pos_pos', 'property_to_mol','multi_property_to_mol', 'mol_only','mCLM','regression', 'classification']
+        for subdir in ['pos_neg', 'pos_pos', 'property_to_mol','multi_property_to_mol', 'mol_only','mCLM','regression', 'classification']:
             ddir = osp.join(self.synthetic_data_path, subdir)
             files = [f for f in os.listdir(ddir) if os.path.isfile(os.path.join(ddir, f))]
             for f in files:
@@ -472,7 +475,7 @@ class TotalDataModule(LightningDataModule):
                 print(df)
                 if len(df) == 0: continue
                 df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
-                train_data.append((df, f.replace('.csv', '')))
+                to_split_data.append((df, f.replace('.csv', '')))
                 #if f == 'Tox21_class.csv': break
         
 
@@ -508,7 +511,7 @@ class TotalDataModule(LightningDataModule):
 
         #Preprocess molecule tokenizer
         block_to_idx = {}
-        for dfs in [train_data, valid_data, test_data]:
+        for dfs in [to_split_data, train_data, valid_data, test_data]:
             for df, task in dfs:
                 for d in df['mol_list']:
                     for mol in d:
@@ -522,20 +525,51 @@ class TotalDataModule(LightningDataModule):
         self.valid_dses = []
         self.test_dses = []
 
-        for df, task in train_data:
+        for df, task in to_split_data:
+            ts = min(200, max(int(0.01*len(df)), 10))
+            train_df, val_df = train_test_split(df, test_size=ts, random_state = self.seed)
+            val_df, test_df = train_test_split(df, test_size=0.5, random_state = self.seed)
             ds = GeneralDataset(
-                train_data,
+                train_df,
                 self.tokenizer,
                 self.molecule_tokenizer,
                 task_name=task,
                 trunc_length=self.trunc_length,
             )
             self.train_dses.append(ds)
-        self.train_ds = ConcatDataset(self.train_dses)
+            ds = GeneralDataset(
+                val_df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+            )
+            self.valid_dses.append(ds)
+            ds = GeneralDataset(
+                test_df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+            )
+            self.test_dses.append(ds)
+            
 
         for df, task in train_data:
             ds = GeneralDataset(
-                train_data,
+                df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+            )
+            self.train_dses.append(ds)
+
+        self.train_ds = ConcatDataset(self.train_dses)
+
+        for df, task in valid_data:
+            ds = GeneralDataset(
+                df,
                 self.tokenizer,
                 self.molecule_tokenizer,
                 task_name=task,
@@ -543,16 +577,15 @@ class TotalDataModule(LightningDataModule):
             )
             self.valid_dses.append(ds)
 
-        for df, task in train_data:
+        for df, task in test_data:
             ds = GeneralDataset(
-                train_data,
+                df,
                 self.tokenizer,
                 self.molecule_tokenizer,
                 task_name=task,
                 trunc_length=self.trunc_length,
             )
             self.test_dses.append(ds)
-        #zz
 
     def train_dataloader(self):
         return CustomDataLoader(
@@ -667,7 +700,7 @@ class SMolInstructDataModule(LightningDataModule):
             self.train_dses.append(ds)
         self.train_ds = ConcatDataset(self.train_dses)
 
-        for df, task in train_data:
+        for df, task in valid_data:
             ds = GeneralDataset(
                 train_data,
                 self.tokenizer,
@@ -677,7 +710,7 @@ class SMolInstructDataModule(LightningDataModule):
             )
             self.valid_dses.append(ds)
 
-        for df, task in train_data:
+        for df, task in test_data:
             ds = GeneralDataset(
                 train_data,
                 self.tokenizer,
