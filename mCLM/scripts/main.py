@@ -20,92 +20,7 @@ from mCLM.model.models import (
 import subprocess
 
 
-if __name__ == "__main__":
-    torch.cuda.empty_cache()
-
-    #subprocess.run(["nvidia-smi"])
-
-    config = {
-        "pretrained_text_model": "michiyasunaga/BioLinkBERT-base",
-        "trunc_length": 512,
-        "num_warmup_steps": 1000,
-        "max_epochs": 2,
-        "batch_size": 128,
-        "val_batch_size": None,
-        "node_dim": 133,
-        "edge_dim": 12,
-        "hidden_dim_graph": 512,
-        "num_mp_layers": 5,
-        "num_readout_layers": 1,
-        "dropout": 0.13,
-        "aggr": "mean",
-        "jk": "cat",
-        "latent_size": 256,
-        "validate_every_n": 1000,
-        "lr": 2e-5,
-        "data_module": "S1B",
-        "ckpt_path": "ckpts/",
-        "loss": "CLIP",
-        "model": "GNN",
-        "load_ckpt": None,
-        "seed": 42,
-    }
-
-    parser = argparse.ArgumentParser(description="Biencoder")
-    parser.add_argument("--trunc_length", default=512, type=int)
-
-    parser.add_argument("--num_warmup_steps", default=1000, type=int)
-    parser.add_argument("--max_epochs", default=2, type=int)
-    parser.add_argument("--batch_size", default=4, type=int) #2 takes up 29733MiB
-    parser.add_argument("--val_batch_size", default=None, type=int)
-
-    parser.add_argument("--node_dim", default=133, type=int)
-    parser.add_argument("--edge_dim", default=12, type=int)
-    parser.add_argument("--hidden_dim_graph", default=512, type=int)
-    parser.add_argument("--num_mp_layers", default=5, type=int)
-    parser.add_argument("--num_readout_layers", default=1, type=int)
-    parser.add_argument("--dropout", default=0.13, type=float)
-    parser.add_argument("--aggr", default="mean", type=str)
-    parser.add_argument("--jk", default="cat", type=str)
-
-    parser.add_argument("--latent_size", default=256, type=int)
-    parser.add_argument("--validate_every_n", default=1000, type=int)
-    parser.add_argument("--lr", default=5e-5, type=float)
-    parser.add_argument("--ckpt_path", default="ckpts/", type=str)
-    parser.add_argument("--loss", default="CLIP", type=str)
-    parser.add_argument("--load_ckpt", default=None, type=str)
-    parser.add_argument("--load_GNN_ckpt", default=None, type=str)
-
-    parser.add_argument("--seed", default=42, type=int)
-
-    parser.add_argument("--model", default="mCLM", type=str)
-    parser.add_argument("--base_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
-    parser.add_argument("--pretrained_text_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
-
-    parser.add_argument(
-        "--freeze_GNN", type=bool, action=argparse.BooleanOptionalAction
-    )
-
-    parser.add_argument("--resume_from_checkpoint", default=None, type=str)
-    parser.add_argument("--resume_wandb_run", default=None, type=str)
-
-    parser.add_argument("--task", default='Kinase', type=str)
-    parser.add_argument("--weight_decay", default=0.0, type=float)
-
-    parser.add_argument("--data_module", type=str, default='Kinase')
-    parser.add_argument("--version", type=str, default='')
-    parser.add_argument("--caption_source", type=str)
-    parser.add_argument("--fold_idx", type=int)
-
-    parser.add_argument("--check_val_every_n_steps", default=None, type=int)
-
-    args = parser.parse_args()
-
-    if args.val_batch_size == None:
-        args.val_batch_size = args.batch_size
-
-    config = vars(args)
-    print(config)
+def main(args):
 
     os.makedirs(config["ckpt_path"], exist_ok=True)
 
@@ -125,7 +40,6 @@ if __name__ == "__main__":
     )
 
 
-    config["task"] = args.task
 
     task_type = 'NTP' #next token prediction
 
@@ -256,19 +170,21 @@ if __name__ == "__main__":
             default_root_dir=dirpath,
             max_epochs=config["max_epochs"],
             accelerator="auto",
-            devices="auto",
+            devices="auto",#torch.cuda.device_count() if torch.cuda.is_available() else None,  # limiting got iPython runs
             logger=wandb_logger,
             callbacks=callbacks,
             val_check_interval=config['check_val_every_n_steps'],
+            strategy='ddp',
         )
     else:
         trainer = Trainer(
             default_root_dir=dirpath,
             max_epochs=config["max_epochs"],
             accelerator="auto",
-            devices="auto",
+            devices="auto",#torch.cuda.device_count() if torch.cuda.is_available() else None,  # limiting got iPython runs
             logger=wandb_logger,
             callbacks=callbacks,
+            strategy='ddp',
         )
 
 
@@ -279,3 +195,95 @@ if __name__ == "__main__":
         trainer.fit(model, datamodule=dm)
 
 
+if __name__ == "__main__":
+
+    torch.cuda.empty_cache()
+
+    #subprocess.run(["nvidia-smi"])
+
+    config = {
+        "pretrained_text_model": "michiyasunaga/BioLinkBERT-base",
+        "trunc_length": 512,
+        "num_warmup_steps": 1000,
+        "max_epochs": 2,
+        "batch_size": 128,
+        "val_batch_size": None,
+        "node_dim": 142,
+        "edge_dim": 12,
+        "hidden_dim_graph": 512,
+        "num_mp_layers": 5,
+        "num_readout_layers": 1,
+        "dropout": 0.13,
+        "aggr": "mean",
+        "jk": "cat",
+        "latent_size": 256,
+        "validate_every_n": 1000,
+        "lr": 2e-5,
+        "data_module": "S1B",
+        "ckpt_path": "ckpts/",
+        "loss": "CLIP",
+        "model": "GNN",
+        "load_ckpt": None,
+        "seed": 42,
+    }
+
+    parser = argparse.ArgumentParser(description="Biencoder")
+    parser.add_argument("--trunc_length", default=512, type=int)
+
+    parser.add_argument("--num_warmup_steps", default=1000, type=int)
+    parser.add_argument("--max_epochs", default=2, type=int)
+    parser.add_argument("--batch_size", default=4, type=int) #2 takes up 29733MiB
+    parser.add_argument("--val_batch_size", default=None, type=int)
+
+    parser.add_argument("--node_dim", default=142, type=int)
+    parser.add_argument("--edge_dim", default=12, type=int)
+    parser.add_argument("--hidden_dim_graph", default=512, type=int)
+    parser.add_argument("--num_mp_layers", default=5, type=int)
+    parser.add_argument("--num_readout_layers", default=1, type=int)
+    parser.add_argument("--dropout", default=0.13, type=float)
+    parser.add_argument("--aggr", default="mean", type=str)
+    parser.add_argument("--jk", default="cat", type=str)
+
+    parser.add_argument("--latent_size", default=256, type=int)
+    parser.add_argument("--validate_every_n", default=1000, type=int)
+    parser.add_argument("--lr", default=5e-5, type=float)
+    parser.add_argument("--ckpt_path", default="ckpts/", type=str)
+    parser.add_argument("--loss", default="CLIP", type=str)
+    parser.add_argument("--load_ckpt", default=None, type=str)
+    parser.add_argument("--load_GNN_ckpt", default=None, type=str)
+
+    parser.add_argument("--seed", default=42, type=int)
+
+    parser.add_argument("--model", default="mCLM", type=str)
+    parser.add_argument("--base_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
+    parser.add_argument("--pretrained_text_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
+
+    parser.add_argument(
+        "--freeze_GNN", type=bool, action=argparse.BooleanOptionalAction
+    )
+
+    parser.add_argument("--resume_from_checkpoint", default=None, type=str)
+    parser.add_argument("--resume_wandb_run", default=None, type=str)
+
+    parser.add_argument("--task", default='Kinase', type=str)
+    parser.add_argument("--weight_decay", default=0.0, type=float)
+
+    parser.add_argument("--data_module", type=str, default='Kinase')
+    parser.add_argument("--version", type=str, default='')
+    parser.add_argument("--caption_source", type=str)
+    parser.add_argument("--fold_idx", type=int)
+
+    parser.add_argument("--check_val_every_n_steps", default=None, type=int)
+
+    args = parser.parse_args()
+
+    if args.val_batch_size == None:
+        args.val_batch_size = args.batch_size
+
+    config = vars(args)
+
+    config["task"] = args.task
+    
+    print(config)
+    # TRAIN
+    main(config)

@@ -39,6 +39,7 @@ from transformers.models.llama.modeling_llama import (
 
 # mCLM imports
 
+from torch_geometric.data import Batch
 from ..components import GNNMolEncoder
 from .configuration import mCLMConfig
 from .utils import embed_chemical_language, \
@@ -108,25 +109,31 @@ class LlamaModel(LlamaPreTrainedModel):
         output_features = torch.zeros(
             mol_input_ids.size() + (self.config.molecule_config["out_channels"],),
             dtype=self.dtype,
-            device=mol_input_ids.device,
-        )
-        if mol_input_ids.ndim == 2:
-            for i in range(mol_input_ids.size(0)):
-                for j in range(mol_input_ids.size(1)):
-                    if mol_input_ids[i, j] >= 0:
-                        graph = self.mol_vocab[mol_input_ids[i, j].item()]
-                        #print(graph.x.device)
-                        #print(self.mol_gnn(graph).device)
-                        #zz
-                        output_features[i, j] = self.mol_gnn(graph)
-        elif mol_input_ids.ndim == 1:
-            for i in range(mol_input_ids.size(0)):
-                if mol_input_ids[i] >= 0:
-                    graph = self.mol_vocab[mol_input_ids[i].item()]
-                    output_features[i] = self.mol_gnn(graph)
-        else:
-            print(mol_input_ids.shape)
-            raise ValueError("mol_input_ids should be 1D or 2D tensor")
+        ).to(self.device)
+        # get greater than 0 mol_input_ids
+        graph_ids = mol_input_ids[mol_input_ids >= 0]
+        graphs = [self.mol_vocab[graph_id.item()] for graph_id in graph_ids]
+        graphs = Batch.from_data_list(graphs).to(self.device)
+        # embed the molecules using the GNN
+        mol_embeddings = self.mol_gnn(graphs)
+        #print('here', mol_embeddings.device, self.mol_gnn, self.device)
+        # assign the embeddings to the output features
+        output_features[mol_input_ids >= 0] = mol_embeddings
+
+        # if mol_input_ids.ndim == 2:
+        #     for i in range(mol_input_ids.size(0)):
+        #         for j in range(mol_input_ids.size(1)):
+        #             if mol_input_ids[i, j] >= 0:
+        #                 graph = self.mol_vocab[mol_input_ids[i, j].item()]
+        #                 output_features[i, j] = self.mol_gnn(graph)
+        # elif mol_input_ids.ndim == 1:
+        #     for i in range(mol_input_ids.size(0)):
+        #         if mol_input_ids[i] >= 0:
+        #             graph = self.mol_vocab[mol_input_ids[i].item()]
+        #             output_features[i] = self.mol_gnn(graph)
+        # else:
+        #     print(mol_input_ids.shape)
+        #     raise ValueError("mol_input_ids should be 1D or 2D tensor")
 
         return output_features
 
