@@ -322,3 +322,391 @@ class KinaseDataModule(LightningDataModule):
     def teardown(self, stage: str):
         pass
 
+
+
+
+
+
+class ConcatDataset(Dataset):
+    """Combine two datasets to allow random interleaving of batches."""
+
+
+    def __init__(self, datasets):
+        self.datasets = datasets
+
+        self.lens = [len(d) for d in datasets]
+        self.bins = [sum(self.lens[:i]) for i in range(len(self.lens))]
+        #print(self.lens, self.bins)
+
+    def __len__(self):
+        return sum(self.lens)
+
+    def __getitem__(self, idx):
+        
+        didx = np.digitize(idx, self.bins) - 1 #not zero indexed for some reason
+        #print(idx, didx)
+        return self.datasets[didx].__getitem__(idx - self.bins[didx])
+
+
+class GeneralDataset(Dataset):
+
+    def __init__(
+        self, data, tokenizer, mol_tokenizer, task_name, trunc_length=512,
+    ):
+        self.data = data
+        self.tokenizer = tokenizer
+        self.mol_tokenizer = mol_tokenizer
+        self.MOL_start = tokenizer.convert_tokens_to_ids('[MOL]')
+        self.MOL_end = tokenizer.convert_tokens_to_ids('[/MOL]')
+
+        self._indices = None
+        self.transform = None
+        self.trunc_length = trunc_length
+        self.task_name = task_name
+
+    def len(self):
+        return len(self.data)
+
+    def get(self, idx):
+
+        d = self.data.iloc[idx]
+
+        raw_instruction = d['instruction']
+        raw_response = d['response']
+        cleaned_instruction = d['cleaned_instruction']
+        cleaned_response = d['cleaned_response']
+        mol_list = d['mol_list']
+
+        frags = [[self.mol_tokenizer.get_Idx(m) for m in mol.split('^')] for mol in mol_list]
+
+        messages = [
+            {"role": "system", "content": "You are an expert chemist who designs molecules in a modular fashion or answers questions following the given instructions.",},
+            {"role": "user", "content": cleaned_instruction},
+            {"role": "assistant", "content": cleaned_response},
+        ]
+        message_chat = self.tokenizer.apply_chat_template(messages, tokenize=False)
+
+        token_input = self.tokenizer(
+            message_chat,
+            truncation=True,
+            max_length=self.trunc_length,
+            padding="max_length",
+            return_tensors="pt",
+        )
+        
+        token_input['input_ids'] = torch.Tensor(insert_sublists(token_input['input_ids'].squeeze(), frags, self.MOL_start, self.MOL_end)[:self.trunc_length]).to(torch.int)#, dtype=torch.int32)
+        pad_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer.pad_token)
+        num_attn = find_first_occurrence(token_input['input_ids'], pad_id)
+        token_input['attention_mask'][:,:num_attn] = 1
+        token_input['attention_mask'] = token_input['attention_mask'].squeeze()
+        token_input['input_ids'] = token_input['input_ids']
+
+        rv = {
+            "task_id": self.task_name,
+            "raw_instruction": raw_instruction,
+            "raw_response": raw_response,
+            "input": {
+                "input_ids": token_input['input_ids'],
+                "labels": token_input['input_ids'],
+                "attention_mask": token_input['attention_mask'],
+            },
+        }
+        return rv
+
+
+def extract_mol_content2(instruction, response):
+    try:
+        ml1, clean_instruction = extract_mol_content(instruction)
+    except:
+        print(instruction)
+        zz
+    try:
+        ml2, clean_response = extract_mol_content(response)
+    except:
+        print(response)
+        zz
+    return ml1 + ml2, clean_instruction, clean_response
+
+class TotalDataModule(LightningDataModule):
+    def __init__(
+        self,
+        config,
+        base_model,
+        batch_size=4,
+        trunc_length=512,
+        instruction_data_path="captions/",
+        synthetic_data_path="captions/",
+    ):
+        super().__init__()
+        self.prepare_data_per_node = True
+
+        self.base_model = base_model
+        self.batch_size = batch_size
+        self.trunc_length = trunc_length
+        self.instruction_data_path = instruction_data_path
+        self.synthetic_data_path = synthetic_data_path
+        self.config = config
+        self.seed = config['seed']
+
+    def setup(self, stage: str):
+        self.tokenizer = AutoTokenizer.from_pretrained(self.base_model)
+        self.tokenizer.pad_token = self.tokenizer.eos_token #llama3
+
+        self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
+        #model.resize_token_embeddings(len(tokenizer)) #put this somewhere
+        
+        start_idx = len(self.tokenizer)
+        self.molecule_tokenizer = MoleculeTokenizer(start_idx)
+
+        train_data = []
+        valid_data = []
+        test_data = []
+
+        
+        for subdir in ['pos_neg', 'pos_pos', 'property_to_mol','multi_property_to_mol', 'mol_only','mCLM','regression', 'classification']
+            ddir = osp.join(self.synthetic_data_path, subdir)
+            files = [f for f in os.listdir(ddir) if os.path.isfile(os.path.join(ddir, f))]
+            for f in files:
+                print(f)
+                df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+                print(df)
+                if len(df) == 0: continue
+                df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+                train_data.append((df, f.replace('.csv', '')))
+                #if f == 'Tox21_class.csv': break
+        
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_train.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+        print(f)
+        print(df)
+        df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        train_data.append((df, f.replace('.csv', '')))
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_val.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+        print(f)
+        print(df)
+        df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        valid_data.append((df, f.replace('.csv', '')))
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_test.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+        print(f)
+        print(df)
+        df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        test_data.append((df, f.replace('.csv', '')))
+        
+        
+
+        # FIXME: test only
+        #train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+        #valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+
+        #Preprocess molecule tokenizer
+        block_to_idx = {}
+        for dfs in [train_data, valid_data, test_data]:
+            for df, task in dfs:
+                for d in df['mol_list']:
+                    for mol in d:
+                        for block in mol.split('^'):
+                            #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
+                            self.molecule_tokenizer.add_block(block)
+
+        self.molecule_tokenizer.create_input()
+
+        self.train_dses = []
+        self.valid_dses = []
+        self.test_dses = []
+
+        for df, task in train_data:
+            ds = GeneralDataset(
+                train_data,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+            )
+            self.train_dses.append(ds)
+        self.train_ds = ConcatDataset(self.train_dses)
+
+        for df, task in train_data:
+            ds = GeneralDataset(
+                train_data,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+            )
+            self.valid_dses.append(ds)
+
+        for df, task in train_data:
+            ds = GeneralDataset(
+                train_data,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+            )
+            self.test_dses.append(ds)
+        #zz
+
+    def train_dataloader(self):
+        return CustomDataLoader(
+            self.train_ds,
+            batch_size=self.batch_size,
+            num_workers=4,
+            shuffle=True,
+            drop_last=True,
+        )
+
+    def val_dataloader(self):
+        return [CustomDataLoader(
+            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
+        ) for ds in self.valid_dses]
+
+    def test_dataloader(self):
+        return [CustomDataLoader(
+            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
+        ) for ds in self.test_dses]
+
+    def teardown(self, stage: str):
+        pass
+
+
+
+
+
+
+class SMolInstructDataModule(LightningDataModule):
+    def __init__(
+        self,
+        config,
+        base_model,
+        batch_size=4,
+        trunc_length=512,
+        instruction_data_path="captions/",
+        synthetic_data_path="captions/",
+    ):
+        super().__init__()
+        self.prepare_data_per_node = True
+
+        self.base_model = base_model
+        self.batch_size = batch_size
+        self.trunc_length = trunc_length
+        self.instruction_data_path = instruction_data_path
+        self.synthetic_data_path = synthetic_data_path
+        self.config = config
+        self.seed = config['seed']
+
+    def setup(self, stage: str):
+        self.tokenizer = AutoTokenizer.from_pretrained(self.base_model)
+        self.tokenizer.pad_token = self.tokenizer.eos_token #llama3
+
+        self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
+        #model.resize_token_embeddings(len(tokenizer)) #put this somewhere
+        
+        start_idx = len(self.tokenizer)
+        self.molecule_tokenizer = MoleculeTokenizer(start_idx)
+
+        train_data = []
+        valid_data = []
+        test_data = []
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_train.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+        print(f)
+        print(df)
+        df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        train_data.append((df, f.replace('.csv', '')))
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_val.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+        print(f)
+        print(df)
+        df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        valid_data.append((df, f.replace('.csv', '')))
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_test.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+        print(f)
+        print(df)
+        df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        test_data.append((df, f.replace('.csv', '')))
+
+        #Preprocess molecule tokenizer
+        block_to_idx = {}
+        for dfs in [train_data, valid_data, test_data]:
+            for df, task in dfs:
+                for d in df['mol_list']:
+                    for mol in d:
+                        for block in mol.split('^'):
+                            #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
+                            self.molecule_tokenizer.add_block(block)
+
+        self.molecule_tokenizer.create_input()
+
+        self.train_dses = []
+        self.valid_dses = []
+        self.test_dses = []
+
+        for df, task in train_data:
+            ds = GeneralDataset(
+                train_data,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+            )
+            self.train_dses.append(ds)
+        self.train_ds = ConcatDataset(self.train_dses)
+
+        for df, task in train_data:
+            ds = GeneralDataset(
+                train_data,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+            )
+            self.valid_dses.append(ds)
+
+        for df, task in train_data:
+            ds = GeneralDataset(
+                train_data,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+            )
+            self.test_dses.append(ds)
+        #zz
+
+    def train_dataloader(self):
+        return CustomDataLoader(
+            self.train_ds,
+            batch_size=self.batch_size,
+            num_workers=4,
+            shuffle=True,
+            drop_last=True,
+        )
+
+    def val_dataloader(self):
+        return [CustomDataLoader(
+            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
+        ) for ds in self.valid_dses]
+
+    def test_dataloader(self):
+        return [CustomDataLoader(
+            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
+        ) for ds in self.test_dses]
+
+    def teardown(self, stage: str):
+        pass
+

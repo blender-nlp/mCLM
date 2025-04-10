@@ -129,7 +129,7 @@ def smiles_to_data(
     )
     n = Data(
         x=d.ndata["x"],
-        edge_attr=d.edata["edge_attr"],
+        edge_attr=d.edata["edge_attr"] if "edge_attr" in d.edata else None, #my modification to allow things like 'C'
         edge_index=torch.stack(d.edges()).long(),
     )
     if y is not None:

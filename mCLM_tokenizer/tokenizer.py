@@ -354,7 +354,7 @@ def reorder_fragments(frags):
 
     #print(frags)
 
-    fcount = [f.count('*') for f in frags]
+    fcount = [f.count('*]') for f in frags]
     fmax = max(fcount)
     fmin = min(fcount)
     if fmax > 2: return ""
@@ -363,7 +363,7 @@ def reorder_fragments(frags):
 
     new_frags = []
     for f in frags:
-        if f.count('*') == 1:
+        if f.count('*]') == 1:
             new_frags.append(f)
             break
     frags.remove(f)
@@ -372,7 +372,7 @@ def reorder_fragments(frags):
     index = extract_numbers(new_frags[0])[0]
     while len(frags) > 1:
         for f in frags:
-            if f'{index}*' in f and f.count('*') >= 2:
+            if f'[{index}*]' in f and f.count('*]') >= 2:
                 new_nums = extract_numbers(f)
                 index = remove_number_from_tuple(new_nums, index)
                 new_frags.append(f)
@@ -387,13 +387,13 @@ def reorder_fragments(frags):
     for i in range(len(new_frags)-1):
         nf = new_frags[i]
         nf2 = new_frags[i+1]
-        new_frags2.append(nf.replace(f'{index}*', '1*').replace(f'{old_index}*', '2*'))
+        new_frags2.append(nf.replace(f'[{index}*]', '[1*]').replace(f'[{old_index}*]', '[2*]'))
 
         old_index = index
         index = remove_number_from_tuple(extract_numbers(nf2), old_index)
 
     #print(index, old_index)
-    new_frags2.append(new_frags[-1].replace(f'{old_index}*', '2*'))
+    new_frags2.append(new_frags[-1].replace(f'[{old_index}*]', '[2*]'))
 
     #print('.'.join(new_frags))
     #print('.'.join(new_frags2))
@@ -414,16 +414,28 @@ def get_blocks(smi, preprocessed=None):
 
     #if it's a reaction, process differently
     if '>' in smi:
-        rfrags = '>'.join([get_blocks(s, preprocessed=preprocessed)[0] for s in smi.split('>')])
-        rrfrags = '>'.join([get_blocks(s, preprocessed=preprocessed)[1] for s in smi.split('>')])
+        rfrags = [get_blocks(s, preprocessed=preprocessed)[0] for s in smi.split('>')]
+        rrfrags = [get_blocks(s, preprocessed=preprocessed)[1] for s in smi.split('>')]
+        if '' in rfrags:
+            rfrags = ''
+            rrfrags = ''
+        else:
+            rfrags = '>'.join(rfrags)
+            rrfrags = '>'.join(rrfrags)
         if preprocessed:
             preprocessed[smi] = rfrags
             preprocessed['r_'+smi] = rrfrags
         return rfrags, rrfrags
     #process multiple molecules separately
     if '.' in smi:
-        rfrags = '.'.join([get_blocks(s, preprocessed=preprocessed)[0] for s in smi.split('.')])
-        rrfrags = '.'.join([get_blocks(s, preprocessed=preprocessed)[1] for s in smi.split('.')])
+        rfrags = [get_blocks(s, preprocessed=preprocessed)[0] for s in smi.split('.')]
+        rrfrags = [get_blocks(s, preprocessed=preprocessed)[1] for s in smi.split('.')]
+        if '' in rfrags:
+            rfrags = ''
+            rrfrags = ''
+        else:
+            rfrags = '.'.join(rfrags)
+            rrfrags = '.'.join(rrfrags)
         if preprocessed:
             preprocessed[smi] = rfrags
             preprocessed['r_'+smi] = rrfrags
@@ -436,7 +448,25 @@ def get_blocks(smi, preprocessed=None):
 
     if s_mol == None: return ""
 
+    #check for "*" in OPV molecules
+    #star_flag = any([a.GetAtomicNum() == 0 and a.GetAtomMapNum() == 0 for a in s_mol.GetAtoms()])
+
+    for a in s_mol.GetAtoms():
+        if a.GetAtomicNum() == 0 and a.GetAtomMapNum() == 0:
+            a.SetAtomicNum(1)
+            a.SetBoolProp('star_flag', True)
+    Chem.SanitizeMol(s_mol)
+    #print(Chem.MolToSmiles(s_mol))
+
     frag_mol = BreakSynthBonds(s_mol, reduce=True, ring=True, addLabels=True)
+    #print(Chem.MolToSmiles(frag_mol))
+    for a in frag_mol.GetAtoms():
+        if a.HasProp('star_flag') and a.GetBoolProp('star_flag'):
+            a.SetAtomicNum(0)
+    #print(Chem.MolToSmiles(frag_mol))
+    Chem.SanitizeMol(frag_mol)
+    #print(Chem.MolToSmiles(frag_mol))
+
     frags = Chem.MolToSmiles(frag_mol)
 
     rfrags = reorder_fragments(frags)
