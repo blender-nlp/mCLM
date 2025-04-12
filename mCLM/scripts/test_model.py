@@ -19,7 +19,10 @@ import subprocess
 if __name__ == "__main__":
     torch.cuda.empty_cache()
 
-    subprocess.run(["nvidia-smi"])
+    try:
+        subprocess.run(["nvidia-smi"])
+    except Exception as e:
+        print("Error running nvidia-smi:", e)
 
     config = {
         "pretrained_text_model": "michiyasunaga/BioLinkBERT-base",
@@ -144,7 +147,7 @@ if __name__ == "__main__":
         )
 
     dm.setup('test')
-    llama_tokenizer = dm.tokenizer
+    tokenizer = dm.tokenizer
     test_loader = dm.test_dataloader()
 
     # test GNN input dict
@@ -153,10 +156,16 @@ if __name__ == "__main__":
     print(dict(list(block_ID_to_data.items())[:10]))
 
     print("Loading model...")
-    from mCLM.model.llama_based.model import LlamaForCausalLM
+    if "Llama" in config["base_model"]:
+        from mCLM.model.llama_based.model import LlamaForCausalLM
+        mCLM_Model = LlamaForCausalLM
+    elif "Qwen" in config["base_model"]:
+        from mCLM.model.qwen_based.model import Qwen2ForCausalLM
+        mCLM_Model = Qwen2ForCausalLM
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     ckpt_path = config["pretrained_text_model"]
-    model = LlamaForCausalLM.from_pretrained(ckpt_path)
+    model = mCLM_Model.from_pretrained(ckpt_path)
     model.to(device)
 
     print("extending text vocab size and setting molecule vocab...")
@@ -168,7 +177,7 @@ if __name__ == "__main__":
     item = next(test_iter)
 
     print("Testing GNN forwarding...")
-    graph = block_ID_to_data[128258]
+    graph = list(block_ID_to_data.values())[0]
     graph_feature = model.model.mol_gnn(graph)
 
     print("Testing model training time forwarding...")
@@ -192,13 +201,13 @@ if __name__ == "__main__":
     model.train(False)
     model.post_training()
     prompt = item["input"]["input_ids"][0, 0].tolist()
-    prompt = prompt[:prompt.index(llama_tokenizer.eos_token_id)]
+    prompt = prompt[:prompt.index(tokenizer.eos_token_id)]
     generated = model.generate(
         input_ids=torch.tensor([prompt]).to(device),
         max_new_tokens=50,
         num_beams=1,
         do_sample=False,
     )
-    print("prompt:", llama_tokenizer.decode(prompt))
-    print("generated:", llama_tokenizer.decode(
+    print("prompt:", tokenizer.decode(prompt))
+    print("generated:", tokenizer.decode(
         generated[0].tolist()[len(prompt):]))

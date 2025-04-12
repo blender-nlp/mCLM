@@ -39,15 +39,15 @@ from transformers.models.llama.modeling_llama import (
 
 from torch_geometric.data import Batch
 from ..components import GNNMolEncoder
-from .configuration import mCLMConfig
-from .utils import embed_chemical_language, \
+from .configuration import LlamaConfig
+from ..utils import embed_chemical_language, \
     finalized_molecule_embeddings, mclm_logit_head
 
 
 logger = logging.get_logger(__name__)
 
 _CHECKPOINT_FOR_DOC = "meta-llama/Llama-2-7b-hf"
-_CONFIG_FOR_DOC = "mCLMConfig"
+_CONFIG_FOR_DOC = "LlamaConfig"
 
 
 @add_start_docstrings(
@@ -62,10 +62,10 @@ class LlamaModel(LlamaPreTrainedModel):
         config: LlamaConfig
     """
 
-    def __init__(self, config: mCLMConfig):
+    def __init__(self, config: LlamaConfig):
         super().__init__(config)
 
-        config = mCLMConfig.from_dict(config.to_dict())
+        config = LlamaConfig.from_dict(config.to_dict())
         self.padding_idx = config.pad_token_id
         self.config = config
 
@@ -116,21 +116,6 @@ class LlamaModel(LlamaPreTrainedModel):
         mol_embeddings = self.mol_gnn(graphs)
         # assign the embeddings to the output features
         output_features[mol_input_ids >= 0] = mol_embeddings
-
-        # if mol_input_ids.ndim == 2:
-        #     for i in range(mol_input_ids.size(0)):
-        #         for j in range(mol_input_ids.size(1)):
-        #             if mol_input_ids[i, j] >= 0:
-        #                 graph = self.mol_vocab[mol_input_ids[i, j].item()]
-        #                 output_features[i, j] = self.mol_gnn(graph)
-        # elif mol_input_ids.ndim == 1:
-        #     for i in range(mol_input_ids.size(0)):
-        #         if mol_input_ids[i] >= 0:
-        #             graph = self.mol_vocab[mol_input_ids[i].item()]
-        #             output_features[i] = self.mol_gnn(graph)
-        # else:
-        #     print(mol_input_ids.shape)
-        #     raise ValueError("mol_input_ids should be 1D or 2D tensor")
 
         return output_features
 
@@ -335,7 +320,10 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
 
     def __init__(self, config):
         super().__init__(config)
-        config = mCLMConfig.from_dict(config.to_dict())
+        # mCLM config and default molecule embeddings
+        config = LlamaConfig.from_dict(config.to_dict())
+        self.finalized_molecule_embeddings = None
+
         self.config = config
         self.model = LlamaModel(config)
 
@@ -343,7 +331,6 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
 
         # Initialize weights and apply final processing
         self.post_init()
-        self.finalized_molecule_embeddings = None
 
     def get_input_embeddings(self):
         return self.model.embed_tokens
@@ -363,18 +350,22 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
     def get_decoder(self):
         return self.model
 
+    # mCLM text vocab size
     @property
     def vocab_size(self):
         return self.config.vocab_size
 
+    # mCLM molecule vocab sizes
     @property
     def mol_vocab_size(self):
         return self.config.mol_vocab_size
 
+    # mCLM total vocab sizes
     @property
     def total_vocab_size(self):
         return self.vocab_size + self.mol_vocab_size
 
+    # mCLM extend text embedding
     def extend_text_vocab_size(self, new_vocab_size):
         assert new_vocab_size > self.vocab_size
         self.lm_head.weight = nn.Parameter(
@@ -384,6 +375,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
         self.model.extend_text_vocab_size(new_vocab_size)
         self.config.vocab_size = new_vocab_size
 
+    # mCLM set molecule vocab
     def set_mol_vocab(self, mol_vocab):
         self.mol_vocab = mol_vocab
         self.model.mol_vocab = mol_vocab
