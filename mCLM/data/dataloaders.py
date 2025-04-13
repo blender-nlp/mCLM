@@ -187,6 +187,10 @@ class KinaseDataset(Dataset):
             {"role": "assistant", "content": cleaned_text},
         ]
         message_chat = self.tokenizer.apply_chat_template(messages, tokenize=False)
+        #for llama to avoid '<|begin_of_text|>' and <|eot_id|> twice since we use the tokenizer twice
+        message_chat = message_chat.replace('<|begin_of_text|>','').replace('<|eot_id|>','')
+        #print(message_chat)
+        #zz
 
         token_input = self.tokenizer(
             message_chat,
@@ -202,6 +206,7 @@ class KinaseDataset(Dataset):
         token_input['input_ids'] = torch.Tensor(insert_sublists(token_input['input_ids'].squeeze(), frags, self.MOL_start, self.MOL_end)[:self.trunc_length]).to(torch.int)#, dtype=torch.int32)
         pad_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer.pad_token)
         #print(token_input['input_ids'], pad_id)
+        #zz
         num_attn = find_first_occurrence(token_input['input_ids'], pad_id)
         token_input['attention_mask'][:,:num_attn] = 1
         token_input['attention_mask'] = token_input['attention_mask'].squeeze()

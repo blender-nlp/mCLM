@@ -21,7 +21,10 @@ import subprocess
 if __name__ == "__main__":
     torch.cuda.empty_cache()
 
-    #subprocess.run(["nvidia-smi"])
+    try:
+        subprocess.run(["nvidia-smi"])
+    except Exception as e:
+        print("Error running nvidia-smi:", e)
 
     config = {
         "pretrained_text_model": "michiyasunaga/BioLinkBERT-base",
@@ -137,7 +140,7 @@ if __name__ == "__main__":
         )
 
     dm.setup('test')
-    llama_tokenizer = dm.tokenizer
+    tokenizer = dm.tokenizer
     test_loader = dm.test_dataloader()
 
     # test GNN input dict
@@ -161,13 +164,14 @@ if __name__ == "__main__":
         graph = list(block_ID_to_data.values())[0]
         print(graph)
         #graph_feature = model.model.mol_gnn(graph)
-        graph_feature = model.model.embed_molecules(graph)
+        graph_feature = model.model.model.model.mol_gnn(graph)
         print(graph_feature)
     
 
     # model forwarding, testing mode
     test_iter = iter(test_loader)
     item = next(test_iter)
+    print(item['raw_text'][0])
     #print(item["input"]["input_ids"].shape, item["input"]["attention_mask"].shape,
     #    item["input"]["input_ids"].shape)
     model.train(False)
@@ -200,7 +204,12 @@ if __name__ == "__main__":
     for p in model.named_parameters():
         print(p[0], p[1].requires_grad)
 
-    grad_dict = {k:v.grad for k, v in zip(model.state_dict(), model.parameters())}
+    #for key in model.state_dict():
+    #    print(key)
+
+    #grad_dict = {k:v.grad for k, v in zip(model.state_dict(), model.parameters())}
+    grad_dict = {k:v.grad for k, v in model.named_parameters()}
+    #print(len(list(model.state_dict())), len(list(model.parameters())))
     print(grad_dict['model.base_model.model.model.mol_gnn.convs.1.nn.0.bias'])
     print(grad_dict['model.base_model.model.lm_head.weight'])
 
@@ -218,3 +227,21 @@ if __name__ == "__main__":
     print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
     key = 'model.base_model.model.model.layers.15.mlp.up_proj.lora_A.default.weight'
     print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
+
+    print("Testing model generation...")
+    model.train(False)
+    model.model.post_training()
+    prompt = item["input"]["input_ids"][0, :].tolist()
+    #print(prompt)
+    prompt = prompt[:prompt.index(tokenizer.eos_token_id)]
+    #print(prompt)
+    generated = model.generate(
+        input_ids=torch.tensor([prompt]).to(device),
+        max_new_tokens=50,
+        num_beams=1,
+        do_sample=False,
+    )
+    print("prompt:", tokenizer.decode(prompt))
+    #print("prompt:", item["raw_text"][0])
+    print("generated:", tokenizer.decode(
+        generated[0].tolist()[len(prompt):]))

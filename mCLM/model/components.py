@@ -118,13 +118,13 @@ class GNNMolEncoder(nn.Module):
             mlp = nn.Sequential(
                 nn.Linear(hidden_dim_graph, 2 * hidden_dim_graph),
                 # chi: when batch size == 1, BatchNorm1d will throw an error
-                # nn.BatchNorm1d(2 * hidden_dim_graph),
-                nn.LayerNorm(2 * hidden_dim_graph),
+                nn.BatchNorm1d(2 * hidden_dim_graph),
+                # nn.LayerNorm(2 * hidden_dim_graph),
                 nn.ReLU(inplace=True),
                 nn.Linear(2 * hidden_dim_graph, hidden_dim_graph),
                 # chi: when batch size == 1, BatchNorm1d will throw an error
-                # nn.BatchNorm1d(hidden_dim_graph),
-                nn.LayerNorm(hidden_dim_graph),
+                nn.BatchNorm1d(hidden_dim_graph),
+                # nn.LayerNorm(hidden_dim_graph),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout),
             )
@@ -167,8 +167,8 @@ class GNNMolEncoder(nn.Module):
             mlp = nn.Sequential(
                 nn.Linear(input_dim, ffn_hidden_size),
                 # chi: when batch size == 1, BatchNorm1d will throw an error
-                # nn.BatchNorm1d(ffn_hidden_size),
-                nn.LayerNorm(ffn_hidden_size),
+                nn.BatchNorm1d(ffn_hidden_size),
+                # nn.LayerNorm(ffn_hidden_size),
                 nn.ReLU(inplace=True),
                 nn.Dropout(p=dropout),
             )
@@ -204,6 +204,7 @@ class GNNMolEncoder(nn.Module):
 
         if self.jk_mode != "none":
             x_encoded = self.jk(list_graph_encodings)
+
 
         out = self.global_pool(x_encoded, batch)  # [batch_size, hidden_channels]
         return out
