@@ -252,6 +252,7 @@ class KinaseDataModule(LightningDataModule):
         start_idx = len(self.tokenizer)
         self.molecule_tokenizer = MoleculeTokenizer(start_idx)
 
+<<<<<<< HEAD
         train_data = pd.read_csv(self.data_path + 'kinase_train.csv')#.head(2000)
         valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv')#.head(1000)
         test_data = pd.read_csv(self.data_path + 'kinase_test.csv')#.head(1000)
@@ -259,6 +260,15 @@ class KinaseDataModule(LightningDataModule):
         # FIXME: test only
         #train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
         #valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+=======
+        # train_data = pd.read_csv(self.data_path + 'kinase_train.csv')
+        # valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv')
+        # FIXME: test only
+        train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+        valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+        test_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+
+>>>>>>> origin/model_implementation
 
         #train_data[['mol_list', 'cleaned_text']] = train_data['description'].apply(extract_mol_content)
         train_data[['mol_list', 'cleaned_text']] = train_data['description'].progress_apply(lambda x: pd.Series(extract_mol_content(x)))
