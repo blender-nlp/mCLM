@@ -3,6 +3,7 @@ from lightning import LightningDataModule
 import sys
 import torch
 import torch.utils.data
+from torch.utils.data import ConcatDataset
 from mCLM.data.processing import smiles_to_data, smiles_list_to_mols, extract_mol_content
 from collections.abc import Mapping
 from datasets import load_dataset
@@ -180,7 +181,7 @@ class KinaseDataset(Dataset):
         #print(frags)
 
         messages = [
-            {"role": "system", "content": "You are an expert chemist who designs molecules in a modular fashion or answers questions following the given instructions.",},
+            #{"role": "system", "content": "You are an expert chemist who designs molecules in a modular fashion or answers questions following the given instructions.",},
             {"role": "user", "content": "Please tell me a fact about a kinase inhibitor."},
             {"role": "assistant", "content": cleaned_text},
         ]
@@ -328,7 +329,7 @@ class KinaseDataModule(LightningDataModule):
 
 
 
-
+''' #new pytorch seems to have this now
 class ConcatDataset(Dataset):
     """Combine two datasets to allow random interleaving of batches."""
 
@@ -348,7 +349,7 @@ class ConcatDataset(Dataset):
         didx = np.digitize(idx, self.bins) - 1 #not zero indexed for some reason
         #print(idx, didx)
         return self.datasets[didx].__getitem__(idx - self.bins[didx])
-
+'''
 
 class GeneralDataset(Dataset):
 
@@ -382,7 +383,7 @@ class GeneralDataset(Dataset):
         frags = [[self.mol_tokenizer.get_Idx(m) for m in mol.split('^')] for mol in mol_list]
 
         messages = [
-            {"role": "system", "content": "You are an expert chemist who designs molecules in a modular fashion or answers questions following the given instructions.",},
+            #{"role": "system", "content": "You are an expert chemist who designs molecules in a modular fashion or answers questions following the given instructions.",},
             {"role": "user", "content": cleaned_instruction},
             {"role": "assistant", "content": cleaned_response},
         ]
@@ -416,6 +417,112 @@ class GeneralDataset(Dataset):
         return rv
 
 
+class MolInstDataset(Dataset):
+
+    def __init__(
+        self, data, tokenizer, mol_tokenizer, task_name, trunc_length=512,
+    ):
+        self.data = data
+        self.tokenizer = tokenizer
+        self.mol_tokenizer = mol_tokenizer
+        self.MOL_start = tokenizer.convert_tokens_to_ids('[MOL]')
+        self.MOL_end = tokenizer.convert_tokens_to_ids('[/MOL]')
+
+        self._indices = None
+        self.transform = None
+        self.trunc_length = trunc_length
+        self.task_name = task_name
+
+    def len(self):
+        return len(self.data)
+
+    def get(self, idx):
+
+        d = self.data.iloc[idx]
+
+        instruction = d['instruction']
+        inp = d['input']
+        output = d['output']
+
+        messages = [
+            #{"role": "system", "content": "You are an expert chemist who designs molecules in a modular fashion or answers questions following the given instructions.",},
+            {"role": "user", "content": instruction + '\n\n' + inp},
+            {"role": "assistant", "content": output},
+        ]
+        message_chat = self.tokenizer.apply_chat_template(messages, tokenize=False)
+
+        token_input = self.tokenizer(
+            message_chat,
+            truncation=True,
+            max_length=self.trunc_length,
+            padding="max_length",
+            return_tensors="pt",
+        )
+        
+
+        rv = {
+            "task_id": self.task_name,
+            "raw_instruction": raw_instruction,
+            "raw_response": raw_response,
+            "input": {
+                "input_ids": token_input['input_ids'],
+                "labels": token_input['input_ids'],
+                "attention_mask": token_input['attention_mask'],
+            },
+        }
+        return rv
+
+
+class TuluDataset(Dataset):
+
+    def __init__(
+        self, data, tokenizer, mol_tokenizer, task_name, trunc_length=512,
+    ):
+        self.data = data
+        self.tokenizer = tokenizer
+        self.mol_tokenizer = mol_tokenizer
+        self.MOL_start = tokenizer.convert_tokens_to_ids('[MOL]')
+        self.MOL_end = tokenizer.convert_tokens_to_ids('[/MOL]')
+
+        self._indices = None
+        self.transform = None
+        self.trunc_length = trunc_length
+        self.task_name = task_name
+
+    def len(self):
+        return len(self.data)
+
+    def get(self, idx):
+
+        d = self.data.iloc[idx]
+
+        messages = eval(d['messages'])
+
+        message_chat = self.tokenizer.apply_chat_template(messages, tokenize=False)
+
+        token_input = self.tokenizer(
+            message_chat,
+            truncation=True,
+            max_length=self.trunc_length,
+            padding="max_length",
+            return_tensors="pt",
+        )
+        
+
+        rv = {
+            "task_id": self.task_name,
+            "raw_instruction": raw_instruction,
+            "raw_response": raw_response,
+            "input": {
+                "input_ids": token_input['input_ids'],
+                "labels": token_input['input_ids'],
+                "attention_mask": token_input['attention_mask'],
+            },
+        }
+        return rv
+
+
+
 def extract_mol_content2(instruction, response):
     try:
         ml1, clean_instruction = extract_mol_content(instruction)
@@ -438,6 +545,7 @@ class TotalDataModule(LightningDataModule):
         trunc_length=512,
         instruction_data_path="captions/",
         synthetic_data_path="captions/",
+        GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.pth'
     ):
         super().__init__()
         self.prepare_data_per_node = True
@@ -449,6 +557,7 @@ class TotalDataModule(LightningDataModule):
         self.synthetic_data_path = synthetic_data_path
         self.config = config
         self.seed = config['seed']
+        self.GNN_cache = GNN_cache
 
     def setup(self, stage: str):
         self.tokenizer = AutoTokenizer.from_pretrained(self.base_model)
@@ -465,7 +574,7 @@ class TotalDataModule(LightningDataModule):
         valid_data = []
         test_data = []
 
-        
+        '''
         for subdir in ['pos_neg', 'pos_pos', 'property_to_mol','multi_property_to_mol', 'mol_only','mCLM','regression', 'classification']:
             ddir = osp.join(self.synthetic_data_path, subdir)
             files = [f for f in os.listdir(ddir) if os.path.isfile(os.path.join(ddir, f))]
@@ -477,7 +586,29 @@ class TotalDataModule(LightningDataModule):
                 df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
                 to_split_data.append((df, f.replace('.csv', '')))
                 #if f == 'Tox21_class.csv': break
+        '''
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'tulu-3-sft_train.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'messages': str})
+        print(f)
+        print(df)
+        to_split_data.append((df, f.replace('.csv', '')))
         
+        ddir = osp.join(self.instruction_data_path)
+        f = 'mol-inst_biomol_text_train.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'input': str, 'output': str})
+        print(f)
+        print(df)
+        train_data.append((df, f.replace('.csv', '')))
+        
+        ddir = osp.join(self.instruction_data_path)
+        f = 'mol-inst_biomol_text_test.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'input': str, 'output': str})
+        print(f)
+        print(df)
+        valid_data.append((df, f.replace('.csv', '')))
+        test_data.append((df, f.replace('.csv', '')))
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_train.csv'
@@ -505,21 +636,32 @@ class TotalDataModule(LightningDataModule):
         
         
 
+        print('Dataframes Loaded')
+
         # FIXME: test only
         #train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
         #valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
 
         #Preprocess molecule tokenizer
-        block_to_idx = {}
-        for dfs in [to_split_data, train_data, valid_data, test_data]:
-            for df, task in dfs:
-                for d in df['mol_list']:
-                    for mol in d:
-                        for block in mol.split('^'):
-                            #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
-                            self.molecule_tokenizer.add_block(block)
+        if osp.exists(self.GNN_cache):
+            with open(self.GNN_cache, "rb") as f:
+                self.molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'))
+        else:
+            self.molecule_tokenizer = MoleculeTokenizer(start_idx)
+            for dfs in [train_data, valid_data, test_data]:
+                for df, task in dfs:
+                    if 'mol_list' in df:
+                        for d in df['mol_list']:
+                            for mol in d:
+                                for block in mol.split('^'):
+                                    #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
+                                    self.molecule_tokenizer.add_block(block)
 
-        self.molecule_tokenizer.create_input()
+            self.molecule_tokenizer.create_input()
+            with open(self.GNN_cache, "wb") as f:
+                torch.save(self.molecule_tokenizer, f)
+
+        print('Molecule Building Block Input Created / Loaded')
 
         self.train_dses = []
         self.valid_dses = []
@@ -529,7 +671,10 @@ class TotalDataModule(LightningDataModule):
             ts = min(200, max(int(0.01*len(df)), 10))
             train_df, val_df = train_test_split(df, test_size=ts, random_state = self.seed)
             val_df, test_df = train_test_split(df, test_size=0.5, random_state = self.seed)
-            ds = GeneralDataset(
+            if task.startswith('tulu'): ds_type = TuluDataset
+            elif task.startswith('mol-inst'): ds_type = MolInstDataset
+            else: ds_type = GeneralDataset
+            ds = ds_type(
                 train_df,
                 self.tokenizer,
                 self.molecule_tokenizer,
@@ -537,7 +682,7 @@ class TotalDataModule(LightningDataModule):
                 trunc_length=self.trunc_length,
             )
             self.train_dses.append(ds)
-            ds = GeneralDataset(
+            ds = ds_type(
                 val_df,
                 self.tokenizer,
                 self.molecule_tokenizer,
@@ -545,7 +690,7 @@ class TotalDataModule(LightningDataModule):
                 trunc_length=self.trunc_length,
             )
             self.valid_dses.append(ds)
-            ds = GeneralDataset(
+            ds = ds_type(
                 test_df,
                 self.tokenizer,
                 self.molecule_tokenizer,
@@ -556,7 +701,10 @@ class TotalDataModule(LightningDataModule):
             
 
         for df, task in train_data:
-            ds = GeneralDataset(
+            if task.startswith('tulu'): ds_type = TuluDataset
+            elif task.startswith('mol-inst'): ds_type = MolInstDataset
+            else: ds_type = GeneralDataset
+            ds = ds_type(
                 df,
                 self.tokenizer,
                 self.molecule_tokenizer,
@@ -586,6 +734,8 @@ class TotalDataModule(LightningDataModule):
                 trunc_length=self.trunc_length,
             )
             self.test_dses.append(ds)
+
+        print('Datasets Created')
 
     def train_dataloader(self):
         return CustomDataLoader(
@@ -623,6 +773,7 @@ class SMolInstructDataModule(LightningDataModule):
         trunc_length=512,
         instruction_data_path="captions/",
         synthetic_data_path="captions/",
+        GNN_cache = '../GNN_input_cache/SMolInstruct.molecule_tokenizer.pth'
     ):
         super().__init__()
         self.prepare_data_per_node = True
@@ -634,6 +785,7 @@ class SMolInstructDataModule(LightningDataModule):
         self.synthetic_data_path = synthetic_data_path
         self.config = config
         self.seed = config['seed']
+        self.GNN_cache = GNN_cache
 
     def setup(self, stage: str):
         self.tokenizer = AutoTokenizer.from_pretrained(self.base_model)
@@ -643,7 +795,6 @@ class SMolInstructDataModule(LightningDataModule):
         #model.resize_token_embeddings(len(tokenizer)) #put this somewhere
         
         start_idx = len(self.tokenizer)
-        self.molecule_tokenizer = MoleculeTokenizer(start_idx)
 
         train_data = []
         valid_data = []
@@ -651,7 +802,7 @@ class SMolInstructDataModule(LightningDataModule):
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_train.csv'
-        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})#.head(1000)
         print(f)
         print(df)
         df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
@@ -659,7 +810,7 @@ class SMolInstructDataModule(LightningDataModule):
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_val.csv'
-        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})#.head(1000)
         print(f)
         print(df)
         df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
@@ -667,23 +818,35 @@ class SMolInstructDataModule(LightningDataModule):
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_test.csv'
-        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})#.head(1000)
         print(f)
         print(df)
         df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
         test_data.append((df, f.replace('.csv', '')))
 
-        #Preprocess molecule tokenizer
-        block_to_idx = {}
-        for dfs in [train_data, valid_data, test_data]:
-            for df, task in dfs:
-                for d in df['mol_list']:
-                    for mol in d:
-                        for block in mol.split('^'):
-                            #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
-                            self.molecule_tokenizer.add_block(block)
 
-        self.molecule_tokenizer.create_input()
+        print('Dataframes Loaded')
+
+        #Preprocess molecule tokenizer
+        if osp.exists(self.GNN_cache):
+            with open(self.GNN_cache, "rb") as f:
+                self.molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'))
+        else:
+            self.molecule_tokenizer = MoleculeTokenizer(start_idx)
+            for dfs in [train_data, valid_data, test_data]:
+                for df, task in dfs:
+                    if 'mol_list' in df:
+                        for d in df['mol_list']:
+                            for mol in d:
+                                for block in mol.split('^'):
+                                    #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
+                                    self.molecule_tokenizer.add_block(block)
+
+            self.molecule_tokenizer.create_input()
+            with open(self.GNN_cache, "wb") as f:
+                torch.save(self.molecule_tokenizer, f)
+        
+        print('Molecule Building Block Input Created / Loaded')
 
         self.train_dses = []
         self.valid_dses = []
@@ -691,7 +854,7 @@ class SMolInstructDataModule(LightningDataModule):
 
         for df, task in train_data:
             ds = GeneralDataset(
-                train_data,
+                df,
                 self.tokenizer,
                 self.molecule_tokenizer,
                 task_name=task,
@@ -702,7 +865,7 @@ class SMolInstructDataModule(LightningDataModule):
 
         for df, task in valid_data:
             ds = GeneralDataset(
-                train_data,
+                df,
                 self.tokenizer,
                 self.molecule_tokenizer,
                 task_name=task,
@@ -712,7 +875,7 @@ class SMolInstructDataModule(LightningDataModule):
 
         for df, task in test_data:
             ds = GeneralDataset(
-                train_data,
+                df,
                 self.tokenizer,
                 self.molecule_tokenizer,
                 task_name=task,
@@ -720,6 +883,8 @@ class SMolInstructDataModule(LightningDataModule):
             )
             self.test_dses.append(ds)
         #zz
+
+        print('Datasets created')
 
     def train_dataloader(self):
         return CustomDataLoader(

@@ -87,6 +87,7 @@ class mCLM(L.LightningModule):
         self,
         batch,
         prefix: str,
+        task_id = None,
     ) -> torch.Tensor:
         # 1. compute loss
 
@@ -108,13 +109,21 @@ class mCLM(L.LightningModule):
             batch_size=self.config['batch_size'],
             sync_dist=True,
         )
+        if task_id:
+            self.log(
+                f"{prefix}/{task_id}/loss",
+                loss.item(),
+                prog_bar=True,
+                batch_size=self.config['batch_size'],
+                sync_dist=True,
+            )
 
         #if prefix == "train":
         #    self._log_metric(step_name=prefix, preds=outputs, y=y)
 
         return {"loss": loss}
 
-    def on_validation_epoch_end(self):
+    def on_validation_epoch_end(self, val_outputs):
         #all_validation_probs = torch.cat(
         #    [i["probs"] for i in self.validation_step_outputs]
         #)
@@ -132,15 +141,15 @@ class mCLM(L.LightningModule):
         #self._log_metric("test", all_test_probs, all_test_labels)
 
     def training_step(self, batch, batch_idx) -> torch.Tensor:
-        return self.compute_step(batch, prefix="train")
+        return self.compute_step(batch, prefix="train", task_id = batch['task_id'])
 
     def validation_step(self, batch, batch_idx) -> torch.Tensor:
-        step_outputs = self.compute_step(batch, prefix="val")
+        step_outputs = self.compute_step(batch, prefix="val", task_id = batch['task_id'])
         #self.validation_step_outputs.append(step_outputs)
         return step_outputs
 
     def test_step(self, batch, batch_idx) -> torch.Tensor:
-        step_outputs = self.compute_step(batch, prefix="test")
+        step_outputs = self.compute_step(batch, prefix="test", task_id = batch['task_id'])
         #self.test_step_outputs.append(step_outputs)
         return step_outputs
 

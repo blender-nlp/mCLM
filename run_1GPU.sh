@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -p mmli
-#SBATCH --mem=60g
+#SBATCH --mem=120g
 #SBATCH --gres=gpu:1
 #SBATCH -N 1
 #SBATCH --ntasks-per-node=1
@@ -24,9 +24,10 @@ export WANDB_MODE=offline
 echo "Starting Main Script" 
 
 
-PYTHONPATH=. python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ \
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ --check_val_every_n_steps 10000 \
-    --batch_size=16 --lr 1e-5 --ckpt_path ckpts/1Bv4/ --version v4
+    --batch_size=16 --lr 1e-5 --ckpt_path ckpts/1B_SMolInstruct/ --version SMolInstruct --max_epochs 3 \
+    --data_module SMolInstruct --task SMolInstruct
     
 #PYTHONPATH=. python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ \
 #    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ --check_val_every_n_steps 50 \

@@ -12,7 +12,7 @@ import pandas as pd
 
 import pickle
 
-from mCLM.data.dataloaders import KinaseDataModule
+from mCLM.data.dataloaders import KinaseDataModule, SMolInstructDataModule
 from mCLM.model.models import (
     mCLM,
 )
@@ -75,6 +75,17 @@ def main(args):
             batch_size=config["batch_size"],
             trunc_length=config["trunc_length"],
         )
+    elif config["data_module"] == "SMolInstruct":
+        output_dim = 1
+        dm = SMolInstructDataModule(
+            config,
+            instruction_data_path = config['instruction_data_path'],
+            synthetic_data_path = config['synthetic_data_path'],
+            base_model=config["base_model"],
+            batch_size=config["batch_size"],
+            trunc_length=config["trunc_length"],
+        )
+    
 
     if False: #testing
         dm.setup('test')
@@ -154,7 +165,7 @@ def main(args):
             GNN_input_map = trainer.datamodule.molecule_tokenizer.GNN_input_map
             #print(pl_module.device)
             
-            #create a dictionary with a version of GNN_input_map for each device (the device is the key)
+            #this is no longer needed because of moving to device in parallelized mol_embed code
             for key in GNN_input_map:
                 trainer.datamodule.molecule_tokenizer.GNN_input_map[key] = GNN_input_map[key].to(pl_module.device)
 
@@ -163,7 +174,7 @@ def main(args):
 
 
     #callbacks.append(SetupCallback())
-    callbacks.append(MoveMoleculeDevice())
+    #callbacks.append(MoveMoleculeDevice())
 
     if config['check_val_every_n_steps']:
         trainer = Trainer(
@@ -274,6 +285,9 @@ if __name__ == "__main__":
     parser.add_argument("--fold_idx", type=int)
 
     parser.add_argument("--check_val_every_n_steps", default=None, type=int)
+
+    parser.add_argument("--instruction_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/instruction/')
+    parser.add_argument("--synthetic_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/synthetic/')
 
     args = parser.parse_args()
 

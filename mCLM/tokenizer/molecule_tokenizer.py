@@ -23,7 +23,7 @@ class MoleculeTokenizer:
             self.idx_to_block[self.block_to_idx[block]] = block
 
     def create_input(self):
-        for block in self.block_to_idx: #tqdm(block_to_idx, desc='Creating GNN Input'):
+        for block in tqdm(self.block_to_idx, desc='Creating GNN Input'):
             if self.block_to_idx[block] not in self.GNN_input_map:
                 try:
                     self.GNN_input_map[self.block_to_idx[block]] = smiles_to_data(block)
