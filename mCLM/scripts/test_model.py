@@ -153,6 +153,7 @@ if __name__ == "__main__":
     ckpt_path = config["pretrained_text_model"]
     #model = LlamaForCausalLM.from_pretrained(ckpt_path)
     model = mCLM(config)
+    model.to(device)
 
     print("extending text vocab size and setting molecule vocab...")
     model.model.extend_text_vocab_size(len(dm.tokenizer.vocab))
@@ -161,7 +162,7 @@ if __name__ == "__main__":
 
     # test graph forwarding
     if True:
-        graph = list(block_ID_to_data.values())[0]
+        graph = list(block_ID_to_data.values())[0].to(device)
         print(graph)
         #graph_feature = model.model.mol_gnn(graph)
         graph_feature = model.model.model.model.mol_gnn(graph)

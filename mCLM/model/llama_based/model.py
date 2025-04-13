@@ -112,8 +112,8 @@ class LlamaModel(LlamaPreTrainedModel):
         ).to(self.device)
         # get greater than 0 mol_input_ids
         graph_ids = mol_input_ids[mol_input_ids >= 0]
-        graphs = [self.mol_vocab[graph_id.item()] for graph_id in graph_ids]
-        if len(graphs) > 0:
+        if len(graph_ids) > 0:
+            graphs = [self.mol_vocab[graph_id.item()].to('cpu') for graph_id in graph_ids]
             graphs = Batch.from_data_list(graphs).to(self.device)
             # embed the molecules using the GNN
             mol_embeddings = self.mol_gnn(graphs)
