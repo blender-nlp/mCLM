@@ -6,7 +6,7 @@ import torch
 import lightning as L
 from pl_bolts.optimizers import LinearWarmupCosineAnnealingLR
 
-from mCLM.model.llama_based.model import LlamaForCausalLM
+from mCLM.model.llama_based.model import LlamaForCausalLM, Qwen2ForCausalLM
 
 from peft import get_peft_config, get_peft_model, LoraConfig, TaskType
 
@@ -37,7 +37,11 @@ class mCLM(L.LightningModule):
             task_type="CAUSAL_LM",
         )
 
-        self.model = LlamaForCausalLM.from_pretrained(ckpt_path)
+        if "Llama" in config["base_model"]:
+            mCLM_Model = LlamaForCausalLM
+        elif "Qwen" in config["base_model"]:
+            mCLM_Model = Qwen2ForCausalLM
+        self.model = mCLM_Model.from_pretrained(ckpt_path)
         self.model = get_peft_model(self.model, peft_config)
 
         #PEFT turns these off

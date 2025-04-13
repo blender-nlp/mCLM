@@ -77,8 +77,8 @@ if __name__ == "__main__":
     parser.add_argument("--seed", default=42, type=int)
 
     parser.add_argument("--model", default="mCLM", type=str)
-    parser.add_argument("--base_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
-    parser.add_argument("--pretrained_text_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
+    parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
+    parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
 
     parser.add_argument(
         "--freeze_GNN", type=bool, action=argparse.BooleanOptionalAction
@@ -144,21 +144,24 @@ if __name__ == "__main__":
     #print('GNN Input Dict')
     #print(block_ID_to_data)
 
-    # model loading
-    from mCLM.model.llama_based.model import LlamaForCausalLM
+    device = 'cpu'#torch.device("cuda" if torch.cuda.is_available() else "cpu")
     ckpt_path = config["pretrained_text_model"]
     #model = LlamaForCausalLM.from_pretrained(ckpt_path)
     model = mCLM(config)
 
+    print("extending text vocab size and setting molecule vocab...")
     model.model.extend_text_vocab_size(len(dm.tokenizer.vocab))
     model.model.set_mol_vocab(block_ID_to_data)
-    #print(model.config)
+    print(model.config)
 
     # test graph forwarding
-    if False:
-        graph = block_ID_to_data[128258]
+    if True:
+        graph = list(block_ID_to_data.values())[0]
+        print(graph)
+        #graph_feature = model.model.mol_gnn(graph)
         graph_feature = model.model.embed_molecules(graph)
-
+        print(graph_feature)
+    
 
     # model forwarding, testing mode
     test_iter = iter(test_loader)

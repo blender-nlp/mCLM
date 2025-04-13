@@ -10,7 +10,7 @@ import torch
 
 # import pandas as pd
 
-from mCLM.data.dataloaders import TotalDataModule
+from mCLM.data.dataloaders import TotalDataModule, SMolInstructDataModule
 from mCLM_tokenizer.tokenizer import get_blocks
 
 from mCLM.model.models import mCLM
@@ -149,13 +149,25 @@ if __name__ == "__main__":
             trunc_length=config["trunc_length"],
         )
 
+    if config["data_module"] == "SMolInstruct":
+        dm = SMolInstructDataModule(
+            config,
+            instruction_data_path = config["instruction_data_path"],
+            synthetic_data_path = config["synthetic_data_path"],
+            base_model=config["base_model"],
+            batch_size=config["batch_size"],
+            trunc_length=config["trunc_length"],
+        )
+    
+
     dm.setup('test')
     test_loader = dm.test_dataloader()
 
     # model forwarding, testing mode
     test_iter = iter(test_loader)
-    item = next(test_iter)
+    ldr = next(test_iter)
 
+    item = next(iter(ldr))
 
     print(item)
 
