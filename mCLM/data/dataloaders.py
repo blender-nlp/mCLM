@@ -4,6 +4,7 @@ from lightning import LightningDataModule
 import sys
 import torch
 import torch.utils.data
+from torch.utils.data import ConcatDataset
 from mCLM.data.processing import smiles_to_data, smiles_list_to_mols, extract_mol_content
 from collections.abc import Mapping
 from datasets import load_dataset
@@ -257,8 +258,14 @@ class KinaseDataModule(LightningDataModule):
         test_data = pd.read_csv(self.data_path + 'kinase_test.csv')#.head(1000)
 
         # FIXME: test only
+        #train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+        #valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+        # train_data = pd.read_csv(self.data_path + 'kinase_train.csv')
+        # valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv')
+        # FIXME: test only
         train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
         valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+        test_data = pd.read_csv(self.data_path + 'kinase_test.csv')
 
         #train_data[['mol_list', 'cleaned_text']] = train_data['description'].apply(extract_mol_content)
         train_data[['mol_list', 'cleaned_text']] = train_data['description'].progress_apply(lambda x: pd.Series(extract_mol_content(x)))
@@ -329,7 +336,7 @@ class KinaseDataModule(LightningDataModule):
 
 
 
-
+''' #new pytorch seems to have this now
 class ConcatDataset(Dataset):
     """Combine two datasets to allow random interleaving of batches."""
 
@@ -349,7 +356,7 @@ class ConcatDataset(Dataset):
         didx = np.digitize(idx, self.bins) - 1 #not zero indexed for some reason
         #print(idx, didx)
         return self.datasets[didx].__getitem__(idx - self.bins[didx])
-
+'''
 
 class GeneralDataset(Dataset):
 
@@ -539,6 +546,7 @@ class TotalDataModule(LightningDataModule):
         trunc_length=512,
         instruction_data_path="captions/",
         synthetic_data_path="captions/",
+        GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.pth'
     ):
         super().__init__()
         self.prepare_data_per_node = True
@@ -550,6 +558,7 @@ class TotalDataModule(LightningDataModule):
         self.synthetic_data_path = synthetic_data_path
         self.config = config
         self.seed = config['seed']
+        self.GNN_cache = GNN_cache
 
     def setup(self, stage: str):
         self.tokenizer = AutoTokenizer.from_pretrained(self.base_model)
@@ -628,6 +637,8 @@ class TotalDataModule(LightningDataModule):
         test_data.append((df, f.replace('.csv', '')))
         
 
+        print('Dataframes Loaded')
+
         # FIXME: test only
         #train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
         #valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
@@ -643,7 +654,11 @@ class TotalDataModule(LightningDataModule):
                                 #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
                                 self.molecule_tokenizer.add_block(block)
 
-        self.molecule_tokenizer.create_input()
+            self.molecule_tokenizer.create_input()
+            with open(self.GNN_cache, "wb") as f:
+                torch.save(self.molecule_tokenizer, f)
+
+        print('Molecule Building Block Input Created / Loaded')
 
         self.train_dses = []
         self.valid_dses = []
@@ -754,6 +769,7 @@ class SMolInstructDataModule(LightningDataModule):
         trunc_length=512,
         instruction_data_path="captions/",
         synthetic_data_path="captions/",
+        GNN_cache = '../GNN_input_cache/SMolInstruct.molecule_tokenizer.pth'
     ):
         super().__init__()
         self.prepare_data_per_node = True
@@ -765,6 +781,7 @@ class SMolInstructDataModule(LightningDataModule):
         self.synthetic_data_path = synthetic_data_path
         self.config = config
         self.seed = config['seed']
+        self.GNN_cache = GNN_cache
 
     def setup(self, stage: str):
         self.tokenizer = AutoTokenizer.from_pretrained(self.base_model)
@@ -774,7 +791,6 @@ class SMolInstructDataModule(LightningDataModule):
         #model.resize_token_embeddings(len(tokenizer)) #put this somewhere
         
         start_idx = len(self.tokenizer)
-        self.molecule_tokenizer = MoleculeTokenizer(start_idx)
 
         train_data = []
         valid_data = []
@@ -782,7 +798,7 @@ class SMolInstructDataModule(LightningDataModule):
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_train.csv'
-        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})#.head(1000)
         print(f)
         print(df)
         df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
@@ -790,7 +806,7 @@ class SMolInstructDataModule(LightningDataModule):
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_val.csv'
-        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})#.head(1000)
         print(f)
         print(df)
         df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
@@ -798,23 +814,35 @@ class SMolInstructDataModule(LightningDataModule):
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_test.csv'
-        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})#.head(1000)
         print(f)
         print(df)
         df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
         test_data.append((df, f.replace('.csv', '')))
 
-        #Preprocess molecule tokenizer
-        block_to_idx = {}
-        for dfs in [train_data, valid_data, test_data]:
-            for df, task in dfs:
-                for d in df['mol_list']:
-                    for mol in d:
-                        for block in mol.split('^'):
-                            #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
-                            self.molecule_tokenizer.add_block(block)
 
-        self.molecule_tokenizer.create_input()
+        print('Dataframes Loaded')
+
+        #Preprocess molecule tokenizer
+        if osp.exists(self.GNN_cache):
+            with open(self.GNN_cache, "rb") as f:
+                self.molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'))
+        else:
+            self.molecule_tokenizer = MoleculeTokenizer(start_idx)
+            for dfs in [train_data, valid_data, test_data]:
+                for df, task in dfs:
+                    if 'mol_list' in df:
+                        for d in df['mol_list']:
+                            for mol in d:
+                                for block in mol.split('^'):
+                                    #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
+                                    self.molecule_tokenizer.add_block(block)
+
+            self.molecule_tokenizer.create_input()
+            with open(self.GNN_cache, "wb") as f:
+                torch.save(self.molecule_tokenizer, f)
+        
+        print('Molecule Building Block Input Created / Loaded')
 
         self.train_dses = []
         self.valid_dses = []
@@ -822,7 +850,7 @@ class SMolInstructDataModule(LightningDataModule):
 
         for df, task in train_data:
             ds = GeneralDataset(
-                DateFromTicks,
+                df,
                 self.tokenizer,
                 self.molecule_tokenizer,
                 task_name=task,
@@ -851,6 +879,8 @@ class SMolInstructDataModule(LightningDataModule):
             )
             self.test_dses.append(ds)
         #zz
+
+        print('Datasets created')
 
     def train_dataloader(self):
         return CustomDataLoader(

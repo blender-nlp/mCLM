@@ -137,6 +137,7 @@ if __name__ == "__main__":
         )
 
     dm.setup('test')
+    llama_tokenizer = dm.tokenizer
     test_loader = dm.test_dataloader()
 
     # test GNN input dict
@@ -145,6 +146,7 @@ if __name__ == "__main__":
     #print(block_ID_to_data)
 
     device = 'cpu'#torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("Loading model...")
     ckpt_path = config["pretrained_text_model"]
     #model = LlamaForCausalLM.from_pretrained(ckpt_path)
     model = mCLM(config)
