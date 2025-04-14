@@ -38,6 +38,8 @@ from sklearn.utils import resample
 
 import random
 
+import ast
+
 import os
 import os.path as osp
 
@@ -268,9 +270,9 @@ class KinaseDataModule(LightningDataModule):
         # train_data = pd.read_csv(self.data_path + 'kinase_train.csv')
         # valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv')
         # FIXME: test only
-        train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
-        valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
-        test_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+        #train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+        #valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+        #test_data = pd.read_csv(self.data_path + 'kinase_test.csv')
 
         #train_data[['mol_list', 'cleaned_text']] = train_data['description'].apply(extract_mol_content)
         train_data[['mol_list', 'cleaned_text']] = train_data['description'].progress_apply(lambda x: pd.Series(extract_mol_content(x)))
@@ -400,6 +402,8 @@ class GeneralDataset(Dataset):
             {"role": "assistant", "content": cleaned_response},
         ]
         message_chat = self.tokenizer.apply_chat_template(messages, tokenize=False)
+        #for llama to avoid '<|begin_of_text|>' and <|eot_id|> twice since we use the tokenizer twice
+        message_chat = message_chat.replace('<|begin_of_text|>','').replace('<|eot_id|>','')
 
         token_input = self.tokenizer(
             message_chat,
@@ -462,6 +466,8 @@ class MolInstDataset(Dataset):
             {"role": "assistant", "content": output},
         ]
         message_chat = self.tokenizer.apply_chat_template(messages, tokenize=False)
+        #for llama to avoid '<|begin_of_text|>' and <|eot_id|> twice since we use the tokenizer twice
+        message_chat = message_chat.replace('<|begin_of_text|>','').replace('<|eot_id|>','')
 
         token_input = self.tokenizer(
             message_chat,
@@ -506,7 +512,7 @@ class TuluDataset(Dataset):
 
         d = self.data.iloc[idx]
 
-        messages = eval(d['messages'].replace("'}\n {'", "'},{'"))
+        #messages = eval(d['messages'].replace("'}\n {'", "'},{'"))
 
         message_chat = self.tokenizer.apply_chat_template(messages, tokenize=False)
 
@@ -581,8 +587,8 @@ class TotalDataModule(LightningDataModule):
         test_data = []
 
         
-        '''
-        for subdir in ['pos_neg', 'pos_pos', 'property_to_mol','multi_property_to_mol', 'mol_only','mCLM','regression', 'classification']:
+        
+        for subdir in ['synthetic_chembl', 'synthetic_admet_chembl', 'pos_neg', 'pos_neg', 'pos_neg', 'pos_pos', 'property_to_mol','multi_property_to_mol', 'mol_only','mCLM','regression', 'classification']:
             ddir = osp.join(self.synthetic_data_path, subdir)
             files = [f for f in os.listdir(ddir) if os.path.isfile(os.path.join(ddir, f))]
             for f in files:
@@ -590,14 +596,15 @@ class TotalDataModule(LightningDataModule):
                 df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
                 print(df)
                 if len(df) == 0: continue
-                df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+                #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
                 to_split_data.append((df, f.replace('.csv', '')))
                 #if f == 'Tox21_class.csv': break
-        '''
+        
 
         ddir = osp.join(self.instruction_data_path)
         f = 'tulu-3-sft_train.csv'
-        df = pd.read_csv(osp.join(ddir, f), dtype={'messages': str})
+        df = pd.read_csv(osp.join(ddir, f))
+        df['messages'] = df['messages'].apply(ast.literal_eval)
         print(f)
         print(df)
         to_split_data.append((df, f.replace('.csv', '')))
@@ -617,28 +624,31 @@ class TotalDataModule(LightningDataModule):
         valid_data.append((df, f.replace('.csv', '')))
         test_data.append((df, f.replace('.csv', '')))
 
-        #ddir = osp.join(self.instruction_data_path)
-        #f = 'SMolInstruct_train.csv'
-        #df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
-        #print(f)
-        #print(df)
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_train.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+        print(f)
+        print(df)
         #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
-        #train_data.append((df, f.replace('.csv', '')))
+        train_data.append((df, f.replace('.csv', '')))
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_val.csv'
         df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
         print(f)
         print(df)
-        df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
         valid_data.append((df, f.replace('.csv', '')))
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_test.csv'
         df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
         print(f)
         print(df)
-        df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
         test_data.append((df, f.replace('.csv', '')))
         
 
@@ -804,25 +814,28 @@ class SMolInstructDataModule(LightningDataModule):
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_train.csv'
         df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})#.head(1000)
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
         print(f)
         print(df)
-        df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
         train_data.append((df, f.replace('.csv', '')))
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_val.csv'
         df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})#.head(1000)
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
         print(f)
         print(df)
-        df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
         valid_data.append((df, f.replace('.csv', '')))
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_test.csv'
         df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})#.head(1000)
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
         print(f)
         print(df)
-        df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
         test_data.append((df, f.replace('.csv', '')))
 
 

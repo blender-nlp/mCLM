@@ -96,8 +96,8 @@ if __name__ == "__main__":
     parser.add_argument("--caption_source", type=str)
     parser.add_argument("--fold_idx", type=int)
     parser.add_argument("--data_path", type=str, default='kinase_data_processing/')
-    parser.add_argument("--instruction_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/instruction/processed/')
-    parser.add_argument("--synthetic_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/synthetic/processed/')
+    parser.add_argument("--instruction_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/instruction/dataloader_processed/')
+    parser.add_argument("--synthetic_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/synthetic/dataloader_processed/')
 
     args = parser.parse_args()
 
