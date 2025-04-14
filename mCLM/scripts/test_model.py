@@ -179,6 +179,8 @@ if __name__ == "__main__":
     print("Testing GNN forwarding...")
     graph = list(block_ID_to_data.values())[0]
     graph_feature = model.model.mol_gnn(graph)
+    print("graph_feature", graph_feature.shape)
+    print(graph_feature)
 
     print("Testing model training time forwarding...")
     model.train(True)
@@ -187,6 +189,8 @@ if __name__ == "__main__":
         attention_mask=item["input"]["attention_mask"][:, 0],
         labels=item["input"]["input_ids"][:, 0]
     )
+    print("training_output")
+    print(training_output)
 
     print("Testing model inference time forwarding...")
     model.train(False)
@@ -196,6 +200,8 @@ if __name__ == "__main__":
         attention_mask=item["input"]["attention_mask"][:, 0],
         labels=item["input"]["input_ids"][:, 0]
     )
+    print("inference_output")
+    print(inference_output)
 
     print("Testing model generation...")
     model.train(False)

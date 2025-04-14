@@ -4,7 +4,6 @@ from typing import Optional, Union
 import torch
 from torch import nn
 import torch.nn.functional as F
-from torch.nn import CrossEntropyLoss
 
 from transformers.cache_utils import Cache, DynamicCache
 from transformers.generation import GenerationMixin
@@ -30,11 +29,10 @@ from transformers.models.qwen2.modeling_qwen2 import \
     Qwen2RMSNorm, Qwen2RotaryEmbedding, \
     QWEN2_START_DOCSTRING, QWEN2_INPUTS_DOCSTRING
 
-from torch_geometric.data import Batch
 from ..components import GNNMolEncoder
 from .configuration import Qwen2Config as Qwen2Config
 from ..utils import embed_chemical_language, \
-    finalized_molecule_embeddings, mclm_logit_head
+    finalized_molecule_embeddings, mclm_logit_head, embed_molecules_fn
 
 
 logger = logging.get_logger(__name__)
@@ -77,22 +75,10 @@ class Qwen2Model(OriginalQwen2Model):
         self.post_init()
 
     def embed_molecules(self, mol_input_ids):
-        output_features = torch.zeros(
-            mol_input_ids.size() + (self.config.molecule_config["out_channels"],),
-            dtype=self.dtype,
+        return embed_molecules_fn(
+            mol_input_ids, self.config.molecule_config["out_channels"],
+            self.mol_vocab, self.mol_gnn, self.dtype, self.device
         )
-        # get greater than 0 mol_input_ids
-        graph_ids = mol_input_ids[mol_input_ids >= 0]
-        graphs = [self.mol_vocab[graph_id.item()] for graph_id in graph_ids]
-        if len(graphs) == 0:
-            return output_features
-        graphs = Batch.from_data_list(graphs).to(self.device)
-        # embed the molecules using the GNN
-        mol_embeddings = self.mol_gnn(graphs)
-        # assign the embeddings to the output features
-        output_features[mol_input_ids >= 0] = mol_embeddings
-
-        return output_features
 
     # mCLM extend text embedding
     def extend_text_vocab_size(self, new_vocab_size):
@@ -379,18 +365,19 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         )
 
         # mCLM loss
-        loss = None
-        if labels is not None:
-            # Shift so that tokens < n predict n
-            shift_logits = logits[..., :-1, :].contiguous()
-            shift_labels = labels[..., 1:].contiguous()
-            # Flatten the tokens
-            loss_fct = CrossEntropyLoss()
-            shift_logits = shift_logits.view(-1, self.total_vocab_size)
-            shift_labels = shift_labels.view(-1)
-            # Enable model parallelism
-            shift_labels = shift_labels.to(shift_logits.device)
-            loss = loss_fct(shift_logits, shift_labels.to(torch.long))
+        # loss = None
+        # if labels is not None:
+        #     # Shift so that tokens < n predict n
+        #     shift_logits = logits[..., :-1, :].contiguous()
+        #     shift_labels = labels[..., 1:].contiguous()
+        #     # Flatten the tokens
+        #     loss_fct = CrossEntropyLoss()
+        #     shift_logits = shift_logits.view(-1, self.total_vocab_size)
+        #     shift_labels = shift_labels.view(-1)
+        #     # Enable model parallelism
+        #     shift_labels = shift_labels.to(shift_logits.device)
+        #     loss = loss_fct(shift_logits, shift_labels.to(torch.long))
+        loss = logits.compute_loss(labels)
 
         return CausalLMOutputWithPast(
             loss=loss,
