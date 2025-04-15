@@ -251,7 +251,7 @@ class KinaseDataModule(LightningDataModule):
         self.config = config
 
     def setup(self, stage: str):
-        self.tokenizer = AutoTokenizer.from_pretrained(self.base_model)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.config['pretrained_tokenizer'])
         self.tokenizer.pad_token = self.tokenizer.eos_token #llama3
 
         self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
@@ -578,7 +578,7 @@ class TotalDataModule(LightningDataModule):
         self.GNN_cache = GNN_cache
 
     def setup(self, stage: str):
-        self.tokenizer = AutoTokenizer.from_pretrained(self.base_model)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.config['pretrained_tokenizer'])
         self.tokenizer.pad_token = self.tokenizer.eos_token #llama3
 
         self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
@@ -685,13 +685,13 @@ class TotalDataModule(LightningDataModule):
             with open(self.GNN_cache, "wb") as f:
                 torch.save(self.molecule_tokenizer, f)
         
-            print(molecule_tokenizer.bad_blocks, len(molecule_tokenizer.bad_blocks))
+            print('# bad blocks:', len(self.molecule_tokenizer.bad_blocks))
 
         #print('length:', len(self.molecule_tokenizer.bad_blocks))
         #print(len(self.molecule_tokenizer))
 
         print('Molecule Building Block Input Created / Loaded')
-
+        
         self.train_dses = []
         self.valid_dses = []
         self.test_dses = []
@@ -823,7 +823,7 @@ class SMolInstructDataModule(LightningDataModule):
         self.GNN_cache = GNN_cache
 
     def setup(self, stage: str):
-        self.tokenizer = AutoTokenizer.from_pretrained(self.base_model)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.config['pretrained_tokenizer'])
         self.tokenizer.pad_token = self.tokenizer.eos_token #llama3
 
         self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])

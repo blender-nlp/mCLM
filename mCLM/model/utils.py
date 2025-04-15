@@ -127,7 +127,7 @@ def embed_molecules_fn(mol_input_ids, out_channels, mol_vocab, mol_gnn,
     output_features = torch.zeros(
         mol_input_ids.size() + (out_channels,),
         dtype=dtype,
-    )
+    ).to(device)
     # get greater than 0 mol_input_ids
     graph_ids = mol_input_ids[mol_input_ids >= 0]
     graphs = [mol_vocab[graph_id.item()] for graph_id in graph_ids]
