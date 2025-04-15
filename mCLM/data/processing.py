@@ -22,6 +22,8 @@ import re
 
 from rdkit import Chem
 
+
+
 MAX_ATOMIC_NUM = 100
 ATOM_FEATURES = {
     "atomic_num": list(range(MAX_ATOMIC_NUM)),
@@ -120,16 +122,21 @@ def smiles_to_data(
 
     smiles = replace_star_notation(smiles)
 
+    edge_feat = dgllife.utils.CanonicalBondFeaturizer(
+            bond_data_field="edge_attr"
+        )
+    edge_feat_dim = edge_feat.feat_size('edge_attr')
+    #print(edge_feat_dim)
+    #zz
+
     d = smiles_to_bigraph(
         smiles,
         node_featurizer=feat,
-        edge_featurizer=dgllife.utils.CanonicalBondFeaturizer(
-            bond_data_field="edge_attr"
-        ),
+        edge_featurizer=edge_feat,
     )
     n = Data(
         x=d.ndata["x"],
-        edge_attr=d.edata["edge_attr"] if "edge_attr" in d.edata else None, #my modification to allow things like 'C'
+        edge_attr=d.edata["edge_attr"] if "edge_attr" in d.edata else torch.zeros((0,edge_feat_dim)), #my modification to allow things like 'C'
         edge_index=torch.stack(d.edges()).long(),
     )
     if y is not None:

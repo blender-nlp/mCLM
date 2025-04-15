@@ -96,7 +96,7 @@ class mCLM(L.LightningModule):
     ) -> torch.Tensor:
         # 1. compute loss
 
-        #print(batch["input"]["input_ids"].shape, batch["input"]["attention_mask"].shape, batch["input"]["labels"].shape)
+        #print('the input:', batch["input"]["input_ids"].shape, batch["input"]["attention_mask"].shape, batch["input"]["labels"].shape)
 
         output = self.model(
             input_ids=batch["input"]["input_ids"],
@@ -128,7 +128,7 @@ class mCLM(L.LightningModule):
 
         return {"loss": loss}
 
-    def on_validation_epoch_end(self, val_outputs):
+    def on_validation_epoch_end(self):
         #all_validation_probs = torch.cat(
         #    [i["probs"] for i in self.validation_step_outputs]
         #)
@@ -145,15 +145,15 @@ class mCLM(L.LightningModule):
         #all_test_labels = torch.cat([i["labels"] for i in self.test_step_outputs])
         #self._log_metric("test", all_test_probs, all_test_labels)
 
-    def training_step(self, batch, batch_idx) -> torch.Tensor:
-        return self.compute_step(batch, prefix="train", task_id = batch['task_id'])
+    def training_step(self, batch, batch_idx, dataloader_idx=0) -> torch.Tensor:
+        return self.compute_step(batch, prefix="train")
 
-    def validation_step(self, batch, batch_idx) -> torch.Tensor:
+    def validation_step(self, batch, batch_idx, dataloader_idx=0) -> torch.Tensor:
         step_outputs = self.compute_step(batch, prefix="val", task_id = batch['task_id'])
         #self.validation_step_outputs.append(step_outputs)
         return step_outputs
 
-    def test_step(self, batch, batch_idx) -> torch.Tensor:
+    def test_step(self, batch, batch_idx, dataloader_idx=0) -> torch.Tensor:
         step_outputs = self.compute_step(batch, prefix="test", task_id = batch['task_id'])
         #self.test_step_outputs.append(step_outputs)
         return step_outputs

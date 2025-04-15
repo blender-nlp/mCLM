@@ -1,8 +1,16 @@
 
+from rdkit import Chem
 
 from tqdm import tqdm
 
 from mCLM.data.processing import smiles_to_data
+
+def canonicalize(smi):
+    try:
+        rv = Chem.MolToSmiles(Chem.MolFromSmiles(smi))
+    except:
+        rv = None
+    return rv
 
 
 class MoleculeTokenizer:
@@ -15,9 +23,18 @@ class MoleculeTokenizer:
         self.idx_to_block = {}
         self.GNN_input_map = {}
 
+        self.bad_blocks = set()
+
+    def __len__(self):
+        return len(self.GNN_input_map)
 
     def add_block(self, block: str):
         if block not in self.block_to_idx:
+            #if canonicalize(block) == None: 
+            #    #print('uncanonical block', block)
+            #    self.bad_blocks.add(block)
+            #    return
+
             self.block_to_idx[block] = self.start_idx + len(self.block_to_idx)
         if self.block_to_idx[block] not in self.idx_to_block:
             self.idx_to_block[self.block_to_idx[block]] = block
@@ -29,7 +46,8 @@ class MoleculeTokenizer:
                     self.GNN_input_map[self.block_to_idx[block]] = smiles_to_data(block)
                 except:
                     print(block)
-                    zz
+                    self.bad_blocks.add(block)
+                    #zz
 
 
     def get_Idx(self, block: str):

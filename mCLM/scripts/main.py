@@ -12,7 +12,7 @@ import pandas as pd
 
 import pickle
 
-from mCLM.data.dataloaders import KinaseDataModule, SMolInstructDataModule
+from mCLM.data.dataloaders import KinaseDataModule, SMolInstructDataModule, TotalDataModule
 from mCLM.model.models import (
     mCLM,
 )
@@ -85,22 +85,17 @@ def main(args):
             batch_size=config["batch_size"],
             trunc_length=config["trunc_length"],
         )
+    elif config["data_module"] == "Total":
+        output_dim = 1
+        dm = TotalDataModule(
+            config,
+            instruction_data_path = config['instruction_data_path'],
+            synthetic_data_path = config['synthetic_data_path'],
+            base_model=config["base_model"],
+            batch_size=config["batch_size"],
+            trunc_length=config["trunc_length"],
+        )
     
-
-    if False: #testing
-        dm.setup('test')
-        test_loader = dm.test_dataloader()
-
-        block_ID_to_data = dm.GNN_input_map
-        #print('GNN Input Dict')
-        #print(block_ID_to_data)
-
-        #print('Data Loading Test')
-        #for data in test_loader:
-        #    print(data)
-        #    zz
-
-
 
     name = config['task'] + "_" + config["model"] + "_" + config['version']
 
@@ -266,8 +261,8 @@ if __name__ == "__main__":
     parser.add_argument("--seed", default=42, type=int)
 
     parser.add_argument("--model", default="mCLM", type=str)
-    parser.add_argument("--base_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
-    parser.add_argument("--pretrained_text_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
+    parser.add_argument("--base_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/", type=str)
+    parser.add_argument("--pretrained_text_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/", type=str)
 
     parser.add_argument(
         "--freeze_GNN", type=bool, action=argparse.BooleanOptionalAction

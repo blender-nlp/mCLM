@@ -31,3 +31,5 @@ ckpts/
 slurm_outputs/
 .DS_Store
 **/.DS_Store
+
+notes.txt

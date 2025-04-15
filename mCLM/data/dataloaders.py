@@ -184,7 +184,7 @@ class KinaseDataset(Dataset):
         #print(frags)
 
         messages = [
-            #{"role": "system", "content": "You are an expert chemist who designs molecules in a modular fashion or answers questions following the given instructions.",},
+            #{"role": "system", "content": "You are the mCLM, a helpful expert chemist who designs molecules in a modular fashion or answers questions.",},
             {"role": "user", "content": "Please tell me a fact about a kinase inhibitor."},
             {"role": "assistant", "content": cleaned_text},
         ]
@@ -223,9 +223,9 @@ class KinaseDataset(Dataset):
             "task_id": 0,
             "raw_text": raw_text,
             "input": {
-                "input_ids": token_input['input_ids'],
-                "labels": token_input['input_ids'],
-                "attention_mask": token_input['attention_mask'],
+                "input_ids": token_input['input_ids'].squeeze(),
+                "labels": token_input['input_ids'].squeeze(),
+                "attention_mask": token_input['attention_mask'].squeeze(),
             },
         }
         return rv
@@ -397,7 +397,7 @@ class GeneralDataset(Dataset):
         frags = [[self.mol_tokenizer.get_Idx(m) for m in mol.split('^')] for mol in mol_list]
 
         messages = [
-            #{"role": "system", "content": "You are an expert chemist who designs molecules in a modular fashion or answers questions following the given instructions.",},
+            #{"role": "system", "content": "You are the mCLM, a helpful expert chemist who designs molecules in a modular fashion or answers questions.",},
             {"role": "user", "content": cleaned_instruction},
             {"role": "assistant", "content": cleaned_response},
         ]
@@ -425,9 +425,9 @@ class GeneralDataset(Dataset):
             "raw_instruction": raw_instruction,
             "raw_response": raw_response,
             "input": {
-                "input_ids": token_input['input_ids'],
-                "labels": token_input['input_ids'],
-                "attention_mask": token_input['attention_mask'],
+                "input_ids": token_input['input_ids'].squeeze(),
+                "labels": token_input['input_ids'].squeeze(),
+                "attention_mask": token_input['attention_mask'].squeeze(),
             },
         }
         return rv
@@ -461,8 +461,8 @@ class MolInstDataset(Dataset):
         output = d['output']
 
         messages = [
-            #{"role": "system", "content": "You are an expert chemist who designs molecules in a modular fashion or answers questions following the given instructions.",},
-            {"role": "user", "content": instruction + '\n\n' + inp},
+            #{"role": "system", "content": "You are the mCLM, a helpful expert chemist who designs molecules in a modular fashion or answers questions.",},
+            {"role": "user", "content": instruction + '\n\n' + inp.strip()},
             {"role": "assistant", "content": output},
         ]
         message_chat = self.tokenizer.apply_chat_template(messages, tokenize=False)
@@ -481,9 +481,9 @@ class MolInstDataset(Dataset):
         rv = {
             "task_id": self.task_name,
             "input": {
-                "input_ids": token_input['input_ids'],
-                "labels": token_input['input_ids'],
-                "attention_mask": token_input['attention_mask'],
+                "input_ids": token_input['input_ids'].squeeze(),
+                "labels": token_input['input_ids'].squeeze(),
+                "attention_mask": token_input['attention_mask'].squeeze(),
             },
         }
         return rv
@@ -513,8 +513,14 @@ class TuluDataset(Dataset):
         d = self.data.iloc[idx]
 
         #messages = eval(d['messages'].replace("'}\n {'", "'},{'"))
+        messages = d['messages']
+
+        #messages = [{"role": "system", "content": "You are the mCLM, a helpful expert chemist who designs molecules in a modular fashion or answers questions.",}] + messages
+
 
         message_chat = self.tokenizer.apply_chat_template(messages, tokenize=False)
+        #for llama to avoid '<|begin_of_text|>' and <|eot_id|> twice since we use the tokenizer twice
+        message_chat = message_chat.replace('<|begin_of_text|>','').replace('<|eot_id|>','')
 
         token_input = self.tokenizer(
             message_chat,
@@ -528,9 +534,9 @@ class TuluDataset(Dataset):
         rv = {
             "task_id": self.task_name,
             "input": {
-                "input_ids": token_input['input_ids'],
-                "labels": token_input['input_ids'],
-                "attention_mask": token_input['attention_mask'],
+                "input_ids": token_input['input_ids'].squeeze(),
+                "labels": token_input['input_ids'].squeeze(),
+                "attention_mask": token_input['attention_mask'].squeeze(),
             },
         }
         return rv
@@ -586,15 +592,16 @@ class TotalDataModule(LightningDataModule):
         valid_data = []
         test_data = []
 
-        
+        print('Loading Data')
         
         for subdir in ['synthetic_chembl', 'synthetic_admet_chembl', 'pos_neg', 'pos_neg', 'pos_neg', 'pos_pos', 'property_to_mol','multi_property_to_mol', 'mol_only','mCLM','regression', 'classification']:
             ddir = osp.join(self.synthetic_data_path, subdir)
             files = [f for f in os.listdir(ddir) if os.path.isfile(os.path.join(ddir, f))]
             for f in files:
                 print(f)
-                df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
-                print(df)
+                df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
+                df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+                #print(df)
                 if len(df) == 0: continue
                 #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
                 to_split_data.append((df, f.replace('.csv', '')))
@@ -603,51 +610,51 @@ class TotalDataModule(LightningDataModule):
 
         ddir = osp.join(self.instruction_data_path)
         f = 'tulu-3-sft_train.csv'
-        df = pd.read_csv(osp.join(ddir, f))
-        df['messages'] = df['messages'].apply(ast.literal_eval)
         print(f)
-        print(df)
+        df = pd.read_csv(osp.join(ddir, f),keep_default_na=False,na_values=[])
+        df['messages'] = df['messages'].apply(lambda x : x.replace("'}\n {'", "'},{'").replace("'} {'", "'},{'")).apply(ast.literal_eval)
+        #print(df)
         to_split_data.append((df, f.replace('.csv', '')))
         
         ddir = osp.join(self.instruction_data_path)
         f = 'mol-inst_biomol_text_train.csv'
-        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'input': str, 'output': str})
         print(f)
-        print(df)
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'input': str, 'output': str},keep_default_na=False,na_values=[])
+        #print(df)
         train_data.append((df, f.replace('.csv', '')))
         
         ddir = osp.join(self.instruction_data_path)
         f = 'mol-inst_biomol_text_test.csv'
-        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'input': str, 'output': str})
         print(f)
-        print(df)
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'input': str, 'output': str},keep_default_na=False,na_values=[])
+        #print(df)
         valid_data.append((df, f.replace('.csv', '')))
         test_data.append((df, f.replace('.csv', '')))
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_train.csv'
-        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
-        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
         print(f)
-        print(df)
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+        #print(df)
         #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
         train_data.append((df, f.replace('.csv', '')))
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_val.csv'
-        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
-        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
         print(f)
-        print(df)
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+        #print(df)
         #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
         valid_data.append((df, f.replace('.csv', '')))
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_test.csv'
-        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})
-        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
         print(f)
-        print(df)
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+        #print(df)
         #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
         test_data.append((df, f.replace('.csv', '')))
         
@@ -659,19 +666,29 @@ class TotalDataModule(LightningDataModule):
         #valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
 
         #Preprocess molecule tokenizer
-        block_to_idx = {}
-        for dfs in [to_split_data, train_data, valid_data, test_data]:
-            for df, task in dfs:
-                if 'mol_list' in df:
-                    for d in df['mol_list']:
-                        for mol in d:
-                            for block in mol.split('^'):
-                                #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
-                                self.molecule_tokenizer.add_block(block)
+        if osp.exists(self.GNN_cache):
+            with open(self.GNN_cache, "rb") as f:
+                self.molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'))
+        else:
+            self.molecule_tokenizer = MoleculeTokenizer(start_idx)
+            for dfs in [to_split_data, train_data, valid_data, test_data]:
+                for df, task in dfs:
+                    if 'mol_list' in df:
+                        for d in df['mol_list']:
+                            for mol in d:
+                                for block in mol.split('^'):
+                                    #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
+                                    #if len(block) == 1: print(block, mol, task)#, df['mol_list'].to_list())
+                                    self.molecule_tokenizer.add_block(block)
 
             self.molecule_tokenizer.create_input()
             with open(self.GNN_cache, "wb") as f:
                 torch.save(self.molecule_tokenizer, f)
+        
+            print(molecule_tokenizer.bad_blocks, len(molecule_tokenizer.bad_blocks))
+
+        #print('length:', len(self.molecule_tokenizer.bad_blocks))
+        #print(len(self.molecule_tokenizer))
 
         print('Molecule Building Block Input Created / Loaded')
 
@@ -680,12 +697,13 @@ class TotalDataModule(LightningDataModule):
         self.test_dses = []
 
         for df, task in to_split_data:
-            ts = min(200, max(int(0.01*len(df)), 10))
-            train_df, val_df = train_test_split(df, test_size=ts, random_state = self.seed)
-            val_df, test_df = train_test_split(df, test_size=0.5, random_state = self.seed)
             if task.startswith('tulu'): ds_type = TuluDataset
             elif task.startswith('mol-inst'): ds_type = MolInstDataset
             else: ds_type = GeneralDataset
+            ts = min(40, max(int(0.01*len(df)), 10), int(0.1*len(df)))
+            if ts>0:
+                train_df, val_df = train_test_split(df, test_size=ts, random_state = self.seed)
+                val_df, test_df = train_test_split(df, test_size=0.5, random_state = self.seed)
             ds = ds_type(
                 train_df,
                 self.tokenizer,
@@ -694,22 +712,24 @@ class TotalDataModule(LightningDataModule):
                 trunc_length=self.trunc_length,
             )
             self.train_dses.append(ds)
-            ds = ds_type(
-                val_df,
-                self.tokenizer,
-                self.molecule_tokenizer,
-                task_name=task,
-                trunc_length=self.trunc_length,
-            )
-            self.valid_dses.append(ds)
-            ds = ds_type(
-                test_df,
-                self.tokenizer,
-                self.molecule_tokenizer,
-                task_name=task,
-                trunc_length=self.trunc_length,
-            )
-            self.test_dses.append(ds)
+            if ts>0 and len(val_df) > 0:
+                ds = ds_type(
+                    val_df,
+                    self.tokenizer,
+                    self.molecule_tokenizer,
+                    task_name=task,
+                    trunc_length=self.trunc_length,
+                )
+                self.valid_dses.append(ds)
+            if ts>0 and len(test_df) > 0:
+                ds = ds_type(
+                    test_df,
+                    self.tokenizer,
+                    self.molecule_tokenizer,
+                    task_name=task,
+                    trunc_length=self.trunc_length,
+                )
+                self.test_dses.append(ds)
             
 
         for df, task in train_data:
@@ -728,7 +748,10 @@ class TotalDataModule(LightningDataModule):
         self.train_ds = ConcatDataset(self.train_dses)
 
         for df, task in valid_data:
-            ds = GeneralDataset(
+            if task.startswith('tulu'): ds_type = TuluDataset
+            elif task.startswith('mol-inst'): ds_type = MolInstDataset
+            else: ds_type = GeneralDataset
+            ds = ds_type(
                 df,
                 self.tokenizer,
                 self.molecule_tokenizer,
@@ -738,7 +761,10 @@ class TotalDataModule(LightningDataModule):
             self.valid_dses.append(ds)
 
         for df, task in test_data:
-            ds = GeneralDataset(
+            if task.startswith('tulu'): ds_type = TuluDataset
+            elif task.startswith('mol-inst'): ds_type = MolInstDataset
+            else: ds_type = GeneralDataset
+            ds = ds_type(
                 df,
                 self.tokenizer,
                 self.molecule_tokenizer,
@@ -769,8 +795,6 @@ class TotalDataModule(LightningDataModule):
 
     def teardown(self, stage: str):
         pass
-
-
 
 
 
@@ -813,7 +837,7 @@ class SMolInstructDataModule(LightningDataModule):
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_train.csv'
-        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})#.head(1000)
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str},keep_default_na=False,na_values=[])#.head(1000)
         df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
         print(f)
         print(df)
@@ -822,7 +846,7 @@ class SMolInstructDataModule(LightningDataModule):
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_val.csv'
-        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})#.head(1000)
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str},keep_default_na=False,na_values=[])#.head(1000)
         df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
         print(f)
         print(df)
@@ -831,7 +855,7 @@ class SMolInstructDataModule(LightningDataModule):
 
         ddir = osp.join(self.instruction_data_path)
         f = 'SMolInstruct_test.csv'
-        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str})#.head(1000)
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str},keep_default_na=False,na_values=[])#.head(1000)
         df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
         print(f)
         print(df)

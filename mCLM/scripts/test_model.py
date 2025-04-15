@@ -172,6 +172,7 @@ if __name__ == "__main__":
     # model forwarding, testing mode
     test_iter = iter(test_loader)
     item = next(test_iter)
+<<<<<<< HEAD
     print(item['raw_text'][0])
     #print(item["input"]["input_ids"].shape, item["input"]["attention_mask"].shape,
     #    item["input"]["input_ids"].shape)
@@ -189,7 +190,24 @@ if __name__ == "__main__":
         model.parameters(),
         lr=config['lr'],
         weight_decay=config['weight_decay'],
+=======
+
+    print("Testing GNN forwarding...")
+    graph = list(block_ID_to_data.values())[0]
+    graph_feature = model.model.mol_gnn(graph)
+    print("graph_feature", graph_feature.shape)
+    print(graph_feature)
+
+    print("Testing model training time forwarding...")
+    model.train(True)
+    training_output = model(
+        input_ids=item["input"]["input_ids"][:, 0],
+        attention_mask=item["input"]["attention_mask"][:, 0],
+        labels=item["input"]["input_ids"][:, 0]
+>>>>>>> origin/model_implementation
     )
+    print("training_output")
+    print(training_output)
 
     # model forwarding, training mode
     model.train(True)
@@ -197,6 +215,7 @@ if __name__ == "__main__":
         item,
         'train',
     )
+<<<<<<< HEAD
         #input_ids=item["input"]["input_ids"],
         #attention_mask=item["input"]["attention_mask"],
         #labels=item["input"]["labels"]
@@ -228,6 +247,10 @@ if __name__ == "__main__":
     print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
     key = 'model.base_model.model.model.layers.15.mlp.up_proj.lora_A.default.weight'
     print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
+=======
+    print("inference_output")
+    print(inference_output)
+>>>>>>> origin/model_implementation
 
     print("Testing model generation...")
     model.train(False)
