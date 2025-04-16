@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -p mmli
-#SBATCH --mem=80g
+#SBATCH --mem=170g
 #SBATCH --gres=gpu:1
 #SBATCH -N 1
 #SBATCH --ntasks-per-node=1
@@ -24,17 +24,32 @@ export WANDB_MODE=offline
 echo "Starting Main Script" 
 
 
-#PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ \
-#    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ --check_val_every_n_steps 10000 \
-#    --batch_size=16 --lr 1e-5 --ckpt_path ckpts/1B_TotalA/ --version Total --max_epochs 3 \
+
+
+#PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/ \
+#    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/ \
+#    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ \
+#    --batch_size=16 --lr 1e-5 --ckpt_path ckpts/1B_Kinase/ --version Llama3.2-1B --max_epochs 3 \
+#    --data_module Kinase --task Kinase
+    
+
+#PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/ \
+#    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/ --check_val_every_n_steps 10000 \
+#    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ \
+#    --batch_size=16 --lr 1e-5 --ckpt_path ckpts/1B_Total/ --version Llama3.2-1B --max_epochs 3 \
 #    --data_module Total --task Total
-    
-    
+
+
 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/ --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ \
     --check_val_every_n_steps 10000 \
-    --batch_size=16 --lr 1e-5 --ckpt_path ckpts/1B_SMolInstruct/ --version SMolInstruct --max_epochs 3 \
+    --batch_size=16 --lr 1e-5 --ckpt_path ckpts/1B_SMolInstruct/ --version Llama3.2-1B --max_epochs 3 \
     --data_module SMolInstruct --task SMolInstruct
+
+#PYTHONPATH=. srun python mCLM/scripts/test_model.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/ \
+#    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/ --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ \
+#    --batch_size=2 --lr 1e-5 --ckpt_path ckpts/1B_Kinase/ --max_epochs 3 \
+#    --data_module Kinase --task Kinase
 
 
 #PYTHONPATH=. python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ \

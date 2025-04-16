@@ -322,6 +322,9 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
 
         self.is_training = True
 
+        self.mapping_tensor = torch.full((self.total_vocab_size,), -1, dtype=torch.long)
+        self.mapping_tensor.requires_grad = False
+
         # Initialize weights and apply final processing
         self.post_init()
 
@@ -462,7 +465,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
         #     shift_labels = shift_labels.to(shift_logits.device)
         #     loss = loss_fct(shift_logits, shift_labels.to(torch.long))
         if labels is not None:
-            loss = logits.compute_loss(labels)
+            loss = logits.compute_loss(labels, mapping_tensor = mapping_tensor)
 
         if not return_dict:
             output = (logits,) + outputs[1:]

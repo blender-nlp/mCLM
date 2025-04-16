@@ -327,14 +327,14 @@ class KinaseDataModule(LightningDataModule):
         )
 
     def val_dataloader(self):
-        return CustomDataLoader(
+        return [CustomDataLoader(
             self.valid_ds, batch_size=self.batch_size, num_workers=0, shuffle=False
-        )
+        )]
 
     def test_dataloader(self):
-        return CustomDataLoader(
+        return [CustomDataLoader(
             self.test_ds, batch_size=self.batch_size, num_workers=0, shuffle=False
-        )
+        )]
 
     def teardown(self, stage: str):
         pass
@@ -460,6 +460,9 @@ class MolInstDataset(Dataset):
         inp = d['input']
         output = d['output']
 
+        raw_instruction = instruction + '\n\n' + inp.strip()
+        raw_response = output
+
         messages = [
             #{"role": "system", "content": "You are the mCLM, a helpful expert chemist who designs molecules in a modular fashion or answers questions.",},
             {"role": "user", "content": instruction + '\n\n' + inp.strip()},
@@ -476,10 +479,11 @@ class MolInstDataset(Dataset):
             padding="max_length",
             return_tensors="pt",
         )
-        
-
+                
         rv = {
             "task_id": self.task_name,
+            "raw_instruction": raw_instruction,
+            "raw_response": raw_response,
             "input": {
                 "input_ids": token_input['input_ids'].squeeze(),
                 "labels": token_input['input_ids'].squeeze(),
@@ -513,6 +517,10 @@ class TuluDataset(Dataset):
         d = self.data.iloc[idx]
 
         #messages = eval(d['messages'].replace("'}\n {'", "'},{'"))
+        raw_instruction = d['messages'][0]['content']
+        try:
+            raw_response = d['messages'][1]['content']
+        except: raw_response = ""
         messages = d['messages']
 
         #messages = [{"role": "system", "content": "You are the mCLM, a helpful expert chemist who designs molecules in a modular fashion or answers questions.",}] + messages
@@ -533,6 +541,8 @@ class TuluDataset(Dataset):
 
         rv = {
             "task_id": self.task_name,
+            "raw_instruction": raw_instruction,
+            "raw_response": raw_response,
             "input": {
                 "input_ids": token_input['input_ids'].squeeze(),
                 "labels": token_input['input_ids'].squeeze(),
