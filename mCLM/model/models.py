@@ -114,9 +114,9 @@ class mCLM(L.LightningModule):
             batch_size=self.config['batch_size'],
             sync_dist=True,
         )
-        if task_id:
+        if task_id != None:
             self.log(
-                f"{prefix}/{task_id}/loss",
+                f"{prefix}/{task_id[0]}/loss",
                 loss.item(),
                 prog_bar=True,
                 batch_size=self.config['batch_size'],

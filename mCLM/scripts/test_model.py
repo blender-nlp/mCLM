@@ -80,12 +80,12 @@ if __name__ == "__main__":
     parser.add_argument("--seed", default=42, type=int)
 
     parser.add_argument("--model", default="mCLM", type=str)
-    #parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
-    #parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
-    #parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
-    parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Qwen2.5-1.5B-Instruct/", type=str)
-    parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Qwen2.5-1.5B-Instruct/", type=str)
-    parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Qwen2.5-1.5B-Instruct/", type=str)
+    parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
+    parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
+    parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
+    #parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Qwen2.5-1.5B-Instruct/", type=str)
+    #parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Qwen2.5-1.5B-Instruct/", type=str)
+    #parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Qwen2.5-1.5B-Instruct/", type=str)
 
     parser.add_argument(
         "--freeze_GNN", type=bool, action=argparse.BooleanOptionalAction
