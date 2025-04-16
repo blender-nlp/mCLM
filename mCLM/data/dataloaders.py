@@ -260,9 +260,9 @@ class KinaseDataModule(LightningDataModule):
         start_idx = len(self.tokenizer)
         self.molecule_tokenizer = MoleculeTokenizer(start_idx)
 
-        train_data = pd.read_csv(self.data_path + 'kinase_train.csv')#.head(2000)
-        valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv')#.head(1000)
-        test_data = pd.read_csv(self.data_path + 'kinase_test.csv')#.head(1000)
+        train_data = pd.read_csv(self.data_path + 'kinase_train.csv').head(2000)
+        valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv').head(1000)
+        test_data = pd.read_csv(self.data_path + 'kinase_test.csv').head(1000)
 
         # FIXME: test only
         #train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
@@ -601,7 +601,7 @@ class TotalDataModule(LightningDataModule):
                 print(f)
                 df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
                 df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
-                #print(df)
+                print(len(df))
                 if len(df) == 0: continue
                 #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
                 to_split_data.append((df, f.replace('.csv', '')))
@@ -613,21 +613,21 @@ class TotalDataModule(LightningDataModule):
         print(f)
         df = pd.read_csv(osp.join(ddir, f),keep_default_na=False,na_values=[])
         df['messages'] = df['messages'].apply(lambda x : x.replace("'}\n {'", "'},{'").replace("'} {'", "'},{'")).apply(ast.literal_eval)
-        #print(df)
+        print(len(df))
         to_split_data.append((df, f.replace('.csv', '')))
         
         ddir = osp.join(self.instruction_data_path)
         f = 'mol-inst_biomol_text_train.csv'
         print(f)
         df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'input': str, 'output': str},keep_default_na=False,na_values=[])
-        #print(df)
+        print(len(df))
         train_data.append((df, f.replace('.csv', '')))
         
         ddir = osp.join(self.instruction_data_path)
         f = 'mol-inst_biomol_text_test.csv'
         print(f)
         df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'input': str, 'output': str},keep_default_na=False,na_values=[])
-        #print(df)
+        print(len(df))
         valid_data.append((df, f.replace('.csv', '')))
         test_data.append((df, f.replace('.csv', '')))
 
@@ -636,7 +636,7 @@ class TotalDataModule(LightningDataModule):
         print(f)
         df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
         df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
-        #print(df)
+        print(len(df))
         #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
         train_data.append((df, f.replace('.csv', '')))
 
@@ -645,7 +645,7 @@ class TotalDataModule(LightningDataModule):
         print(f)
         df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
         df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
-        #print(df)
+        print(len(df))
         #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
         valid_data.append((df, f.replace('.csv', '')))
 
@@ -654,7 +654,7 @@ class TotalDataModule(LightningDataModule):
         print(f)
         df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
         df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
-        #print(df)
+        print(len(df))
         #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
         test_data.append((df, f.replace('.csv', '')))
         
