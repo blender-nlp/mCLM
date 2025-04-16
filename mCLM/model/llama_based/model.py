@@ -465,7 +465,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
         #     shift_labels = shift_labels.to(shift_logits.device)
         #     loss = loss_fct(shift_logits, shift_labels.to(torch.long))
         if labels is not None:
-            loss = logits.compute_loss(labels, mapping_tensor = mapping_tensor)
+            loss = logits.compute_loss(labels, mapping_tensor = self.mapping_tensor)
 
         if not return_dict:
             output = (logits,) + outputs[1:]
