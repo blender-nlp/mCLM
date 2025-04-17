@@ -75,6 +75,8 @@ class mCLMSparseLogits:
             #]).to(shift_labels.device)
             #ChatGPT-4o wrote this faster version for me:
             if mapping_tensor is not None:
+                device = shift_labels.device  # or torch.device("cuda")
+                mapping_tensor = mapping_tensor.to(device)
                 for new_index, original_index in enumerate(self.indices):
                     mapping_tensor[original_index] = new_index
             else:
