@@ -679,6 +679,8 @@ class TotalDataModule(LightningDataModule):
         if osp.exists(self.GNN_cache):
             with open(self.GNN_cache, "rb") as f:
                 self.molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'))
+
+            self.molecule_tokenizer.change_start_idx(start_idx)
         else:
             self.molecule_tokenizer = MoleculeTokenizer(start_idx)
             for dfs in [to_split_data, train_data, valid_data, test_data]:
@@ -879,6 +881,8 @@ class SMolInstructDataModule(LightningDataModule):
         if osp.exists(self.GNN_cache):
             with open(self.GNN_cache, "rb") as f:
                 self.molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'))
+
+            self.molecule_tokenizer.change_start_idx(start_idx)
         else:
             self.molecule_tokenizer = MoleculeTokenizer(start_idx)
             for dfs in [train_data, valid_data, test_data]:

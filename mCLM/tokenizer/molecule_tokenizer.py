@@ -49,6 +49,20 @@ class MoleculeTokenizer:
                     self.bad_blocks.add(block)
                     #zz
 
+    #Allows switching between language models
+    def change_start_idx(self, new_start_idx):
+        old_start_idx = self.start_idx
+        old_new_map = {}
+
+        for block in tqdm(self.block_to_idx, desc='Changing start index'):
+            old_idx = self.block_to_idx[block]
+            new_idx = old_idx - old_start_idx + new_start_idx
+            self.block_to_idx[block] = new_idx
+            old_new_map[old_idx] = new_idx
+
+        self.GNN_input_map = {old_new_map.get(k, k): v for k, v in self.GNN_input_map.items()}
+        self.start_idx = new_start_idx
+
 
     def get_Idx(self, block: str):
         """

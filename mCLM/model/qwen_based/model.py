@@ -225,6 +225,9 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         # self.vocab_size = config.vocab_size
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
 
+        self.mapping_tensor = torch.full((self.total_vocab_size,), -1, dtype=torch.long)
+        self.mapping_tensor.requires_grad = False
+
         # Initialize weights and apply final processing
         self.post_init()
 
@@ -278,6 +281,9 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         self.mol_vocab = mol_vocab
         self.model.mol_vocab = mol_vocab
         self.config.mol_vocab_size = len(mol_vocab)
+
+        self.mapping_tensor = torch.full((self.total_vocab_size,), -1, dtype=torch.long, device=self.device)
+        self.mapping_tensor.requires_grad = False
 
     #@can_return_tuple
     @deprecate_kwarg("num_logits_to_keep", version="4.50", new_name="logits_to_keep")
@@ -378,7 +384,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         #     shift_labels = shift_labels.to(shift_logits.device)
         #     loss = loss_fct(shift_logits, shift_labels.to(torch.long))
         if labels is not None:
-            loss = logits.compute_loss(labels)
+            loss = logits.compute_loss(labels, mapping_tensor = self.mapping_tensor)
 
         return CausalLMOutputWithPast(
             loss=loss,
