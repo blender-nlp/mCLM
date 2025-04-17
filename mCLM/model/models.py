@@ -58,7 +58,7 @@ class mCLM(L.LightningModule):
 
     def setup(self, stage=None):
         self.model.extend_text_vocab_size(len(self.trainer.datamodule.tokenizer.vocab))
-        self.model.set_mol_vocab(self.trainer.datamodule.molecule_tokenizer.GNN_input_map)
+        self.model.set_mol_vocab(self.trainer.datamodule.molecule_tokenizer)
 
     def get_metrics(
         self,

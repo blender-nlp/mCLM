@@ -129,17 +129,7 @@ def main(args):
         filename="best_val_checkpoint",
         save_top_k=1,
     )
-    # saves last-K checkpoints based on "step" metric
-    checkpoint_callback = ModelCheckpoint(
-        save_top_k=1,
-        monitor="step",
-        mode="max",
-        dirpath=dirpath,
-        every_n_train_steps=config['check_val_every_n_steps'],
-        filename="latest_checkpoint-{epoch:02d}-{step}",
-    )
     callbacks.append(val_checkpoint)
-    callbacks.append(checkpoint_callback)
 
     
     #ckpt_path = config["pretrained_text_model"]
@@ -168,8 +158,35 @@ def main(args):
                 torch.save(trainer.datamodule.molecule_tokenizer, f)
 
 
+    class ClearMoleculeTokenizerCache(Callback):
+        def on_validation_epoch_end(self, trainer, pl_module, stage):
+            trainer.datamodule.molecule_tokenizer.clear_data()
+
+    if config['save_checkpoint_every_n_steps']:
+        checkpoint_callback = ModelCheckpoint(
+            save_top_k=1,
+            monitor="step",
+            mode="max",
+            dirpath=dirpath,
+            every_n_train_steps=config['save_checkpoint_every_n_steps'],
+            filename="latest_checkpoint-{epoch:02d}-{step}",
+        )
+    else:
+        # saves last-K checkpoints based on "step" metric
+        checkpoint_callback = ModelCheckpoint(
+            save_top_k=1,
+            monitor="step",
+            mode="max",
+            dirpath=dirpath,
+            every_n_train_steps=config['check_val_every_n_steps'],
+            filename="latest_checkpoint-{epoch:02d}-{step}",
+        )
+
+    callbacks.append(checkpoint_callback)
+
     #callbacks.append(SetupCallback())
     #callbacks.append(MoveMoleculeDevice())
+    callbacks.append(ClearMoleculeTokenizerCache())
 
     if config['check_val_every_n_steps']:
         trainer = Trainer(
@@ -281,6 +298,7 @@ if __name__ == "__main__":
     parser.add_argument("--fold_idx", type=int)
 
     parser.add_argument("--check_val_every_n_steps", default=None, type=int)
+    parser.add_argument("--save_checkpoint_every_n_steps", default=None, type=int)
 
     parser.add_argument("--instruction_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/instruction/')
     parser.add_argument("--synthetic_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/synthetic/')

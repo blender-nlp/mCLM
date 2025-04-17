@@ -26,7 +26,7 @@ class MoleculeTokenizer:
         self.bad_blocks = set()
 
     def __len__(self):
-        return len(self.GNN_input_map)
+        return len(self.block_to_idx)
 
     def add_block(self, block: str):
         if block not in self.block_to_idx:
@@ -48,6 +48,24 @@ class MoleculeTokenizer:
                     print(block)
                     self.bad_blocks.add(block)
                     #zz
+                    
+
+    def create_input_from_list(self, blocks):
+        for block in blocks:
+            if self.block_to_idx[block] not in self.GNN_input_map:
+                try:
+                    self.GNN_input_map[self.block_to_idx[block]] = smiles_to_data(block)
+                except:
+                    print('Bad Block:', block)
+                    self.bad_blocks.add(block)
+                    
+                    self.GNN_input_map[self.block_to_idx[block]] = smiles_to_data('[1*][2*]') #UNK value, essentially 
+
+
+    def clear_data(self): #free up RAM after validation
+
+        self.GNN_input_map = {}
+
 
     #Allows switching between language models
     def change_start_idx(self, new_start_idx):
@@ -100,7 +118,15 @@ class MoleculeTokenizer:
         Returns:
             list: A list of tokens representing the molecule.
         """
-        return self.GNN_input_map[ID]
+        try:
+            if ID in self.GNN_input_map:
+                return self.GNN_input_map[ID]
+            else:
+                self.create_input_from_list([self.get_block(ID)])
+                return self.GNN_input_map[ID]
+        except KeyError as e:
+            print(f"KeyError: {e} not found in dictionary. Using UNK replacement.")
+            return smiles_to_data('[1*][2*]')
 
 
 

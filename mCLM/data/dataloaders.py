@@ -395,6 +395,7 @@ class GeneralDataset(Dataset):
         mol_list = d['mol_list']
 
         frags = [[self.mol_tokenizer.get_Idx(m) for m in mol.split('^')] for mol in mol_list]
+        self.mol_tokenizer.create_input_from_list(sum([mol.split('^') for mol in mol_list], []))
 
         messages = [
             #{"role": "system", "content": "You are the mCLM, a helpful expert chemist who designs molecules in a modular fashion or answers questions.",},
@@ -573,7 +574,7 @@ class TotalDataModule(LightningDataModule):
         trunc_length=512,
         instruction_data_path="captions/",
         synthetic_data_path="captions/",
-        GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.pth'
+        GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v2.pth'
     ):
         super().__init__()
         self.prepare_data_per_node = True
@@ -693,7 +694,7 @@ class TotalDataModule(LightningDataModule):
                                     #if len(block) == 1: print(block, mol, task)#, df['mol_list'].to_list())
                                     self.molecule_tokenizer.add_block(block)
 
-            self.molecule_tokenizer.create_input()
+            #self.molecule_tokenizer.create_input()
             with open(self.GNN_cache, "wb") as f:
                 torch.save(self.molecule_tokenizer, f)
         
@@ -820,7 +821,7 @@ class SMolInstructDataModule(LightningDataModule):
         trunc_length=512,
         instruction_data_path="captions/",
         synthetic_data_path="captions/",
-        GNN_cache = '../GNN_input_cache/SMolInstruct.molecule_tokenizer.pth'
+        GNN_cache = '../GNN_input_cache/SMolInstruct.molecule_tokenizer.v2.pth'
     ):
         super().__init__()
         self.prepare_data_per_node = True
@@ -894,7 +895,7 @@ class SMolInstructDataModule(LightningDataModule):
                                     #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
                                     self.molecule_tokenizer.add_block(block)
 
-            self.molecule_tokenizer.create_input()
+            #self.molecule_tokenizer.create_input()
             with open(self.GNN_cache, "wb") as f:
                 torch.save(self.molecule_tokenizer, f)
         

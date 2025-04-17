@@ -149,7 +149,7 @@ def embed_molecules_fn(mol_input_ids, out_channels, mol_vocab, mol_gnn,
     )
     # get greater than 0 mol_input_ids
     graph_ids = mol_input_ids[mol_input_ids >= 0]
-    graphs = [mol_vocab[graph_id.item()] for graph_id in graph_ids]
+    graphs = [mol_vocab.get(graph_id.item()) for graph_id in graph_ids]
     if len(graphs) == 0:
         return output_features
     graphs = Batch.from_data_list(graphs).to(device)
