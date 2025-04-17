@@ -21,6 +21,8 @@ from transformers import AutoTokenizer
 import pandas as pd
 import pickle
 
+from tqdm import tqdm
+
 from mCLM.data.dataloaders import KinaseDataModule
 from mCLM.model.models import (
     mCLM,
@@ -32,6 +34,53 @@ import subprocess
 
 from mCLM.data.processing import insert_sublists, find_first_occurrence
 
+def load_with_tqdm(file_path, map_location=None, weights_only=True):
+    file_size = os.path.getsize(file_path)
+    buffer_size = 1024 * 1024  # 1MB chunks
+    
+    with open(file_path, 'rb') as f, tqdm(desc='Loading', total=file_size, unit='iB', unit_scale=True, unit_divisor=1024) as pbar:
+        buffer = bytearray()
+        while True:
+            chunk = f.read(buffer_size)
+            if not chunk:
+                break
+            buffer.extend(chunk)
+            pbar.update(len(chunk))
+        
+        byte_stream = io.BytesIO(buffer)
+        data = torch.load(byte_stream, map_location=map_location, weights_only=weights_only)
+    return data
+
+
+def extract_between_MOL(tensor):
+    tensor_list = tensor.tolist()  # Convert tensor to list
+    extracted = []
+    temp = []
+    recording = False  # Flag to start recording elements
+
+    for num in tensor_list:
+        if num == MOL_start or num == MOL_end:
+            if recording and temp:
+                extracted.append(temp)  # Save previous group
+            temp = []  # Reset temp list
+            recording = True  # Start recording after 128256
+        elif recording:
+            temp.append(num)
+
+    if temp:
+        extracted.append(temp)  # Append last collected group if any
+
+    return extracted
+
+def replace(text, mol_list):
+    mol_list2 = copy.copy(mol_list)
+    def replacer(match):
+        if mol_list2:
+            return f'<SMILES> {mol_list2.pop(0)} </SMILES>'
+        return match.group(0)  # Fallback in case something goes wrong
+
+    restored_text = re.sub(r'\[MOL\](.*?)\[\/MOL\]', replacer, text, count=len(mol_list2))
+    return restored_text
 
 if __name__ == "__main__":
     torch.cuda.empty_cache()
@@ -84,8 +133,8 @@ if __name__ == "__main__":
     parser.add_argument("--latent_size", default=256, type=int)
     parser.add_argument("--validate_every_n", default=1000, type=int)
     parser.add_argument("--lr", default=5e-5, type=float)
-    parser.add_argument("--ckpt_path", default="ckpts/1Bv2/", type=str)
-    parser.add_argument("--ckpt", default="best_val_checkpoint.ckpt", type=str)
+    parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/Llama-3.2-1B-Instruct-SMolInstruct/", type=str)
+    parser.add_argument("--ckpt", default="latest_checkpoint-epoch=00-step=10000.ckpt", type=str)
     parser.add_argument("--loss", default="CLIP", type=str)
     parser.add_argument("--load_ckpt", default=None, type=str)
     parser.add_argument("--load_GNN_ckpt", default=None, type=str)
@@ -93,9 +142,10 @@ if __name__ == "__main__":
     parser.add_argument("--seed", default=42, type=int)
 
     parser.add_argument("--model", default="mCLM", type=str)
-    parser.add_argument("--base_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
-    parser.add_argument("--pretrained_text_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
-    #parser.add_argument(
+
+    parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
+    parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
+    parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)    #parser.add_argument(
     #    "--freeze_text_encoder", type=bool, action=argparse.BooleanOptionalAction
     #)
     parser.add_argument(
@@ -126,14 +176,12 @@ if __name__ == "__main__":
 
     print('Imports Done')
 
-    device = 'cpu'
+    device = 'cpu'#torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    #with open(config["ckpt_path"] + "molecule_tokenizer.pkl", "rb") as f:
-    #    molecule_tokenizer = pickle.load(f)
-    #    molecule_tokenizer = torch.load(io.BytesIO(f.read()), map_location=torch.device('cpu'))
-
-    with open(config["ckpt_path"] + "molecule_tokenizer.pth", "rb") as f:
-        molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'))
+    #with open(config["ckpt_path"] + "molecule_tokenizer.pth", "rb") as f:
+    
+    torch.serialization.add_safe_globals([MoleculeTokenizer])
+    molecule_tokenizer = load_with_tqdm(config["ckpt_path"] + "molecule_tokenizer.pth", map_location=torch.device('cpu'), weights_only=False)#torch.load(f)
 
     tokenizer = AutoTokenizer.from_pretrained(config["base_model"])
     tokenizer.pad_token = tokenizer.eos_token #llama3
@@ -151,58 +199,21 @@ if __name__ == "__main__":
 
     print('Model Created')
 
-    model.load_state_dict(torch.load(config["ckpt_path"] + config['ckpt'], map_location='cpu')['state_dict'])
+    model.load_state_dict(load_with_tqdm(config["ckpt_path"] + config['ckpt'], map_location='cpu')['state_dict'])
+    model.to(device)
 
     print('Model Loaded')
 
-
-    GNN_input_map = molecule_tokenizer.GNN_input_map
-    
+    #GNN_input_map = molecule_tokenizer.GNN_input_map
+    #
     #create a dictionary with a version of GNN_input_map for each device (the device is the key)
-    for key in GNN_input_map:
-        molecule_tokenizer.GNN_input_map[key] = GNN_input_map[key].to(model.device)
+    #for key in GNN_input_map:
+    #    molecule_tokenizer.GNN_input_map[key] = GNN_input_map[key].to(model.device)
 
     model.train(False)
     model.model.post_training()
 
     print('Model Set to Inference')
-
-    ##### TMP fix for change#######
-    #molecule_tokenizer.idx_to_block = {}
-    #for block in molecule_tokenizer.block_to_idx:
-    #    molecule_tokenizer.add_block(block)
-    ###############################
-
-    def extract_between_MOL(tensor):
-        tensor_list = tensor.tolist()  # Convert tensor to list
-        extracted = []
-        temp = []
-        recording = False  # Flag to start recording elements
-
-        for num in tensor_list:
-            if num == MOL_start or num == MOL_end:
-                if recording and temp:
-                    extracted.append(temp)  # Save previous group
-                temp = []  # Reset temp list
-                recording = True  # Start recording after 128256
-            elif recording:
-                temp.append(num)
-
-        if temp:
-            extracted.append(temp)  # Append last collected group if any
-
-        return extracted
-
-    def replace(text, mol_list):
-        mol_list2 = copy.copy(mol_list)
-        def replacer(match):
-            if mol_list2:
-                return f'<SMILES> {mol_list2.pop(0)} </SMILES>'
-            return match.group(0)  # Fallback in case something goes wrong
-
-        restored_text = re.sub(r'\[MOL\](.*?)\[\/MOL\]', replacer, text, count=len(mol_list2))
-        return restored_text
-
 
     while True:
         user_input = input("Enter an instruction (type 'quit' to exit): ")
@@ -218,16 +229,14 @@ if __name__ == "__main__":
         molecule_tokenizer.create_input()
 
         messages = [
-            {"role": "system", "content": "You are an expert chemist who designs molecules in a modular fashion or answers questions following the given instructions.",},
-            {"role": "user", "content": "Please tell me a fact about a kinase inhibitor."},
-            {"role": "assistant", "content": cleaned_text},
+            {"role": "user", "content": cleaned_text},
         ]
         message_tokens = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True, return_tensors="pt")
         #print(message_tokens)
 
         frags = [[molecule_tokenizer.get_Idx(m) for m in mol.split('^')] for mol in mol_list]
 
-        message_tokens = torch.Tensor(insert_sublists(message_tokens.squeeze(), frags, MOL_start, MOL_end)).to(torch.int)
+        message_tokens = torch.Tensor(insert_sublists(message_tokens.squeeze(), frags, MOL_start, MOL_end)).to(torch.int).to(device)
         #print(message_tokens, message_tokens.shape)
 
         generated = model.generate(
