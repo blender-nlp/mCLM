@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--num_warmup_steps", default=1000, type=int)
     parser.add_argument("--max_epochs", default=2, type=int)
-    parser.add_argument("--batch_size", default=4, type=int)
+    parser.add_argument("--batch_size", default=2, type=int)
     parser.add_argument("--val_batch_size", default=None, type=int)
 
     parser.add_argument("--node_dim", default=142, type=int)
@@ -145,7 +145,7 @@ if __name__ == "__main__":
 
     dm.setup('test')
     tokenizer = dm.tokenizer
-    test_loader = dm.test_dataloader()
+    test_loader = list(dm.test_dataloader())[0]
 
     # test GNN input dict
     block_ID_to_data = dm.molecule_tokenizer.GNN_input_map
@@ -183,6 +183,11 @@ if __name__ == "__main__":
     print(item['raw_text'][0])
     #print(item["input"]["input_ids"].shape, item["input"]["attention_mask"].shape,
     #    item["input"]["input_ids"].shape)
+
+    item["input"]["input_ids"] = item["input"]["input_ids"].to(device)
+    item["input"]["attention_mask"] = item["input"]["attention_mask"].to(device)
+    item["input"]["labels"] = item["input"]["labels"].to(device)
+
     model.train(False)
     model.model.post_training()
     inference_output = model.compute_step(

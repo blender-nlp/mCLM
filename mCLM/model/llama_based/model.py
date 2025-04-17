@@ -377,6 +377,9 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
         self.model.mol_vocab = mol_vocab
         self.config.mol_vocab_size = len(mol_vocab)
 
+        self.mapping_tensor = torch.full((self.total_vocab_size,), -1, dtype=torch.long, device=self.device)
+        self.mapping_tensor.requires_grad = False
+
     @add_start_docstrings_to_model_forward(LLAMA_INPUTS_DOCSTRING)
     @replace_return_docstrings(output_type=CausalLMOutputWithPast, config_class=_CONFIG_FOR_DOC)
     def forward(
