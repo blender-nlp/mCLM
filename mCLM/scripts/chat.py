@@ -176,7 +176,7 @@ if __name__ == "__main__":
 
     print('Imports Done')
 
-    device = 'cpu'#torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     #with open(config["ckpt_path"] + "molecule_tokenizer.pth", "rb") as f:
     
