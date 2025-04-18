@@ -94,6 +94,7 @@ def main(args):
             base_model=config["base_model"],
             batch_size=config["batch_size"],
             trunc_length=config["trunc_length"],
+            shrink_data=50000,
         )
     
 

@@ -595,7 +595,8 @@ class TotalDataModule(LightningDataModule):
         trunc_length=512,
         instruction_data_path="captions/",
         synthetic_data_path="captions/",
-        GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v2.pth'
+        GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v2.pth',
+        shrink_data = None,
     ):
         super().__init__()
         self.prepare_data_per_node = True
@@ -608,6 +609,7 @@ class TotalDataModule(LightningDataModule):
         self.config = config
         self.seed = config['seed']
         self.GNN_cache = GNN_cache
+        self.shrink_data = shrink_data
 
     def setup(self, stage: str):
         self.tokenizer = AutoTokenizer.from_pretrained(self.config['pretrained_tokenizer'])
@@ -625,7 +627,7 @@ class TotalDataModule(LightningDataModule):
 
         print('Loading Data')
         
-        for subdir in ['synthetic_chembl', 'synthetic_admet_chembl', 'pos_neg', 'pos_neg', 'pos_neg', 'pos_pos', 'property_to_mol','multi_property_to_mol', 'mol_only','mCLM','regression', 'classification']:
+        for subdir in ['synthetic_chembl', 'synthetic_admet_chembl', 'pos_neg', 'pos_pos', 'property_to_mol','multi_property_to_mol', 'mol_only','mCLM','regression', 'classification']:
             ddir = osp.join(self.synthetic_data_path, subdir)
             files = [f for f in os.listdir(ddir) if os.path.isfile(os.path.join(ddir, f))]
             for f in files:
@@ -634,6 +636,9 @@ class TotalDataModule(LightningDataModule):
                 df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
                 print(len(df))
                 if len(df) == 0: continue
+
+                if self.shrink_data != None:
+                    df = df.sample(min(self.shrink_data, len(df)))
                 #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
                 to_split_data.append((df, f.replace('.csv', '')))
                 #if f == 'Tox21_class.csv': break
@@ -736,7 +741,7 @@ class TotalDataModule(LightningDataModule):
             ts = min(40, max(int(0.01*len(df)), 10), int(0.1*len(df)))
             if ts>0:
                 train_df, val_df = train_test_split(df, test_size=ts, random_state = self.seed)
-                val_df, test_df = train_test_split(df, test_size=0.5, random_state = self.seed)
+                val_df, test_df = train_test_split(val_df, test_size=0.5, random_state = self.seed)
             ds = ds_type(
                 train_df,
                 self.tokenizer,
