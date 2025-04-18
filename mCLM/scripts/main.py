@@ -159,8 +159,17 @@ def main(args):
 
 
     class ClearMoleculeTokenizerCache(Callback):
-        def on_validation_epoch_end(self, trainer, pl_module, stage):
+        def on_validation_epoch_end(self, trainer, pl_module):
             trainer.datamodule.molecule_tokenizer.clear_data()
+
+    callbacks.append(ClearMoleculeTokenizerCache())
+
+
+    class ShuffleTrainingData(Callback):
+        def on_train_start(self, trainer, pl_module):
+            trainer.datamodule.train_ds.seed(pl_module.current_epoch)
+
+    callbacks.append(ShuffleTrainingData())
 
     if config['save_checkpoint_every_n_steps']:
         checkpoint_callback = ModelCheckpoint(
@@ -186,7 +195,6 @@ def main(args):
 
     #callbacks.append(SetupCallback())
     #callbacks.append(MoveMoleculeDevice())
-    callbacks.append(ClearMoleculeTokenizerCache())
 
     if config['check_val_every_n_steps']:
         trainer = Trainer(
@@ -315,3 +323,5 @@ if __name__ == "__main__":
     print(config)
     # TRAIN
     main(config)
+
+    

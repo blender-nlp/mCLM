@@ -21,6 +21,8 @@ cd ~/MMLI_projects/mCLM/mCLM/
 
 export WANDB_MODE=offline
 
+export PL_FAULT_TOLERANT_TRAINING=1
+
 echo "Starting Main Script" 
 
 
@@ -48,14 +50,23 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/ --check_val_every_n_steps 10000 \
     --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ \
     --batch_size=16 --lr 1e-5 --ckpt_path ckpts/Llama3.2-1B_Total/ --version Llama3.2-1B --max_epochs 3 \
-    --data_module Total --task Total
+    --data_module Total --task Total \
+    --save_checkpoint_every_n_steps 2500 
+
+#PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/ \
+#    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/ --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ \
+#    --check_val_every_n_steps 10000 \
+#    --batch_size=16 --lr 1e-5 --ckpt_path ckpts/Llama3.2-1B_SMolInstruct/ --version Llama3.2-1B --max_epochs 3 \
+#    --data_module SMolInstruct --task SMolInstruct \
+#    --save_checkpoint_every_n_steps 2500
 
 
 #PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/ \
 #    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/ --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/ \
 #    --check_val_every_n_steps 10000 \
-#    --batch_size=16 --lr 1e-5 --ckpt_path ckpts/1B_SMolInstruct/ --version Llama3.2-1B_10k --max_epochs 3 \
+#    --batch_size=16 --lr 1e-5 --ckpt_path ckpts/1B_SMolInstruct/ --version Llama3.2-1B --max_epochs 3 \
 #    --data_module SMolInstruct --task SMolInstruct \
+#    --save_checkpoint_every_n_steps 2500
 #    --resume_from_checkpoint ckpts/1B_SMolInstruct/latest_checkpoint-epoch=00-step=10000.ckpt \
     #--resume_wandb_run #this doesn't seem to work offline see: community.wandb.ai/t/resume-offline-run/8796
 

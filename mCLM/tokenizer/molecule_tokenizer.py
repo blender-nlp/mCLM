@@ -63,19 +63,22 @@ class MoleculeTokenizer:
 
 
     def clear_data(self): #free up RAM after validation
-
+        print('Clearing molecule tokenizer data')
         self.GNN_input_map = {}
 
 
     #Allows switching between language models
     def change_start_idx(self, new_start_idx):
         old_start_idx = self.start_idx
+        #print(f'in change_start_idx with new_start_idx={new_start_idx} and old_start_idx={old_start_idx}')
         old_new_map = {}
+        self.idx_to_block = {}
 
         for block in tqdm(self.block_to_idx, desc='Changing start index'):
             old_idx = self.block_to_idx[block]
             new_idx = old_idx - old_start_idx + new_start_idx
             self.block_to_idx[block] = new_idx
+            self.idx_to_block[new_idx] = block
             old_new_map[old_idx] = new_idx
 
         self.GNN_input_map = {old_new_map.get(k, k): v for k, v in self.GNN_input_map.items()}

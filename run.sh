@@ -28,6 +28,8 @@ cd ~/MMLI_projects/mCLM/mCLM/
 
 export WANDB_MODE=offline
 
+export PL_FAULT_TOLERANT_TRAINING=1
+
 echo "Starting Main Script" 
 
 
@@ -36,6 +38,7 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
     --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --batch_size=24 --lr 1e-5 --ckpt_path ckpts/Qwen2.5-0.5B_SMolInstruct/ --version Qwen2.5-0.5B --max_epochs 3 \
     --data_module SMolInstruct --task SMolInstruct
+    --save_checkpoint_every_n_steps 2500 
 
 
 #PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \

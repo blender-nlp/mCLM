@@ -15,6 +15,7 @@ from torch_geometric.data.data import BaseData
 from torch_geometric.data.datapipes import DatasetAdapter
 from transformers import AutoTokenizer
 from typing import Any, List, Optional, Sequence, Union
+from torchdata.stateful_dataloader import StatefulDataLoader
 
 from sklearn.model_selection import train_test_split
 
@@ -102,7 +103,7 @@ class CustomCollater:
         return self(batch)
 
 
-class CustomDataLoader(torch.utils.data.DataLoader):
+class CustomDataLoader(StatefulDataLoader):
     r"""A data loader which merges data objects from a
     :class:`torch_geometric.data.Dataset` to a mini-batch.
     Data objects can be either of type :class:`~torch_geometric.data.Data` or
@@ -341,6 +342,26 @@ class KinaseDataModule(LightningDataModule):
 
 
 
+
+class StatefulShuffleDataset(Dataset):
+    """Shuffle a dataset without using shuffle=True because lightning doesn't support Random shuffler with fault tolerance."""
+
+    def __init__(self, dataset, seed):
+        self.dataset = dataset
+        self._indices = None
+        self.transform = None
+        self.seed(seed)
+
+    def seed(self, seed):
+        np.random.seed(seed)
+        self.random = np.arange(len(self.dataset))
+        np.random.shuffle(self.random)
+
+    def len(self):
+        return len(self.dataset)
+
+    def get(self, idx):        
+        return self.dataset[self.random[idx]]
 
 
 ''' #new pytorch seems to have this now
@@ -596,7 +617,6 @@ class TotalDataModule(LightningDataModule):
         #model.resize_token_embeddings(len(tokenizer)) #put this somewhere
         
         start_idx = len(self.tokenizer)
-        self.molecule_tokenizer = MoleculeTokenizer(start_idx)
 
         to_split_data = []
         train_data = []
@@ -759,6 +779,7 @@ class TotalDataModule(LightningDataModule):
             self.train_dses.append(ds)
 
         self.train_ds = ConcatDataset(self.train_dses)
+        self.train_ds = StatefulShuffleDataset(self.train_ds, seed=0)
 
         for df, task in valid_data:
             if task.startswith('tulu'): ds_type = TuluDataset
@@ -840,7 +861,6 @@ class SMolInstructDataModule(LightningDataModule):
         self.tokenizer.pad_token = self.tokenizer.eos_token #llama3
 
         self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
-        #model.resize_token_embeddings(len(tokenizer)) #put this somewhere
         
         start_idx = len(self.tokenizer)
 
@@ -915,6 +935,7 @@ class SMolInstructDataModule(LightningDataModule):
             )
             self.train_dses.append(ds)
         self.train_ds = ConcatDataset(self.train_dses)
+        self.train_ds = StatefulShuffleDataset(self.train_ds, seed=0)
 
         for df, task in valid_data:
             ds = GeneralDataset(
