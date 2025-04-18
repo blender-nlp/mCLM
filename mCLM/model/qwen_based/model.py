@@ -365,7 +365,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         )
 
         # mCLM loss
-        # loss = None
+        loss = None
         # if labels is not None:
         #     # Shift so that tokens < n predict n
         #     shift_logits = logits[..., :-1, :].contiguous()
@@ -377,7 +377,8 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         #     # Enable model parallelism
         #     shift_labels = shift_labels.to(shift_logits.device)
         #     loss = loss_fct(shift_logits, shift_labels.to(torch.long))
-        loss = logits.compute_loss(labels)
+        if labels is not None:
+            loss = logits.compute_loss(labels)
 
         return CausalLMOutputWithPast(
             loss=loss,

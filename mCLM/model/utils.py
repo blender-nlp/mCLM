@@ -90,7 +90,6 @@ def mclm_logit_head(
 ):
     text_logits = lm_head(hidden_states)
     device = text_logits.device
-    print("labels", labels)
     if labels is not None:
         assert labels is not None
         negative_set = torch.randperm(
@@ -126,8 +125,6 @@ def mclm_logit_head(
         mol_logits = hidden_states.matmul(
             finalized_molecule_embeddings.weight.transpose(0, 1))
         logits = torch.cat([text_logits, mol_logits], dim=-1)
-
-    print("logits", type(logits))
 
     return logits
 
