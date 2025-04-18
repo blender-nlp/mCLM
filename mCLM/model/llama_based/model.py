@@ -471,10 +471,10 @@ class LlamaForCausalLM(LlamaPreTrainedModel, GenerationMixin):
             attentions=outputs.attentions,
         )
 
-    def post_training(self):
+    def post_training(self, batch_size):
         self.finalized_molecule_embeddings = finalized_molecule_embeddings(
             self.vocab_size, self.mol_vocab_size, self.model.embed_molecules,
-            self.config.hidden_size, self.device)
+            self.config.hidden_size, batch_size, self.device)
 
     def prepare_inputs_for_generation(
         self, input_ids, past_key_values=None, attention_mask=None, inputs_embeds=None, cache_position=None, **kwargs

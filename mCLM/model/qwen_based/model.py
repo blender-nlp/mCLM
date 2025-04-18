@@ -17,7 +17,7 @@ from transformers.utils import (
     LossKwargs,
     add_start_docstrings,
     add_start_docstrings_to_model_forward,
-    can_return_tuple,
+    # can_return_tuple,
     logging,
     replace_return_docstrings,
 )
@@ -90,7 +90,7 @@ class Qwen2Model(OriginalQwen2Model):
         self.vocab_size = new_vocab_size
         self.config.vocab_size = new_vocab_size
 
-    @can_return_tuple
+    # @can_return_tuple
     @add_start_docstrings_to_model_forward(QWEN2_INPUTS_DOCSTRING)
     def forward(
         self,
@@ -279,7 +279,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         self.model.mol_vocab = mol_vocab
         self.config.mol_vocab_size = len(mol_vocab)
 
-    @can_return_tuple
+    # @can_return_tuple
     @deprecate_kwarg("num_logits_to_keep", version="4.50", new_name="logits_to_keep")
     @add_start_docstrings_to_model_forward(QWEN2_INPUTS_DOCSTRING)
     @replace_return_docstrings(output_type=CausalLMOutputWithPast, config_class=_CONFIG_FOR_DOC)
@@ -387,10 +387,10 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
             attentions=outputs.attentions,
         )
 
-    def post_training(self):
+    def post_training(self, batch_size):
         self.finalized_molecule_embeddings = finalized_molecule_embeddings(
             self.vocab_size, self.mol_vocab_size, self.model.embed_molecules,
-            self.config.hidden_size, self.device)
+            self.config.hidden_size, batch_size, self.device)
 
 
 __all__ = [

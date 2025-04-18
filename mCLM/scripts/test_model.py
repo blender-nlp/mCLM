@@ -194,7 +194,7 @@ if __name__ == "__main__":
 
     print("Testing model inference time forwarding...")
     model.train(False)
-    model.post_training()
+    model.post_training(1024)
     inference_output = model(
         input_ids=item["input"]["input_ids"][:, 0],
         attention_mask=item["input"]["attention_mask"][:, 0],
@@ -205,7 +205,7 @@ if __name__ == "__main__":
 
     print("Testing model generation...")
     model.train(False)
-    model.post_training()
+    model.post_training(1024)
     prompt = item["input"]["input_ids"][0, 0].tolist()
     prompt = prompt[:prompt.index(tokenizer.eos_token_id)]
     generated = model.generate(

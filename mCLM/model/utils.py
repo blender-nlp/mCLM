@@ -31,20 +31,28 @@ def molecule_adaptation_layer(hidden_size, activation):
 
 
 # mCLM training finishes, finalize the molecule embeddings for inference
+# batch mode
 def finalized_molecule_embeddings(
-        vocab_size, mol_vocab_size, embed_molecules, hidden_size, device):
+        vocab_size, mol_vocab_size, embed_molecules, hidden_size,
+        batch_size, device):
     all_molecule_ids = torch.arange(
         vocab_size,
         mol_vocab_size + vocab_size,
         dtype=torch.long,
         device=device)
-    all_molecule_embeddings = embed_molecules(all_molecule_ids)
     finalized_molecule_embeddings = nn.Embedding(
         mol_vocab_size,
         hidden_size,
     )
-    finalized_molecule_embeddings.weight = nn.Parameter(
-        all_molecule_embeddings, requires_grad=False)
+    with torch.no_grad():
+        for i in range(0, mol_vocab_size, batch_size):
+            all_molecule_embeddings = embed_molecules(
+                all_molecule_ids[i:i + batch_size])
+            finalized_molecule_embeddings.weight.data[i:i + batch_size] = \
+                all_molecule_embeddings
+    # all_molecule_embeddings = embed_molecules(all_molecule_ids)
+    # finalized_molecule_embeddings.weight = nn.Parameter(
+    #     all_molecule_embeddings, requires_grad=False)
     return finalized_molecule_embeddings
 
 
@@ -82,6 +90,7 @@ def mclm_logit_head(
 ):
     text_logits = lm_head(hidden_states)
     device = text_logits.device
+    print("labels", labels)
     if labels is not None:
         assert labels is not None
         negative_set = torch.randperm(
@@ -117,6 +126,8 @@ def mclm_logit_head(
         mol_logits = hidden_states.matmul(
             finalized_molecule_embeddings.weight.transpose(0, 1))
         logits = torch.cat([text_logits, mol_logits], dim=-1)
+
+    print("logits", type(logits))
 
     return logits
 
