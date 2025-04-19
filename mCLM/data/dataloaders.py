@@ -630,19 +630,21 @@ class TotalDataModule(LightningDataModule):
         for subdir in ['synthetic_chembl', 'synthetic_admet_chembl', 'pos_neg', 'pos_pos', 'property_to_mol','multi_property_to_mol', 'mol_only','mCLM','regression', 'classification']:
             ddir = osp.join(self.synthetic_data_path, subdir)
             files = [f for f in os.listdir(ddir) if os.path.isfile(os.path.join(ddir, f))]
+            total = 0
             for f in files:
                 print(f)
                 df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
                 df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
-                print(len(df))
                 if len(df) == 0: continue
 
                 if self.shrink_data != None:
                     df = df.sample(min(self.shrink_data, len(df)))
+                print(len(df))
+                total += len(df)
                 #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
                 to_split_data.append((df, f.replace('.csv', '')))
                 #if f == 'Tox21_class.csv': break
-        
+            print(subdir, total)
 
         ddir = osp.join(self.instruction_data_path)
         f = 'tulu-3-sft_train.csv'
@@ -704,7 +706,7 @@ class TotalDataModule(LightningDataModule):
         #Preprocess molecule tokenizer
         if osp.exists(self.GNN_cache):
             with open(self.GNN_cache, "rb") as f:
-                self.molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'))
+                self.molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'), weights_only=False)
 
             self.molecule_tokenizer.change_start_idx(start_idx)
         else:
@@ -906,7 +908,7 @@ class SMolInstructDataModule(LightningDataModule):
         #Preprocess molecule tokenizer
         if osp.exists(self.GNN_cache):
             with open(self.GNN_cache, "rb") as f:
-                self.molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'))
+                self.molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'), weights_only=False)
 
             self.molecule_tokenizer.change_start_idx(start_idx)
         else:

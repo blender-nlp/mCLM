@@ -14,6 +14,8 @@ kinase_data_processing/kinase_test.csv
 kinase_data_processing/kinase_train.csv
 kinase_data_processing/kinase_valid.csv
 
+test_checkpointing/
+
 oracle_models/original_splits/
 
 oracle_models/tanimoto_similarity_matrix.parquet

@@ -10,7 +10,7 @@ import torch
 
 # import pandas as pd
 
-from mCLM.data.dataloaders import KinaseDataModule
+from mCLM.data.dataloaders import KinaseDataModule, SMolInstructDataModule
 from mCLM_tokenizer.tokenizer import get_blocks
 
 from mCLM.model.models import mCLM
@@ -101,6 +101,9 @@ if __name__ == "__main__":
     parser.add_argument("--caption_source", type=str)
     parser.add_argument("--fold_idx", type=int)
     parser.add_argument("--data_path", type=str, default='kinase_data_processing/')
+    parser.add_argument("--instruction_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/instruction/dataloader_processed/')
+    parser.add_argument("--synthetic_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/synthetic/dataloader_processed/')
+
 
     args = parser.parse_args()
 
@@ -143,6 +146,18 @@ if __name__ == "__main__":
             trunc_length=config["trunc_length"],
         )
 
+    if config["data_module"] == "SMolInstruct":
+        dm = SMolInstructDataModule(
+            config,
+            instruction_data_path = config["instruction_data_path"],
+            synthetic_data_path = config["synthetic_data_path"],
+            base_model=config["base_model"],
+            batch_size=config["batch_size"],
+            trunc_length=config["trunc_length"],
+        )
+    
+
+
     dm.setup('test')
     tokenizer = dm.tokenizer
     test_loader = list(dm.test_dataloader())[0]
@@ -150,10 +165,12 @@ if __name__ == "__main__":
     # test GNN input dict
     block_ID_to_data = dm.molecule_tokenizer.GNN_input_map
     
+    dm.molecule_tokenizer.create_input()
+
     #print('GNN Input Dict')
     #print(block_ID_to_data)
 
-    device = 'cpu'#torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Loading model...")
     ckpt_path = config["pretrained_text_model"]
     #model = LlamaForCausalLM.from_pretrained(ckpt_path)

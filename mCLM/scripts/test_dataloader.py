@@ -10,6 +10,8 @@ import torch
 
 # import pandas as pd
 
+from tqdm import tqdm
+
 from mCLM.data.dataloaders import TotalDataModule, SMolInstructDataModule
 from mCLM_tokenizer.tokenizer import get_blocks
 
@@ -54,7 +56,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--num_warmup_steps", default=1000, type=int)
     parser.add_argument("--max_epochs", default=2, type=int)
-    parser.add_argument("--batch_size", default=2, type=int)
+    parser.add_argument("--batch_size", default=16, type=int)
     parser.add_argument("--val_batch_size", default=None, type=int)
 
     parser.add_argument("--node_dim", default=142, type=int)
@@ -148,6 +150,7 @@ if __name__ == "__main__":
             base_model=config["base_model"],
             batch_size=config["batch_size"],
             trunc_length=config["trunc_length"],
+            shrink_data=25000,
         )
 
     if config["data_module"] == "SMolInstruct":
@@ -162,6 +165,8 @@ if __name__ == "__main__":
     
 
     dm.setup('test')
+    print(len(dm.train_ds))
+    zz
     test_loader = dm.test_dataloader()
 
     # model forwarding, testing mode
@@ -171,6 +176,17 @@ if __name__ == "__main__":
     item = next(iter(ldr))
 
     print(item)
+
+    #Iterate through val
+
+    val_loader = dm.val_dataloader()
+    for vldr in tqdm(val_loader):
+        with tqdm(vldr) as pbar:
+            for d in pbar:
+                pbar.set_description(d['task_id'][0])
+
+                break
+        #print(item)
 
     exit()
     # test GNN input dict
