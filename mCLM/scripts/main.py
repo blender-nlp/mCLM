@@ -94,7 +94,7 @@ def main(args):
             base_model=config["base_model"],
             batch_size=config["batch_size"],
             trunc_length=config["trunc_length"],
-            shrink_data=50000,
+            shrink_data=25000,
         )
     
 
@@ -163,7 +163,7 @@ def main(args):
         def on_validation_epoch_end(self, trainer, pl_module):
             trainer.datamodule.molecule_tokenizer.clear_data()
 
-    callbacks.append(ClearMoleculeTokenizerCache())
+    #callbacks.append(ClearMoleculeTokenizerCache())
 
 
     class ShuffleTrainingData(Callback):
@@ -194,8 +194,34 @@ def main(args):
 
     callbacks.append(checkpoint_callback)
 
-    #callbacks.append(SetupCallback())
-    #callbacks.append(MoveMoleculeDevice())
+
+    class LossThresholdCallback(Callback):
+        def __init__(self, every_n_steps=100, loss_threshold=0.1):
+            self.every_n_steps = every_n_steps
+            self.loss_threshold = loss_threshold
+            self.total_loss = 0
+
+        def on_train_batch_end(self, trainer, pl_module, outputs, batch, batch_idx):
+            global_step = trainer.global_step
+
+            if 'loss' in outputs:
+                self.total_loss += outputs['loss'].item()
+
+            # Check every n steps
+            if global_step % self.every_n_steps == 0 and 'loss' in outputs:
+                loss = self.total_loss / self.every_n_steps
+                self.total_loss = 0
+                if loss < self.loss_threshold:
+                    self.make_config_change(pl_module)
+
+        def make_config_change(self, pl_module):
+            if pl_module.model.negative_sampling_size < config['max_negative_sampling_schedule']:
+                #print(f"Current negative sampling is {pl_module.model.negative_sampling_size}")
+                pl_module.model.negative_sampling_size *= 2
+                print(f"Loss below threshold — set negative sampling size to {pl_module.model.negative_sampling_size}.")
+
+    if config['max_negative_sampling_schedule'] != None:
+        callbacks.append(LossThresholdCallback(every_n_steps=100, loss_threshold=config['negative_sampling_schedule_loss']))
 
     if config['check_val_every_n_steps']:
         trainer = Trainer(
@@ -311,6 +337,10 @@ if __name__ == "__main__":
 
     parser.add_argument("--instruction_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/instruction/')
     parser.add_argument("--synthetic_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/synthetic/')
+
+    parser.add_argument("--max_negative_sampling_schedule", default=None, type=int)
+    #parser.add_argument("--negative_sampling_schedule", default=100, type=int)
+    parser.add_argument("--negative_sampling_schedule_loss", default=0.1, type=float)
 
     args = parser.parse_args()
 

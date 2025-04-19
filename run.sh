@@ -33,12 +33,21 @@ export PL_FAULT_TOLERANT_TRAINING=1
 echo "Starting Main Script" 
 
 
+#PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+#    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ --check_val_every_n_steps 10000 \
+#    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+#    --batch_size=20 --lr 1e-4 --ckpt_path ckpts/Qwen2.5-0.5B_Total_25kV2/ --version Qwen2.5-0.5B --max_epochs 3 \
+#    --data_module Total --task Total_25k-v2 \
+#    --save_checkpoint_every_n_steps 2500 \
+
 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ --check_val_every_n_steps 10000 \
     --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
-    --batch_size=24 --lr 1e-5 --ckpt_path ckpts/Qwen2.5-0.5B_SMolInstruct/ --version Qwen2.5-0.5B --max_epochs 3 \
-    --data_module SMolInstruct --task SMolInstruct
-    --save_checkpoint_every_n_steps 2500 
+    --batch_size=16 --lr 1e-4 --ckpt_path ckpts/Qwen2.5-0.5B_SMolInstructV4/ --version Qwen2.5-0.5B --max_epochs 3 \
+    --data_module SMolInstruct --task SMolInstruct-v4 \
+    --save_checkpoint_every_n_steps 2500 \
+    --max_negative_sampling_schedule 3000 \
+    --negative_sampling_schedule_loss 0.1 \
 
 
 #PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \

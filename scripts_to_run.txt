@@ -13,14 +13,10 @@ bsub -J mCLM -q long -gpu "num=1" -n 8 -sla gRED_resbioai_gpu -R "rusage[mem=4GB
 
 
 
+wandb sync wandb/offline-run-20250419_034722-t30184a4/
 
-wandb sync wandb/offline-run-20250417_175749-5077usrs/
+wandb sync wandb/offline-run-20250419_110432-9r6szr18/
 
 
 
-
-wandb sync wandb/offline-run-20250416_225012-rxw6brr1/
-wandb sync wandb/offline-run-20250417_170140-axnonbwy/
-wandb sync wandb/offline-run-20250417_170449-zsc3sd07/
-wandb sync wandb/offline-run-20250417_175749-5077usrs/
 

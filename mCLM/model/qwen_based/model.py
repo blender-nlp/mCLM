@@ -228,8 +228,13 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         self.mapping_tensor = torch.full((self.total_vocab_size,), -1, dtype=torch.long)
         self.mapping_tensor.requires_grad = False
 
+        #self.negative_sampling_size = int(self.config.negative_sampling_size)
+
+        self.register_buffer("negative_sampling_size", torch.tensor(self.config.negative_sampling_size, dtype=torch.long), persistent=True)
+
         # Initialize weights and apply final processing
         self.post_init()
+
 
     def get_input_embeddings(self):
         return self.model.embed_tokens
@@ -359,12 +364,13 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         # slice_indices = slice(-logits_to_keep, None) if isinstance(logits_to_keep, int) else logits_to_keep
         # logits = self.lm_head(hidden_states[:, slice_indices, :])
 
+        #print(f"[Forward] negative_sampling_size: {self.negative_sampling_size}")
         # mCLM logit head
         logits = mclm_logit_head(
             self.lm_head, self.model.embed_molecules,
             self.finalized_molecule_embeddings,
             self.vocab_size, self.mol_vocab_size, self.total_vocab_size,
-            self.config.negative_sampling_size,
+            self.negative_sampling_size.item(),
             hidden_states,
             is_training=self.training,
             labels=labels,

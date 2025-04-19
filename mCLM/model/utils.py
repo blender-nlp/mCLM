@@ -98,6 +98,7 @@ def mclm_logit_head(
     negative_sampling_size,
     hidden_states, is_training, labels=None
 ):
+    #print(f"[mclm_logit_head] got: {negative_sampling_size}")
     text_logits = lm_head(hidden_states)
     device = text_logits.device
     if labels is not None:
@@ -112,10 +113,13 @@ def mclm_logit_head(
                            labels.flatten().tolist()))
             ))
         ).to(device)
+        #print('negative_set size:', negative_set.shape)
+        #print('molecule_ids_trained size:', molecule_ids_trained.shape)
         trained_mol_logits = hidden_states.matmul(
             embed_molecules(molecule_ids_trained).transpose(0, 1)
         )
         logits = torch.cat([text_logits, trained_mol_logits], dim=-1)
+        #print('logits size:', logits.shape)
         all_ids_trained = torch.cat(
             [torch.arange(vocab_size, dtype=torch.long, device=device),
              molecule_ids_trained], dim=0

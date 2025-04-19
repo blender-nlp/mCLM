@@ -209,7 +209,7 @@ class Qwen2Config(PretrainedConfig):
             "jk": "cat",
             "mol_features_size": 128,
         }
-        self.negative_sampling_size = 50
+        self.negative_sampling_size = 50#5000
         self.mol_vocab_size = 3000
 
         super().__init__(

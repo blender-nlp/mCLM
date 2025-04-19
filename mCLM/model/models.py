@@ -98,14 +98,18 @@ class mCLM(L.LightningModule):
 
         #print('the input:', batch["input"]["input_ids"].shape, batch["input"]["attention_mask"].shape, batch["input"]["labels"].shape)
 
+        #print('in mCLM', self.model.negative_sampling_size)
+
         output = self.model(
             input_ids=batch["input"]["input_ids"],
             attention_mask=batch["input"]["attention_mask"],
             labels=batch["input"]["labels"],
             stage=prefix,
         )
+        #print('out mCLM', self.model.negative_sampling_size)
 
         loss = output.loss
+
 
         self.log(
             f"{prefix}/loss",
@@ -113,6 +117,15 @@ class mCLM(L.LightningModule):
             prog_bar=True,
             batch_size=self.config['batch_size'],
             sync_dist=True,
+            add_dataloader_idx=False,
+        )
+        self.log(
+            f"sampling_size",
+            self.model.negative_sampling_size,
+            prog_bar=True,
+            batch_size=self.config['batch_size'],
+            sync_dist=True,
+            add_dataloader_idx=False,
         )
         if task_id != None:
             self.log(
@@ -121,6 +134,7 @@ class mCLM(L.LightningModule):
                 prog_bar=True,
                 batch_size=self.config['batch_size'],
                 sync_dist=True,
+                add_dataloader_idx=False,
             )
 
         #if prefix == "train":
