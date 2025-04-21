@@ -209,7 +209,7 @@ class LlamaConfig(PretrainedConfig):
 
         # mCLM specific configuration
         self.molecule_config = {
-            "node_dim": 142,
+            "node_dim": 137,
             "edge_dim": 12,
             "hidden_dim_graph": 512,
             "hidden_dim_ffn": 512,

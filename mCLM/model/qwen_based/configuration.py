@@ -197,10 +197,10 @@ class Qwen2Config(PretrainedConfig):
 
         # mCLM specific configuration
         self.molecule_config = {
-            "node_dim": 142,
+            "node_dim": 137,
             "edge_dim": 12,
             "hidden_dim_graph": 512,
-            "hidden_dim_ffn": 512,
+            "hidden_dim_ffn": None,#512,
             "num_mp_layers": 5,
             "num_readout_layers": 1,
             "out_channels": hidden_size,

@@ -58,11 +58,11 @@ def atom_features(
         + onek_encoding_unk(atom.GetFormalCharge(), ATOM_FEATURES["formal_charge"])
         + onek_encoding_unk(int(atom.GetChiralTag()), ATOM_FEATURES["chiral_tag"])
         + onek_encoding_unk(int(atom.GetTotalNumHs()), ATOM_FEATURES["num_Hs"])
+        + onek_encoding_unk(int(atom.GetAtomMapNum()), ATOM_FEATURES["placeholders"])
         + onek_encoding_unk(
             int(atom.GetHybridization()), ATOM_FEATURES["hybridization"]
         )
-        + onek_encoding_unk(int(atom.GetTotalNumHs()), ATOM_FEATURES["num_Hs"])
-        + onek_encoding_unk(int(atom.GetAtomMapNum()), ATOM_FEATURES["placeholders"])
+        + [1 if atom.GetIsAromatic() else 0]
         + [atom.GetMass() * 0.01]
         #add a one hot encoding here based on the placeholder
     )  # scaled to about the same range as other features

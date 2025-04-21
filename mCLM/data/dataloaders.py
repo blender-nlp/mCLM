@@ -819,19 +819,19 @@ class TotalDataModule(LightningDataModule):
         return CustomDataLoader(
             self.train_ds,
             batch_size=self.batch_size,
-            num_workers=4,
+            num_workers=16,
             shuffle=True,
             drop_last=True,
         )
 
     def val_dataloader(self):
         return [CustomDataLoader(
-            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
+            ds, batch_size=self.batch_size, num_workers=8, shuffle=False
         ) for ds in self.valid_dses]
 
     def test_dataloader(self):
         return [CustomDataLoader(
-            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
+            ds, batch_size=self.batch_size, num_workers=8, shuffle=False
         ) for ds in self.test_dses]
 
     def teardown(self, stage: str):
@@ -971,19 +971,19 @@ class SMolInstructDataModule(LightningDataModule):
         return CustomDataLoader(
             self.train_ds,
             batch_size=self.batch_size,
-            num_workers=4,
+            num_workers=16,
             shuffle=True,
             drop_last=True,
         )
 
     def val_dataloader(self):
         return [CustomDataLoader(
-            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
+            ds, batch_size=self.batch_size, num_workers=8, shuffle=False
         ) for ds in self.valid_dses]
 
     def test_dataloader(self):
         return [CustomDataLoader(
-            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
+            ds, batch_size=self.batch_size, num_workers=8, shuffle=False
         ) for ds in self.test_dses]
 
     def teardown(self, stage: str):

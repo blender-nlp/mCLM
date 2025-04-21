@@ -35,3 +35,9 @@ slurm_outputs/
 **/.DS_Store
 
 notes.txt
+
+
+ckpts_GNN/
+
+total_blocks.txt
+

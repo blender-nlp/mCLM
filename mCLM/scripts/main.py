@@ -43,28 +43,6 @@ def main(args):
 
     task_type = 'NTP' #next token prediction
 
-    if False: #debug
-        model = model_type(
-            config,
-            task=task_type,
-            lr=config["lr"],
-            weight_decay=config["weight_decay"],
-        )
-
-
-
-    if False: #config["load_GNN_ckpt"] != None:
-        gnn_ckpt_sd = MoleculeTextModel.load_from_checkpoint(
-            config["load_GNN_ckpt"],
-            config=config,
-            encoder=GNNOnlyModel(config, output_dim=output_dim),
-        ).encoder.mol_encoder.state_dict()
-        #gnn_ckpt_sd.pop("classifier.1.weight")
-        #gnn_ckpt_sd.pop("classifier.1.bias")
-
-        molecule_tokenizer.encoder.load_state_dict(gnn_ckpt_sd, strict=True)
-    
-
 
     if config["data_module"] == "Kinase":
         output_dim = 1
@@ -139,6 +117,19 @@ def main(args):
 
     #model.extend_text_vocab_size(len(dm.tokenizer.vocab))
     #model.set_mol_vocab(block_ID_to_data)
+
+
+    if config["load_GNN_ckpt"] != None:
+        gnn_ckpt_sd = torch.load(config["load_GNN_ckpt"], map_location='cpu', weights_only=False)['state_dict']
+        for key in list(gnn_ckpt_sd.keys()):
+            gnn_ckpt_sd[key.replace('mol_encoder.', '')] = gnn_ckpt_sd.pop(key)
+
+        model.model.model.model.mol_gnn.load_state_dict(gnn_ckpt_sd)
+        print('Loaded GNN Weights')
+
+    if config['freeze_GNN']:
+        for param in model.model.model.model.mol_gnn.parameters():
+            param.requires_grad = False
 
     #class SetupCallback(Callback):
     #    def on_fit_start(self, trainer, pl_module):
@@ -293,7 +284,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", default=4, type=int) #2 takes up 29733MiB
     parser.add_argument("--val_batch_size", default=None, type=int)
 
-    parser.add_argument("--node_dim", default=142, type=int)
+    parser.add_argument("--node_dim", default=137, type=int)
     parser.add_argument("--edge_dim", default=12, type=int)
     parser.add_argument("--hidden_dim_graph", default=512, type=int)
     parser.add_argument("--num_mp_layers", default=5, type=int)

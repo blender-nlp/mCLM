@@ -40,14 +40,30 @@ echo "Starting Main Script"
 #    --data_module Total --task Total_25k-v2 \
 #    --save_checkpoint_every_n_steps 2500 \
 
+
+#PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
+#    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ --check_val_every_n_steps 10000 \
+#    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
+#    --batch_size=3 --lr 1e-4 --ckpt_path ckpts/Qwen2.5-7B_SMolInstruct/ --version Qwen2.5-7B --max_epochs 3 \
+#    --data_module SMolInstruct --task SMolInstruct \
+#    --save_checkpoint_every_n_steps 2500 \
+#    --max_negative_sampling_schedule 1500 \
+#    --negative_sampling_schedule_loss 0.1 \
+
+
+
 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ --check_val_every_n_steps 10000 \
     --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
-    --batch_size=16 --lr 1e-4 --ckpt_path ckpts/Qwen2.5-0.5B_SMolInstructV4/ --version Qwen2.5-0.5B --max_epochs 3 \
-    --data_module SMolInstruct --task SMolInstruct-v4 \
+    --batch_size=16 --lr 1e-4 \
+    --ckpt_path ckpts/Qwen2.5-0.5B_SMolInstruct_FreePreGNN/ --version Qwen2.5-0.5B_FreePreGNN \
+    --max_epochs 3 \
+    --data_module SMolInstruct --task SMolInstruct \
     --save_checkpoint_every_n_steps 2500 \
     --max_negative_sampling_schedule 3000 \
     --negative_sampling_schedule_loss 0.1 \
+    --load_GNN_ckpt ckpts_GNN/896_dim/best_val_checkpoint.ckpt \
+    --freeze_GNN
 
 
 #PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
