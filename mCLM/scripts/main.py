@@ -154,7 +154,7 @@ def main(args):
         def on_validation_epoch_end(self, trainer, pl_module):
             trainer.datamodule.molecule_tokenizer.clear_data()
 
-    #callbacks.append(ClearMoleculeTokenizerCache())
+    callbacks.append(ClearMoleculeTokenizerCache())
 
 
     class ShuffleTrainingData(Callback):

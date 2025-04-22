@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -p mmli
-#SBATCH --mem=195g
+#SBATCH --mem=240g
 #SBATCH --gres=gpu:2
 #SBATCH -N 1
 #SBATCH --ntasks-per-node=2
@@ -51,7 +51,6 @@ echo "Starting Main Script"
 #    --negative_sampling_schedule_loss 0.1 \
 
 
-
 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ --check_val_every_n_steps 10000 \
     --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
@@ -63,8 +62,23 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
     --max_negative_sampling_schedule 3000 \
     --negative_sampling_schedule_loss 0.1 \
     --load_GNN_ckpt ckpts_GNN/896_dim/best_val_checkpoint.ckpt \
-    --freeze_GNN
+    --freeze_GNN \
+    --resume_from_checkpoint ckpts/Qwen2.5-0.5B_SMolInstruct_FreePreGNN/latest_checkpoint-epoch=00-step=20000.ckpt \
 
+if false; then
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ --check_val_every_n_steps 10000 \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --batch_size=16 --lr 1e-4 \
+    --ckpt_path ckpts/Qwen2.5-0.5B_SMolInstruct_PreGNN/ --version Qwen2.5-0.5B_PreGNN \
+    --max_epochs 3 \
+    --data_module SMolInstruct --task SMolInstruct \
+    --save_checkpoint_every_n_steps 2500 \
+    --max_negative_sampling_schedule 3000 \
+    --negative_sampling_schedule_loss 0.1 \
+    --resume_from_checkpoint ckpts/Qwen2.5-0.5B_SMolInstruct_PreGNN/latest_checkpoint-epoch=00-step=10000.ckpt \
+
+fi
 
 #PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
 #    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ --check_val_every_n_steps 25 \
