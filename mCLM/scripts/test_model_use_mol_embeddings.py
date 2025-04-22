@@ -186,7 +186,7 @@ if __name__ == "__main__":
     model.train(True)
     # currently I am still use gnn to calculate the mol_embeddings
     # to load a custom Tensor feature, use keyword `embeddings=`:
-    # model.set_mol_embeddings(embeddings=your_mol_embeddings)
+    # model.finalize_molecule_embeddings(embeddings=your_mol_embeddings)
     model.finalize_molecule_embeddings(batch_size=1024)
     model.use_mol_embeddings(True)
     training_output = model(
