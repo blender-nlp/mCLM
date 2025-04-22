@@ -58,27 +58,35 @@ def finalized_molecule_embeddings(
 
 class mCLMSparseLogits:
     def __init__(self, indices, logits):
-        self.indices = indices.cpu().tolist()
+        self.indices = indices
+        if self.indices is not None:
+            self.indices = self.indices.cpu().tolist()
         self.logits = logits
 
-    def compute_loss(self, labels):
-        # Shift so that tokens < n predict n
-        shift_logits = self.logits[..., :-1, :].contiguous()
-        shift_labels = labels[..., 1:].contiguous()
-        # Flatten the tokens
-        loss_fct = CrossEntropyLoss()
-        shift_logits = shift_logits.view(-1, shift_logits.size(-1))
-        shift_labels = shift_labels.view(-1)
-        # Enable model parallelism
-        shift_labels = shift_labels.to(shift_logits.device)
-        # re-indexing
-        if self.indices is not None:
-            shift_labels = torch.LongTensor([
-                self.indices.index(x)
-                for x in shift_labels.tolist()
-            ]).to(shift_labels.device)
-        loss = loss_fct(shift_logits, shift_labels.to(torch.long))
-        return loss
+
+def compute_loss(logits, labels):
+    if not isinstance(logits, mCLMSparseLogits):
+        self = mCLMSparseLogits(
+            indices=None,
+            logits=logits,
+        )
+    # Shift so that tokens < n predict n
+    shift_logits = self.logits[..., :-1, :].contiguous()
+    shift_labels = labels[..., 1:].contiguous()
+    # Flatten the tokens
+    loss_fct = CrossEntropyLoss()
+    shift_logits = shift_logits.view(-1, shift_logits.size(-1))
+    shift_labels = shift_labels.view(-1)
+    # Enable model parallelism
+    shift_labels = shift_labels.to(shift_logits.device)
+    # re-indexing
+    if self.indices is not None:
+        shift_labels = torch.LongTensor([
+            self.indices.index(x)
+            for x in shift_labels.tolist()
+        ]).to(shift_labels.device)
+    loss = loss_fct(shift_logits, shift_labels.to(torch.long))
+    return loss
 
 
 # mCLM logit function
@@ -90,7 +98,7 @@ def mclm_logit_head(
 ):
     text_logits = lm_head(hidden_states)
     device = text_logits.device
-    if labels is not None:
+    if labels is not None and negative_sampling_size is not None:
         assert labels is not None
         negative_set = torch.randperm(
             mol_vocab_size
@@ -122,28 +130,63 @@ def mclm_logit_head(
         # mol_logits[..., molecule_ids_trained - vocab_size] = \
         #     trained_mol_logits
     else:
+        # mol_logits = hidden_states.matmul(
+        #     finalized_molecule_embeddings.weight.transpose(0, 1))
+        molecule_ids_trained = "all"
         mol_logits = hidden_states.matmul(
-            finalized_molecule_embeddings.weight.transpose(0, 1))
+            embed_molecules(molecule_ids_trained).transpose(0, 1)
+        )
         logits = torch.cat([text_logits, mol_logits], dim=-1)
 
     return logits
 
 
-def embed_molecules_fn(mol_input_ids, out_channels, mol_vocab, mol_gnn,
-                       dtype, device):
-    output_features = torch.zeros(
-        mol_input_ids.size() + (out_channels,),
-        dtype=dtype,
-    )
-    # get greater than 0 mol_input_ids
-    graph_ids = mol_input_ids[mol_input_ids >= 0]
-    graphs = [mol_vocab[graph_id.item()] for graph_id in graph_ids]
-    if len(graphs) == 0:
-        return output_features
-    graphs = Batch.from_data_list(graphs).to(device)
-    # embed the molecules using the GNN
-    mol_embeddings = mol_gnn(graphs)
-    # assign the embeddings to the output features
-    output_features[mol_input_ids >= 0] = mol_embeddings
+def embed_molecules_fn(
+    mol_input_ids, out_channels, mol_vocab, mol_gnn, mol_adaptor,
+    _finalized_molecule_embeddings, _use_mol_embeddings, text_vocab_size,
+    dtype, device
+):
+    if mol_input_ids == "all":
+        assert _use_mol_embeddings
+        return mol_adaptor(
+            _finalized_molecule_embeddings.weight
+        )
+
+    if _use_mol_embeddings:
+        output_features = _finalized_molecule_embeddings(
+            (mol_input_ids - text_vocab_size).clamp(0, None)
+        )
+        output_features = mol_adaptor(output_features)
+        output_features[mol_input_ids < 0] = 0
+    else:
+        output_features = torch.zeros(
+            mol_input_ids.size() + (out_channels,),
+            dtype=dtype,
+        )
+        # get greater than 0 mol_input_ids
+        graph_ids = mol_input_ids[mol_input_ids >= 0]
+        graphs = [mol_vocab[graph_id.item()] for graph_id in graph_ids]
+        if len(graphs) == 0:
+            return output_features
+        graphs = Batch.from_data_list(graphs).to(device)
+        # embed the molecules using the GNN
+        mol_embeddings = mol_gnn(graphs)
+        mol_embeddings = mol_adaptor(mol_embeddings)
+        # assign the embeddings to the output features
+        output_features[mol_input_ids >= 0] = mol_embeddings
 
     return output_features
+
+
+class MLPAdaptor(nn.Module):
+    def __init__(self, in_dim, out_dim, hidden_dim, dropout=0.1):
+        super(MLPAdaptor, self).__init__()
+        self.mlp = nn.Sequential(
+            nn.Linear(in_dim, hidden_dim),
+            nn.PReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, out_dim)
+        )
+
+    def forward(self, x):
+        return self.mlp(x)

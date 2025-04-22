@@ -32,7 +32,8 @@ from transformers.models.qwen2.modeling_qwen2 import \
 from ..components import GNNMolEncoder
 from .configuration import Qwen2Config as Qwen2Config
 from ..utils import embed_chemical_language, \
-    finalized_molecule_embeddings, mclm_logit_head, embed_molecules_fn
+    finalized_molecule_embeddings, mclm_logit_head, embed_molecules_fn, \
+    MLPAdaptor, compute_loss
 
 
 logger = logging.get_logger(__name__)
@@ -58,10 +59,18 @@ class Qwen2Model(OriginalQwen2Model):
         self.padding_idx = config.pad_token_id
         # self.vocab_size = config.vocab_size
 
-        # mCLM GNN model
+        # mCLM mol-related init
         self.mol_gnn = GNNMolEncoder(
             **config.molecule_config)
+        self.mol_adaptor = MLPAdaptor(
+            config.molecule_config["out_channels"],
+            config.molecule_config["out_channels"],
+            config.molecule_config["hidden_dim_ffn"],
+            dropout=config.molecule_config["dropout"]
+        )
         self.mol_vocab = None
+        self._use_mol_embeddings = False
+        self._finalized_molecule_embeddings = None
 
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size, self.padding_idx)
         self.layers = nn.ModuleList(
@@ -77,7 +86,10 @@ class Qwen2Model(OriginalQwen2Model):
     def embed_molecules(self, mol_input_ids):
         return embed_molecules_fn(
             mol_input_ids, self.config.molecule_config["out_channels"],
-            self.mol_vocab, self.mol_gnn, self.dtype, self.device
+            self.mol_vocab, self.mol_gnn, self.mol_adaptor,
+            self._finalized_molecule_embeddings, self._use_mol_embeddings,
+            self.vocab_size,
+            self.dtype, self.device
         )
 
     # mCLM extend text embedding
@@ -218,7 +230,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
 
         # mCLM config
         config = Qwen2Config.from_dict(config.to_dict())
-        self.finalized_molecule_embeddings = None
+        self._finalized_molecule_embeddings = None
 
         self.model = Qwen2Model(config)
         self.config = config
@@ -227,6 +239,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
 
         # Initialize weights and apply final processing
         self.post_init()
+        self.use_mol_embeddings(False)
 
     def get_input_embeddings(self):
         return self.model.embed_tokens
@@ -272,6 +285,11 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         )
         self.model.extend_text_vocab_size(new_vocab_size)
         self.config.vocab_size = new_vocab_size
+
+    # mCLM force use molecule embeddings
+    def use_mol_embeddings(self, use_mol_embeddings):
+        self._use_mol_embeddings = use_mol_embeddings
+        self.model._use_mol_embeddings = use_mol_embeddings
 
     # mCLM set molecule vocab
     def set_mol_vocab(self, mol_vocab):
@@ -356,9 +374,10 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         # mCLM logit head
         logits = mclm_logit_head(
             self.lm_head, self.model.embed_molecules,
-            self.finalized_molecule_embeddings,
+            self._finalized_molecule_embeddings,
             self.vocab_size, self.mol_vocab_size, self.total_vocab_size,
-            self.config.negative_sampling_size,
+            # self.config.negative_sampling_size,
+            None,
             hidden_states,
             is_training=self.training,
             labels=labels,
@@ -378,7 +397,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         #     shift_labels = shift_labels.to(shift_logits.device)
         #     loss = loss_fct(shift_logits, shift_labels.to(torch.long))
         if labels is not None:
-            loss = logits.compute_loss(labels)
+            loss = compute_loss(logits, labels)
 
         return CausalLMOutputWithPast(
             loss=loss,
@@ -388,10 +407,19 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
             attentions=outputs.attentions,
         )
 
-    def post_training(self, batch_size):
-        self.finalized_molecule_embeddings = finalized_molecule_embeddings(
-            self.vocab_size, self.mol_vocab_size, self.model.embed_molecules,
-            self.config.hidden_size, batch_size, self.device)
+    def finalize_molecule_embeddings(self, batch_size=None, embeddings=None):
+        if batch_size is None:
+            assert embeddings is not None
+            self._finalized_molecule_embeddings = embeddings
+        else:
+            self._finalized_molecule_embeddings = \
+                finalized_molecule_embeddings(
+                    self.vocab_size, self.mol_vocab_size,
+                    self.model.embed_molecules,
+                    self.config.hidden_size, batch_size, self.device
+                )
+        self.model._finalized_molecule_embeddings = \
+            self._finalized_molecule_embeddings
 
 
 __all__ = [
