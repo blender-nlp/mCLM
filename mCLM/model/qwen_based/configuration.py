@@ -201,6 +201,8 @@ class Qwen2Config(PretrainedConfig):
             "edge_dim": 12,
             "hidden_dim_graph": 512,
             "hidden_dim_ffn": None,#512,
+            "input_dim_adapter": 1536,#512,
+            "hidden_dim_adapter": hidden_size,
             "num_mp_layers": 5,
             "num_readout_layers": 1,
             "out_channels": hidden_size,
@@ -209,7 +211,7 @@ class Qwen2Config(PretrainedConfig):
             "jk": "cat",
             "mol_features_size": 128,
         }
-        self.negative_sampling_size = 50#5000
+        self.negative_sampling_size = 64
         self.mol_vocab_size = 3000
 
         super().__init__(

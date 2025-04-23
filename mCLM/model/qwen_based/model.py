@@ -33,7 +33,8 @@ from ..components import GNNMolEncoder
 from .configuration import Qwen2Config as Qwen2Config
 from ..utils import embed_chemical_language, \
     finalized_molecule_embeddings, mclm_logit_head, embed_molecules_fn, \
-    MLPAdaptor, compute_loss
+    MLPAdaptor, compute_loss, \
+    mclm_logit_head_optimized, compute_loss_optimized
 
 
 logger = logging.get_logger(__name__)
@@ -63,14 +64,14 @@ class Qwen2Model(OriginalQwen2Model):
         self.mol_gnn = GNNMolEncoder(
             **config.molecule_config)
         self.mol_adaptor = MLPAdaptor(
+            config.molecule_config["input_dim_adapter"],
+            config.molecule_config["hidden_dim_adapter"],
             config.molecule_config["out_channels"],
-            config.molecule_config["out_channels"],
-            config.molecule_config["hidden_dim_ffn"],
             dropout=config.molecule_config["dropout"]
         )
         self.mol_vocab = None
         self._use_mol_embeddings = False
-        self._finalized_molecule_embeddings = None
+        self._finalized_molecule_embeddings = None 
 
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size, self.padding_idx)
         self.layers = nn.ModuleList(
@@ -84,10 +85,12 @@ class Qwen2Model(OriginalQwen2Model):
         self.post_init()
 
     def embed_molecules(self, mol_input_ids):
+        #if isinstance(self._finalized_molecule_embeddings, torch.Tensor): #I need to do this after lightning moves things to gpu
+        #    self._finalized_molecule_embeddings = nn.Embedding.from_pretrained(self._finalized_molecule_embeddings, freeze=True)
         return embed_molecules_fn(
             mol_input_ids, self.config.molecule_config["out_channels"],
             self.mol_vocab, self.mol_gnn, self.mol_adaptor,
-            self._finalized_molecule_embeddings, self._use_mol_embeddings,
+            self._finalized_molecule_embeddings[0], self._use_mol_embeddings,
             self.vocab_size,
             self.dtype, self.device
         )
@@ -230,7 +233,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
 
         # mCLM config
         config = Qwen2Config.from_dict(config.to_dict())
-        self._finalized_molecule_embeddings = None
+        self._finalized_molecule_embeddings = None 
 
         self.model = Qwen2Model(config)
         self.config = config
@@ -385,8 +388,8 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
             self.lm_head, self.model.embed_molecules,
             self._finalized_molecule_embeddings,
             self.vocab_size, self.mol_vocab_size, self.total_vocab_size,
-            # self.config.negative_sampling_size,
-            None,
+            self.config.negative_sampling_size,
+            #None,
             hidden_states,
             is_training=self.training,
             labels=labels,
@@ -405,8 +408,14 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         #     # Enable model parallelism
         #     shift_labels = shift_labels.to(shift_logits.device)
         #     loss = loss_fct(shift_logits, shift_labels.to(torch.long))
+        #print('mapping in forward:', self.mapping_tensor.shape)
+
         if labels is not None:
-            loss = compute_loss(logits, labels)
+            if len(self.mapping_tensor) != self.total_vocab_size:
+                self.mapping_tensor = torch.full((self.total_vocab_size,), -1, dtype=torch.long, device=hidden_states.device)
+                self.mapping_tensor.requires_grad = False
+
+            loss = compute_loss(logits, labels, mapping_tensor=self.mapping_tensor)
 
         return CausalLMOutputWithPast(
             loss=loss,
@@ -419,7 +428,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
     def finalize_molecule_embeddings(self, batch_size=None, embeddings=None):
         if batch_size is None:
             assert embeddings is not None
-            self._finalized_molecule_embeddings = embeddings
+            self._finalized_molecule_embeddings = [embeddings] #this is a trick to prevent lightning from moving this to GPU
         else:
             self._finalized_molecule_embeddings = \
                 finalized_molecule_embeddings(

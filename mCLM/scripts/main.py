@@ -4,6 +4,7 @@ import os.path as osp
 import lightning as L
 import sys
 import torch
+import torch.nn as nn
 from lightning import Trainer, seed_everything, Callback
 from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from lightning.pytorch.loggers import WandbLogger
@@ -43,9 +44,9 @@ def main(args):
 
     task_type = 'NTP' #next token prediction
 
+    callbacks = []
 
     if config["data_module"] == "Kinase":
-        output_dim = 1
         dm = KinaseDataModule(
             config,
             data_path = 'kinase_data_processing/',
@@ -54,7 +55,6 @@ def main(args):
             trunc_length=config["trunc_length"],
         )
     elif config["data_module"] == "SMolInstruct":
-        output_dim = 1
         dm = SMolInstructDataModule(
             config,
             instruction_data_path = config['instruction_data_path'],
@@ -62,9 +62,9 @@ def main(args):
             base_model=config["base_model"],
             batch_size=config["batch_size"],
             trunc_length=config["trunc_length"],
+            GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v2.pth',
         )
     elif config["data_module"] == "Total":
-        output_dim = 1
         dm = TotalDataModule(
             config,
             instruction_data_path = config['instruction_data_path'],
@@ -74,7 +74,21 @@ def main(args):
             trunc_length=config["trunc_length"],
             shrink_data=25000,
         )
-    
+
+        class CallDataModuleFunctionCallback(pl.Callback):
+            def on_train_epoch_end(self, trainer, pl_module):
+                epoch = trainer.current_epoch
+                datamodule = trainer.datamodule
+
+                # Check if the datamodule has the required function
+                if hasattr(datamodule, "set_new_epoch") and callable(getattr(datamodule, "set_new_epoch")):
+                    datamodule.set_new_epoch(epoch + 1)
+                else:
+                    print("Warning: datamodule does not have a callable 'set_new_epoch' method")
+
+        callbacks.append(CallDataModuleFunctionCallback())
+
+
 
     name = config['task'] + "_" + config["model"] + "_" + config['version']
 
@@ -97,7 +111,7 @@ def main(args):
 
     lr_monitor = LearningRateMonitor(logging_interval="step")
 
-    callbacks = [lr_monitor]
+    callbacks.append(lr_monitor)
 
     dirpath = config["ckpt_path"]
 
@@ -115,8 +129,14 @@ def main(args):
     #model = LlamaForCausalLM.from_pretrained(ckpt_path)
     model = mCLM(config)
 
-    #model.extend_text_vocab_size(len(dm.tokenizer.vocab))
-    #model.set_mol_vocab(block_ID_to_data)
+    pretrain_mol_embeddings = torch.load(config['pretrained_embeddings'] + 'precomputed_tokens.pt').to(torch.bfloat16)
+    pretrain_mol_embeddings = nn.Embedding.from_pretrained(pretrain_mol_embeddings, freeze=True)
+    pretrain_mol_embeddings.weight.data = pretrain_mol_embeddings.weight.data.to(torch.bfloat16)
+
+    
+    model.model.finalize_molecule_embeddings(embeddings=pretrain_mol_embeddings)
+    model.model.use_mol_embeddings(True)
+
 
 
     if config["load_GNN_ckpt"] != None:
@@ -224,6 +244,7 @@ def main(args):
             callbacks=callbacks,
             val_check_interval=config['check_val_every_n_steps'],
             strategy='ddp',
+            precision='bf16',
         )
     else:
         trainer = Trainer(
@@ -234,6 +255,7 @@ def main(args):
             logger=wandb_logger,
             callbacks=callbacks,
             strategy='ddp',
+            precision='bf16',
         )
 
 
@@ -307,6 +329,7 @@ if __name__ == "__main__":
     parser.add_argument("--base_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/", type=str)
     parser.add_argument("--pretrained_text_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/", type=str)
     parser.add_argument("--pretrained_tokenizer", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
+    parser.add_argument("--pretrained_embeddings", default="final_embeddings/1536_dim/", type=str)
 
     parser.add_argument(
         "--freeze_GNN", type=bool, action=argparse.BooleanOptionalAction

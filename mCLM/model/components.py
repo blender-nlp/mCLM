@@ -90,6 +90,7 @@ class GNNMolEncoder(nn.Module):
         aggr: str = "mean",
         jk: str = "cat",
         mol_features_size: int = 0,
+        **kwargs,
     ):
         """
         Args:

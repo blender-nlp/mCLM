@@ -58,20 +58,22 @@ def finalized_molecule_embeddings(
 
 
 class mCLMSparseLogits:
-    def __init__(self, indices, logits):
+    def __init__(self, indices, logits, vocab_size=None):
         self.indices = indices
-        if self.indices is not None:
-            self.indices = self.indices.cpu().tolist()
+        #if self.indices is not None:
+        #    self.indices = self.indices.cpu().tolist()
         self.logits = logits
         self.vocab_size = vocab_size
 
 
-def compute_loss(logits, labels):
+def compute_loss(logits, labels, mapping_tensor=None):
     if not isinstance(logits, mCLMSparseLogits):
         self = mCLMSparseLogits(
             indices=None,
             logits=logits,
         )
+    else:
+        self = logits
     # Shift so that tokens < n predict n
     shift_logits = self.logits[..., :-1, :].contiguous()
     shift_labels = labels[..., 1:].contiguous()
@@ -83,10 +85,17 @@ def compute_loss(logits, labels):
     shift_labels = shift_labels.to(shift_logits.device)
     # re-indexing
     if self.indices is not None:
-        shift_labels = torch.LongTensor([
-            self.indices.index(x)
-            for x in shift_labels.tolist()
-        ]).to(shift_labels.device)
+        if self.vocab_size == None: #Too slow:
+            shift_labels = torch.LongTensor([
+                self.indices.index(x)
+                for x in shift_labels.tolist()
+            ]).to(shift_labels.device)
+        else: #faster version
+            if mapping_tensor is None:
+                mapping_tensor = torch.full((self.vocab_size,), -1, dtype=torch.long, device=shift_labels.device)
+            mapping_tensor[self.indices] = torch.arange(len(self.indices), dtype=torch.long, device=shift_labels.device)
+        # Apply mapping (vectorized)
+        shift_labels = mapping_tensor[shift_labels]
     loss = loss_fct(shift_logits, shift_labels.to(torch.long))
     return loss
 
@@ -161,8 +170,8 @@ def embed_molecules_fn(
 
     if _use_mol_embeddings:
         output_features = _finalized_molecule_embeddings(
-            (mol_input_ids - text_vocab_size).clamp(0, None)
-        )
+            (mol_input_ids - text_vocab_size).clamp(0, None).to('cpu')
+        ).to(device)
         output_features = mol_adaptor(output_features)
         output_features[mol_input_ids < 0] = 0
     else:
@@ -183,6 +192,105 @@ def embed_molecules_fn(
         output_features[mol_input_ids >= 0] = mol_embeddings
 
     return output_features
+
+
+
+
+
+
+# mCLM logit function
+def mclm_logit_head_optimized(
+    lm_head, embed_molecules, finalized_molecule_embeddings,
+    vocab_size, mol_vocab_size, total_vocab_size,
+    negative_sampling_size,
+    hidden_states, is_training, labels=None
+):
+    text_logits = lm_head(hidden_states)
+    device = text_logits.device
+    if labels is not None and negative_sampling_size is not None:
+        assert labels is not None
+        neg = torch.multinomial(
+            torch.ones(mol_vocab_size, device=device),
+            negative_sampling_size,
+            replacement=False
+        ) + vocab_size
+
+        # 2) pull out the “positive” molecule IDs that actually appear in labels:
+        labels_flat = labels.view(-1)
+        mol_labels = labels_flat[labels_flat >= vocab_size]
+
+        # 3) union them via a single tensor concat + unique (all GPU):
+        all_mol_ids = torch.cat([neg, mol_labels], dim=0)
+        molecule_ids_trained = torch.unique(all_mol_ids)
+
+        # 4) lookup embeddings by direct weight‐slice (faster than embed()):
+        #mol_embeds = embed_molecules.weight[molecule_ids_trained - vocab_size]  # (M, H)
+        mol_embeds = embed_molecules(molecule_ids_trained)
+        trained_mol_logits = hidden_states @ mol_embeds.t()                    # (B, L, M)
+
+        # 5) stitch back into a sparse‐logits object:
+        logits = torch.cat([text_logits, trained_mol_logits], dim=-1)
+        all_ids_trained = torch.cat([
+            torch.arange(vocab_size, device=device),
+            molecule_ids_trained
+        ], dim=0)
+
+        logits = mCLMSparseLogitsOptimized(
+            indices=all_ids_trained,
+            logits=logits,
+            vocab_size=total_vocab_size,
+        )
+    else:
+        molecule_ids_trained = "all"
+        mol_logits = hidden_states.matmul(
+            embed_molecules(molecule_ids_trained).transpose(0, 1)
+        )
+        logits = torch.cat([text_logits, mol_logits], dim=-1)
+
+    return logits
+
+
+
+# Optimized Version
+class mCLMSparseLogitsOptimized:
+    def __init__(self, indices, logits, vocab_size=None):
+        self.indices = indices
+        #if self.indices is not None:
+        #    self.indices = torch.tensor(self.indices, dtype=torch.long)
+        self.logits = logits
+        self.vocab_size = vocab_size
+
+
+def compute_loss_optimized(logits, labels, mapping_tensor=None):
+    if not isinstance(logits, mCLMSparseLogitsOptimized):
+        self = mCLMSparseLogitsOptimized(
+            indices=None,
+            logits=logits,
+        )
+    else:
+        self = logits
+
+    shift_logits = self.logits[..., :-1, :].contiguous()
+    shift_labels = labels[..., 1:].contiguous()
+
+    loss_fct = CrossEntropyLoss()
+
+    shift_logits = shift_logits.view(-1, shift_logits.size(-1))
+    shift_labels = shift_labels.view(-1)
+
+    shift_labels = shift_labels.to(shift_logits.device)
+
+    if self.indices is not None:
+        if mapping_tensor is None:
+            mapping_tensor = torch.full((self.vocab_size,), -1, dtype=torch.long, device=shift_labels.device)
+            mapping_tensor[self.indices] = torch.arange(len(self.indices), dtype=torch.long, device=shift_labels.device)
+
+        shift_labels = mapping_tensor[shift_labels]
+
+    loss = loss_fct(shift_logits, shift_labels)
+    return loss
+
+
 
 
 class MLPAdaptor(nn.Module):

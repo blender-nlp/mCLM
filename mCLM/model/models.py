@@ -56,9 +56,17 @@ class mCLM(L.LightningModule):
     #
     #    self.model.base_model.model.model.mol_gnn.train(mode=mode)
 
+    def on_fit_start(self):
+        # In case PL tries to move it before first batch
+        self.model._finalized_molecule_embeddings.cpu()
+
     def setup(self, stage=None):
         self.model.extend_text_vocab_size(len(self.trainer.datamodule.tokenizer.vocab))
         self.model.set_mol_vocab(self.trainer.datamodule.molecule_tokenizer)
+
+        #self.model.mapping_tensor = torch.full((self.model.total_vocab_size,), -1, dtype=torch.long)
+        #print('mapping:', self.model.mapping_tensor.shape)
+        #self.model.mapping_tensor.requires_grad = False
 
     def get_metrics(
         self,
