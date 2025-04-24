@@ -5,6 +5,8 @@ from tqdm import tqdm
 
 from mCLM.data.processing import smiles_to_data
 
+import torch
+
 def canonicalize(smi):
     try:
         rv = Chem.MolToSmiles(Chem.MolFromSmiles(smi))
@@ -12,9 +14,14 @@ def canonicalize(smi):
         rv = None
     return rv
 
+def convert_data_to_bfloat16(data):
+    for key, item in data:
+        if isinstance(item, torch.Tensor) and item.dtype.is_floating_point:
+            data[key] = item.to(dtype=torch.bfloat16)
+    return data
 
 class MoleculeTokenizer:
-    def __init__(self, start_idx):
+    def __init__(self, start_idx, bfloat16=False):
         """
         Initializes the MoleculeTokenizer.
         """
@@ -22,6 +29,7 @@ class MoleculeTokenizer:
         self.block_to_idx = {}
         self.idx_to_block = {}
         self.GNN_input_map = {}
+        self.bfloat16 = bfloat16
 
         self.bad_blocks = set()
 
@@ -44,8 +52,10 @@ class MoleculeTokenizer:
             if self.block_to_idx[block] not in self.GNN_input_map:
                 try:
                     self.GNN_input_map[self.block_to_idx[block]] = smiles_to_data(block)
-                except:
-                    print(block)
+                    if self.bfloat16:
+                        convert_data_to_bfloat16(self.GNN_input_map[self.block_to_idx[block]])
+                except Exception as e:
+                    print(block, e)
                     self.bad_blocks.add(block)
                     #zz
                     
@@ -55,11 +65,16 @@ class MoleculeTokenizer:
             if self.block_to_idx[block] not in self.GNN_input_map:
                 try:
                     self.GNN_input_map[self.block_to_idx[block]] = smiles_to_data(block)
+                    if self.bfloat16:
+                        convert_data_to_bfloat16(self.GNN_input_map[self.block_to_idx[block]])
                 except:
                     print('Bad Block:', block)
                     self.bad_blocks.add(block)
                     
                     self.GNN_input_map[self.block_to_idx[block]] = smiles_to_data('[1*][2*]') #UNK value, essentially 
+
+                    if self.bfloat16:
+                        convert_data_to_bfloat16(self.GNN_input_map[self.block_to_idx[block]])
 
 
     def clear_data(self): #free up RAM after validation

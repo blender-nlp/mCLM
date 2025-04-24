@@ -201,8 +201,9 @@ class mCLM(L.LightningModule):
             #],
             lr=self.config['lr'],
             weight_decay=self.config['weight_decay'],
+            eps = 1e-7, # default is 1e-8 which causes issues with bf16
+            #https://discuss.pytorch.org/t/nan-loss-issues-with-precision-16-in-pytorch-lightning-gan-training/204369/4
         )
-        #the optimizer turns off these two parameters for who knows what reasons, but some other one gets put there. 
 
 
         # don't use self.trainer.num_training_batches as it is inf here

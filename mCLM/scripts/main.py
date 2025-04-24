@@ -129,15 +129,6 @@ def main(args):
     #model = LlamaForCausalLM.from_pretrained(ckpt_path)
     model = mCLM(config)
 
-    pretrain_mol_embeddings = torch.load(config['pretrained_embeddings'] + 'precomputed_tokens.pt').to(torch.bfloat16)
-    pretrain_mol_embeddings = nn.Embedding.from_pretrained(pretrain_mol_embeddings, freeze=True)
-    pretrain_mol_embeddings.weight.data = pretrain_mol_embeddings.weight.data.to(torch.bfloat16)
-
-    
-    model.model.finalize_molecule_embeddings(embeddings=pretrain_mol_embeddings)
-    model.model.use_mol_embeddings(True)
-
-
 
     if config["load_GNN_ckpt"] != None:
         gnn_ckpt_sd = torch.load(config["load_GNN_ckpt"], map_location='cpu', weights_only=False)['state_dict']
@@ -150,6 +141,19 @@ def main(args):
     if config['freeze_GNN']:
         for param in model.model.model.model.mol_gnn.parameters():
             param.requires_grad = False
+
+    if config['pretrained_embeddings'] != None:
+        pretrain_mol_embeddings = torch.load(config['pretrained_embeddings'] + 'precomputed_tokens.pt').to(torch.bfloat16)
+        pretrain_mol_embeddings = nn.Embedding.from_pretrained(pretrain_mol_embeddings, freeze=True)
+        pretrain_mol_embeddings.weight.data = pretrain_mol_embeddings.weight.data.to(torch.bfloat16)
+
+        
+        model.model.finalize_molecule_embeddings(embeddings=pretrain_mol_embeddings)
+        model.model.use_mol_embeddings(True)
+
+    model = model.to(torch.bfloat16)
+
+
 
     #class SetupCallback(Callback):
     #    def on_fit_start(self, trainer, pl_module):
@@ -169,12 +173,18 @@ def main(args):
             with open(config["ckpt_path"] + "molecule_tokenizer.pth", "wb") as f:
                 torch.save(trainer.datamodule.molecule_tokenizer, f)
 
+    class CreateGraphs(Callback):
+        def setup(self, trainer, pl_module, stage):
+            trainer.datamodule.molecule_tokenizer.create_input()
+
+    #if config['pretrained_embeddings'] == None:
+    #    callbacks.append(CreateGraphs())
 
     class ClearMoleculeTokenizerCache(Callback):
         def on_validation_epoch_end(self, trainer, pl_module):
             trainer.datamodule.molecule_tokenizer.clear_data()
 
-    callbacks.append(ClearMoleculeTokenizerCache())
+    #callbacks.append(ClearMoleculeTokenizerCache())
 
 
     class ShuffleTrainingData(Callback):
@@ -207,10 +217,12 @@ def main(args):
 
 
     class LossThresholdCallback(Callback):
-        def __init__(self, every_n_steps=100, loss_threshold=0.1):
+        def __init__(self, model, every_n_steps=100, loss_threshold=0.1):
             self.every_n_steps = every_n_steps
             self.loss_threshold = loss_threshold
             self.total_loss = 0
+
+            #model.model.negative_sampling_size = 64 #untested line
 
         def on_train_batch_end(self, trainer, pl_module, outputs, batch, batch_idx):
             global_step = trainer.global_step
@@ -232,7 +244,7 @@ def main(args):
                 print(f"Loss below threshold — set negative sampling size to {pl_module.model.negative_sampling_size}.")
 
     if config['max_negative_sampling_schedule'] != None:
-        callbacks.append(LossThresholdCallback(every_n_steps=100, loss_threshold=config['negative_sampling_schedule_loss']))
+        callbacks.append(LossThresholdCallback(model, every_n_steps=100, loss_threshold=config['negative_sampling_schedule_loss']))
 
     if config['check_val_every_n_steps']:
         trainer = Trainer(
@@ -245,6 +257,7 @@ def main(args):
             val_check_interval=config['check_val_every_n_steps'],
             strategy='ddp',
             precision='bf16',
+            gradient_clip_val=1.0,
         )
     else:
         trainer = Trainer(
@@ -256,6 +269,7 @@ def main(args):
             callbacks=callbacks,
             strategy='ddp',
             precision='bf16',
+            gradient_clip_val=1.0,
         )
 
 
@@ -329,7 +343,10 @@ if __name__ == "__main__":
     parser.add_argument("--base_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/", type=str)
     parser.add_argument("--pretrained_text_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/", type=str)
     parser.add_argument("--pretrained_tokenizer", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
-    parser.add_argument("--pretrained_embeddings", default="final_embeddings/1536_dim/", type=str)
+    parser.add_argument("--pretrained_embeddings", default=None, type=str)
+    parser.add_argument("--GNN_cache", default=None, type=str)
+
+    
 
     parser.add_argument(
         "--freeze_GNN", type=bool, action=argparse.BooleanOptionalAction

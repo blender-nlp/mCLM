@@ -203,15 +203,16 @@ class Qwen2Config(PretrainedConfig):
             "hidden_dim_ffn": None,#512,
             "input_dim_adapter": 1536,#512,
             "hidden_dim_adapter": hidden_size,
+            "out_channels_adapter": hidden_size, 
             "num_mp_layers": 5,
             "num_readout_layers": 1,
-            "out_channels": hidden_size,
+            "out_channels": 1536,#hidden_size,
             "dropout": 0.1,
             "aggr": "mean",
             "jk": "cat",
             "mol_features_size": 128,
         }
-        self.negative_sampling_size = 64
+        self.negative_sampling_size = 64# 1048576 #/ 2 #64
         self.mol_vocab_size = 3000
 
         super().__init__(

@@ -954,6 +954,22 @@ class SMolInstructDataModule(LightningDataModule):
             with open(self.GNN_cache, "wb") as f:
                 torch.save(self.molecule_tokenizer, f)
         
+        
+        GNN_cache = self.config["GNN_cache"]
+
+        #Preprocess molecule tokenizer
+        if GNN_cache != None:
+            self.molecule_tokenizer.bfloat16 = True
+
+            if osp.exists(GNN_cache):
+                self.molecule_tokenizer.GNN_input_map = torch.load(GNN_cache, map_location=torch.device('cpu'), weights_only=False)
+            else:
+                self.molecule_tokenizer.create_input()
+                with open(GNN_cache, "wb") as f:
+                    torch.save(self.molecule_tokenizer.GNN_input_map, f)
+
+
+
         print('Molecule Building Block Input Created / Loaded')
 
         self.train_dses = []
