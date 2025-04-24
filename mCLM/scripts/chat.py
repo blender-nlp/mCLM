@@ -7,6 +7,7 @@ import sys
 import io
 import re
 import torch
+from torch import nn
 from lightning import Trainer, seed_everything, Callback
 from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from lightning.pytorch.loggers import WandbLogger
@@ -133,9 +134,8 @@ if __name__ == "__main__":
     parser.add_argument("--latent_size", default=256, type=int)
     parser.add_argument("--validate_every_n", default=1000, type=int)
     parser.add_argument("--lr", default=5e-5, type=float)
-    parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/Llama-3.2-1B-Instruct-SMolInstruct/", type=str)
-    parser.add_argument("--ckpt", default="latest_checkpoint-epoch=00-step=10000.ckpt", type=str)
-    parser.add_argument("--loss", default="CLIP", type=str)
+    parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B_SMolInstruct_NoGNN/", type=str)
+    parser.add_argument("--ckpt", default="latest_checkpoint-epoch=01-step=57500.ckpt", type=str)
     parser.add_argument("--load_ckpt", default=None, type=str)
     parser.add_argument("--load_GNN_ckpt", default=None, type=str)
 
@@ -146,6 +146,7 @@ if __name__ == "__main__":
     parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
     parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
     parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)    #parser.add_argument(
+    parser.add_argument("--pretrained_embeddings", default='ckpts_GNN/1536_dim/best_val_checkpoint.ckpt', type=str)
     #    "--freeze_text_encoder", type=bool, action=argparse.BooleanOptionalAction
     #)
     parser.add_argument(
@@ -194,8 +195,18 @@ if __name__ == "__main__":
 
     model = mCLM(config)
 
-    model.model.extend_text_vocab_size(len(tokenizer.vocab))
-    model.model.set_mol_vocab(molecule_tokenizer.GNN_input_map)
+
+    if config['pretrained_embeddings'] != None:
+        pretrain_mol_embeddings = torch.load(config['pretrained_embeddings'] + 'precomputed_tokens.pt').to(torch.bfloat16)
+        pretrain_mol_embeddings = nn.Embedding.from_pretrained(pretrain_mol_embeddings, freeze=True)
+        pretrain_mol_embeddings.weight.data = pretrain_mol_embeddings.weight.data.to(torch.bfloat16)
+
+        
+        model.model.finalize_molecule_embeddings(embeddings=pretrain_mol_embeddings)
+        model.model.use_mol_embeddings(True)
+
+    #model.model.extend_text_vocab_size(len(tokenizer.vocab))
+    #model.model.set_mol_vocab(molecule_tokenizer.GNN_input_map)
 
     print('Model Created')
 
