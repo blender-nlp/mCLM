@@ -38,7 +38,7 @@ ATOM_FEATURES = {
         Chem.rdchem.HybridizationType.SP3D,
         Chem.rdchem.HybridizationType.SP3D2,
     ],
-    "placeholders": [0, 1, 2],
+    "placeholders": [0, 1, 2, 3],
 }
 
 

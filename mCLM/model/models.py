@@ -49,6 +49,10 @@ class mCLM(L.LightningModule):
         for param in self.model.base_model.model.model.mol_gnn.parameters():
             param.requires_grad = True
 
+
+        self.validation_step_outputs = []
+        self.test_step_outputs = []
+
         #self.model.print_trainable_parameters()
 
     #def train(self, mode=True):
@@ -119,26 +123,30 @@ class mCLM(L.LightningModule):
         loss = output.loss
 
 
-        self.log(
-            f"{prefix}/loss",
-            loss.item(),
-            prog_bar=True,
-            batch_size=self.config['batch_size'],
-            sync_dist=True,
-            add_dataloader_idx=False,
-        )
-        self.log(
-            f"sampling_size",
-            self.model.negative_sampling_size,
-            prog_bar=True,
-            batch_size=self.config['batch_size'],
-            sync_dist=True,
-            add_dataloader_idx=False,
-        )
         if task_id != None:
+            #print('the task:', task_id[0])
+            #print(f"{prefix}/{task_id[0]}_loss")
+            #print(f"{prefix}/loss")
             self.log(
                 f"{prefix}/{task_id[0]}/loss",
                 loss.item(),
+                prog_bar=False,
+                batch_size=self.config['batch_size'],
+                sync_dist=True,
+                add_dataloader_idx=False,
+            )
+        else:
+            self.log(
+                f"{prefix}/loss",
+                loss.item(),
+                prog_bar=True,
+                batch_size=self.config['batch_size'],
+                sync_dist=True,
+                add_dataloader_idx=False,
+            )
+            self.log(
+                f"sampling_size",
+                self.model.negative_sampling_size,
                 prog_bar=True,
                 batch_size=self.config['batch_size'],
                 sync_dist=True,
@@ -151,33 +159,40 @@ class mCLM(L.LightningModule):
         return {"loss": loss}
 
     def on_validation_epoch_end(self):
-        #all_validation_probs = torch.cat(
-        #    [i["probs"] for i in self.validation_step_outputs]
-        #)
-        #all_validation_labels = torch.cat(
-        #    [i["labels"] for i in self.validation_step_outputs]
-        #)
-        #self._log_metric("val", all_validation_probs, all_validation_labels)
-        #self.validation_step_outputs.clear()
-        pass
+        all_validation_loss = torch.cat(
+            [i["loss"].unsqueeze(0) for i in self.validation_step_outputs]
+        )
+        self.log(
+            "val/loss",
+            all_validation_loss.mean().item(),
+            prog_bar=True,
+            sync_dist=True,
+        )
+        self.validation_step_outputs.clear()
 
     def on_test_epoch_end(self):
-        pass
-        #all_test_probs = torch.cat([i["probs"] for i in self.test_step_outputs])
-        #all_test_labels = torch.cat([i["labels"] for i in self.test_step_outputs])
-        #self._log_metric("test", all_test_probs, all_test_labels)
+        all_test_loss = torch.cat(
+            [i["loss"].unsqueeze(0) for i in self.test_step_outputs]
+        )
+        self.log(
+            "test/loss",
+            all_test_loss.mean().item(),
+            prog_bar=True,
+            sync_dist=True,
+        )
+        self.test_step_outputs.clear()
 
     def training_step(self, batch, batch_idx, dataloader_idx=0) -> torch.Tensor:
         return self.compute_step(batch, prefix="train")
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0) -> torch.Tensor:
         step_outputs = self.compute_step(batch, prefix="val", task_id = batch['task_id'])
-        #self.validation_step_outputs.append(step_outputs)
+        self.validation_step_outputs.append(step_outputs)
         return step_outputs
 
     def test_step(self, batch, batch_idx, dataloader_idx=0) -> torch.Tensor:
         step_outputs = self.compute_step(batch, prefix="test", task_id = batch['task_id'])
-        #self.test_step_outputs.append(step_outputs)
+        self.test_step_outputs.append(step_outputs)
         return step_outputs
 
     def configure_optimizers(self):

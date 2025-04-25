@@ -196,23 +196,41 @@ class Qwen2Config(PretrainedConfig):
         rope_config_validation(self)
 
         # mCLM specific configuration
+        
         self.molecule_config = {
-            "node_dim": 137,
+            "node_dim": 138,
             "edge_dim": 12,
             "hidden_dim_graph": 512,
             "hidden_dim_ffn": None,#512,
-            "input_dim_adapter": 1536,#512,
+            "input_dim_adapter": 128,#512,
             "hidden_dim_adapter": hidden_size,
             "out_channels_adapter": hidden_size, 
             "num_mp_layers": 5,
             "num_readout_layers": 1,
-            "out_channels": 1536,#hidden_size,
+            "out_channels": 128,#hidden_size,
             "dropout": 0.1,
             "aggr": "mean",
             "jk": "cat",
             "mol_features_size": 128,
         }
-        self.negative_sampling_size = 64# 1048576 #/ 2 #64
+        if False: # full GPU memory config
+            self.molecule_config = {
+                "node_dim": 138,
+                "edge_dim": 12,
+                "hidden_dim_graph": 32,#512,
+                "hidden_dim_ffn": 32,#None,#512,
+                "input_dim_adapter": 32,
+                "hidden_dim_adapter": hidden_size,
+                "out_channels_adapter": hidden_size, 
+                "num_mp_layers": 5,
+                "num_readout_layers": 1,
+                "out_channels": 32,
+                "dropout": 0.1,
+                "aggr": "mean",
+                "jk": "cat",
+                "mol_features_size": 128,
+            }
+        self.negative_sampling_size = 1048576 #/ 2 #64
         self.mol_vocab_size = 3000
 
         super().__init__(

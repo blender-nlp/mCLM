@@ -34,7 +34,7 @@ def load_with_tqdm(file_path, map_location=None, weights_only=True):
     return data
 
 
-molecule_tokenizer = load_with_tqdm("../GNN_input_cache/Total.molecule_tokenizer.v2.pth", map_location=torch.device('cpu'), weights_only=False)#torch.load(f)
+molecule_tokenizer = load_with_tqdm("../GNN_input_cache/Total.molecule_tokenizer.v3.pth", map_location=torch.device('cpu'), weights_only=False)#torch.load(f)
 
 total_blocks = set(molecule_tokenizer.block_to_idx.keys()) - set([''])
 
@@ -43,5 +43,5 @@ def write_strings_to_file(strings: set, file_path: str):
         for s in strings:
             f.write(s + "\n")
 
-write_strings_to_file(total_blocks, 'total_blocks.txt')
+write_strings_to_file(total_blocks, 'total_blocks_onlyblocks.txt')
 

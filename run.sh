@@ -51,7 +51,27 @@ echo "Starting Main Script"
 #    --negative_sampling_schedule_loss 0.1 \
 
 
-if true; then
+if false; then
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ --check_val_every_n_steps 5000 \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --batch_size=16 --lr 1e-4 \
+    --ckpt_path ckpts/Qwen2.5-0.5B_Total_PreGNN/ --version Qwen2.5-0.5B_PreGNN_FastV2 \
+    --max_epochs 3 \
+    --data_module Total --task Total \
+    --save_checkpoint_every_n_steps 2500 \
+    --num_warmup_steps 2000 \
+    --load_GNN_ckpt ckpts_GNN/1536_dim/best_val_checkpoint.ckpt \
+    --GNN_cache ../GNN_input_cache/Total.molecule_tokenizer.v3.graphs.pth \
+
+#    --max_negative_sampling_schedule 15000 \
+#    --negative_sampling_schedule_loss 0.1 \
+#    --pretrained_embeddings final_embeddings/OnlyBlocks/1536_dim/ \
+
+fi
+
+if false; then
 
 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ --check_val_every_n_steps 5000 \
@@ -67,24 +87,58 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
     --max_negative_sampling_schedule 15000 \
     --negative_sampling_schedule_loss 0.1 \
 
+fi
 
-#16384
+if false; then #test out the negative sampling code with trainable GNN
+
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --batch_size=4 --lr 1e-4 \
+    --ckpt_path ckpts/Qwen2.5-0.5B_SMolInstruct_PreGNN/ --version Qwen2.5-0.5B_PreGNN_FastV2_OnlyBlocks \
+    --max_epochs 3 \
+    --data_module SMolInstruct --task SMolInstruct \
+    --num_warmup_steps 2000 \
+    --GNN_cache ../GNN_input_cache/Total.molecule_tokenizer.v3.graphs.pth \
+
+    #--load_GNN_ckpt ckpts_GNN/OnlyBlocks/128_dim/best_val_checkpoint.ckpt \
+    #that GNN is too big :(
 
 fi
+
 
 if false; then
 
 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
-    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ --check_val_every_n_steps 5000 \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --batch_size=32 --lr 1e-4 \
-    --ckpt_path ckpts/Qwen2.5-0.5B_SMolInstruct_NoGNN/ --version Qwen2.5-0.5B_NoGNN_FastV2 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-0.5B_Total_NoGNN/ --version Qwen2.5-0.5B_NoGNN_FastV2_Shrink25k_OnlyBlocks \
     --max_epochs 3 \
-    --data_module SMolInstruct --task SMolInstruct \
-    --save_checkpoint_every_n_steps 2500 \
+    --data_module Total --task Total \
     --freeze_GNN \
     --num_warmup_steps 2000 \
-    --pretrained_embeddings final_embeddings/1536_dim/ \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/128_dim/ \
+
+#    --resume_from_checkpoint ckpts/Qwen2.5-0.5B_SMolInstruct_FreePreGNN/latest_checkpoint-epoch=00-step=20000.ckpt \
+
+fi
+
+
+if false; then
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --batch_size=32 --lr 1e-4 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-0.5B_SMolInstruct_NoGNN/ --version Qwen2.5-0.5B_NoGNN_FastV2_OnlyBlocks \
+    --max_epochs 3 \
+    --data_module SMolInstruct --task SMolInstruct \
+    --freeze_GNN \
+    --num_warmup_steps 2000 \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/128_dim/ \
 
 #    --max_negative_sampling_schedule 500000 \
 #    --negative_sampling_schedule_loss 0.1 \
@@ -92,6 +146,27 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
 #    --resume_from_checkpoint ckpts/Qwen2.5-0.5B_SMolInstruct_FreePreGNN/latest_checkpoint-epoch=00-step=20000.ckpt \
 
 fi
+
+if true; then
+
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
+    --check_val_every_n_steps 10000 \
+    --batch_size=3 --lr 1e-4 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-7B_SMolInstruct_NoGNN/ --version Qwen2.5-7B_NoGNN_FastV2_OnlyBlocks \
+    --max_epochs 3 \
+    --data_module SMolInstruct --task SMolInstruct \
+    --save_checkpoint_every_n_steps 2500 \
+    --freeze_GNN \
+    --num_warmup_steps 2000 \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/128_dim/ \
+
+
+
+fi
+
 
 if false; then
 
