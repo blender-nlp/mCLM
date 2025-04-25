@@ -405,11 +405,11 @@ class GeneralDataset(Dataset):
         
         if self.shrink_size != None:
             self.all_data = data
-            self.data = self.all_data.sample(min(self.shrink_data, len(self.all_data)), random_state=0)
+            self.data = self.all_data.sample(min(self.shrink_size, len(self.all_data)), random_state=0)
 
     def set_new_epoch(epoch):
         if self.shrink_size != None:
-            self.data = self.all_data.sample(min(self.shrink_data, len(self.all_data)), random_state=epoch)
+            self.data = self.all_data.sample(min(self.shrink_size, len(self.all_data)), random_state=epoch)
 
 
     def len(self):
@@ -419,8 +419,8 @@ class GeneralDataset(Dataset):
 
         d = self.data.iloc[idx]
 
-        raw_instruction = d['instruction']
-        raw_response = d['response']
+        #raw_instruction = d['instruction']
+        #raw_response = d['response']
         cleaned_instruction = d['cleaned_instruction']
         cleaned_response = d['cleaned_response']
         mol_list = d['mol_list']
@@ -454,8 +454,9 @@ class GeneralDataset(Dataset):
 
         rv = {
             "task_id": self.task_name,
-            "raw_instruction": raw_instruction,
-            "raw_response": raw_response,
+            "raw_instruction": cleaned_instruction,
+            "raw_response": cleaned_response,
+            "mol_list": str(mol_list),
             "input": {
                 "input_ids": token_input['input_ids'].squeeze(),
                 "labels": token_input['input_ids'].squeeze(),
@@ -611,7 +612,7 @@ class TotalDataModule(LightningDataModule):
         trunc_length=512,
         instruction_data_path="captions/",
         synthetic_data_path="captions/",
-        GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v2.pth',
+        GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v3.pth',
         shrink_data = None,
     ):
         super().__init__()
@@ -736,7 +737,7 @@ class TotalDataModule(LightningDataModule):
         else:
             self.molecule_tokenizer = MoleculeTokenizer(start_idx)
             for dfs in [to_split_data, train_data, valid_data, test_data]:
-                for df, task in dfs:
+                for df, task, shrink in dfs:
                     if 'mol_list' in df:
                         for d in df['mol_list']:
                             for mol in d:
@@ -756,6 +757,21 @@ class TotalDataModule(LightningDataModule):
 
         print('Molecule Building Block Input Created / Loaded')
         
+        GNN_cache = self.config["GNN_cache"]
+
+        #Preprocess molecule tokenizer
+        if GNN_cache != None:
+            self.molecule_tokenizer.bfloat16 = True
+
+            if osp.exists(GNN_cache):
+                self.molecule_tokenizer.GNN_input_map = torch.load(GNN_cache, map_location=torch.device('cpu'), weights_only=False)
+            else:
+                self.molecule_tokenizer.create_input()
+                with open(GNN_cache, "wb") as f:
+                    torch.save(self.molecule_tokenizer.GNN_input_map, f)
+
+
+        
         self.train_dses = []
         self.valid_dses = []
         self.test_dses = []
@@ -765,7 +781,7 @@ class TotalDataModule(LightningDataModule):
             elif task.startswith('mol-inst'): ds_type = MolInstDataset
             else: ds_type = GeneralDataset
             ts = min(40, max(int(0.01*len(df)), 10), int(0.1*len(df)))
-            if ts>0:
+            if ts>1:
                 train_df, val_df = train_test_split(df, test_size=ts, random_state = self.seed)
                 val_df, test_df = train_test_split(val_df, test_size=0.5, random_state = self.seed)
             ds = ds_type(
@@ -813,7 +829,8 @@ class TotalDataModule(LightningDataModule):
 
         self.train_ds = ConcatDataset(self.train_dses)
         self.train_ds = StatefulShuffleDataset(self.train_ds, seed=0)
-
+        #print(len(self.train_ds))
+        
         for df, task, shrink in valid_data:
             if task.startswith('tulu'): ds_type = TuluDataset
             elif task.startswith('mol-inst'): ds_type = MolInstDataset

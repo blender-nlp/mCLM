@@ -461,7 +461,7 @@ def compute_loss_optimized3(logits, labels, mapping_tensor=None):
 
 
 class MLPAdaptor(nn.Module):
-    def __init__(self, in_dim, out_dim, hidden_dim, dropout=0.1):
+    def __init__(self, in_dim, hidden_dim, out_dim, dropout=0.1):
         super(MLPAdaptor, self).__init__()
         self.mlp = nn.Sequential(
             nn.Linear(in_dim, hidden_dim),

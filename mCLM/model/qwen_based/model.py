@@ -82,7 +82,7 @@ class Qwen2Model(OriginalQwen2Model):
         self.rotary_emb = Qwen2RotaryEmbedding(config=config)
         self.gradient_checkpointing = False
 
-        self.on_device = self.config.molecule_config["out_channels_adapter"] == 896 #check if 0.5B model or not
+        self.on_device = True #self.config.molecule_config["out_channels_adapter"] == 896 #check if 0.5B model or not
         #print(self.config.molecule_config["out_channels"])
         #print('self.on_device', self.on_device)
         #zz

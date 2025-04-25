@@ -75,7 +75,7 @@ def main(args):
             shrink_data=25000,
         )
 
-        class CallDataModuleFunctionCallback(pl.Callback):
+        class CallDataModuleFunctionCallback(Callback):
             def on_train_epoch_end(self, trainer, pl_module):
                 epoch = trainer.current_epoch
                 datamodule = trainer.datamodule
@@ -366,8 +366,8 @@ if __name__ == "__main__":
     parser.add_argument("--check_val_every_n_steps", default=None, type=int)
     parser.add_argument("--save_checkpoint_every_n_steps", default=None, type=int)
 
-    parser.add_argument("--instruction_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/instruction/')
-    parser.add_argument("--synthetic_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/synthetic/')
+    parser.add_argument("--instruction_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/instruction_onlyblocks/')
+    parser.add_argument("--synthetic_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/synthetic_onlyblocks/')
 
     parser.add_argument("--max_negative_sampling_schedule", default=None, type=int)
     #parser.add_argument("--negative_sampling_schedule", default=100, type=int)
