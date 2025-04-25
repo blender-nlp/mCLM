@@ -262,6 +262,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         self.use_mol_embeddings(False)
 
 
+
     def get_input_embeddings(self):
         return self.model.embed_tokens
 

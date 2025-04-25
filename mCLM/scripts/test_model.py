@@ -156,6 +156,15 @@ if __name__ == "__main__":
             trunc_length=config["trunc_length"],
         )
     
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+    #model = LlamaForCausalLM.from_pretrained(ckpt_path)
+    model = mCLM(config)
+    model.to(device)
+
+    for p in model.named_parameters():
+        print(p[0], p[1].requires_grad)
 
 
     dm.setup('test')
@@ -170,13 +179,8 @@ if __name__ == "__main__":
     #print('GNN Input Dict')
     #print(block_ID_to_data)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Loading model...")
     ckpt_path = config["pretrained_text_model"]
-    #model = LlamaForCausalLM.from_pretrained(ckpt_path)
-    model = mCLM(config)
-    model.to(device)
-
     print(list(block_ID_to_data.values())[0])
 
     print("extending text vocab size and setting molecule vocab...")
@@ -233,9 +237,6 @@ if __name__ == "__main__":
         #attention_mask=item["input"]["attention_mask"],
         #labels=item["input"]["labels"]
     training_output['loss'].backward()
-
-    for p in model.named_parameters():
-        print(p[0], p[1].requires_grad)
 
     #for key in model.state_dict():
     #    print(key)

@@ -4,7 +4,7 @@ from torch.nn import CrossEntropyLoss
 from torch_geometric.data import Batch
 
 from cut_cross_entropy import linear_cross_entropy
-from liger_kernel.transformers import LigerFusedLinearCrossEntropyLoss
+#from liger_kernel.transformers import LigerFusedLinearCrossEntropyLoss
 
 # mCLM embedding function
 def embed_chemical_language(
@@ -360,6 +360,9 @@ def mclm_logit_head_optimized2(
             embeddings = hidden_states,
             classifier = torch.cat([text_class, mol_embeds], dim=0),
         )
+    if not is_training:
+        logits = logits.embeddings @ logits.classifier.t()
+        
 
     return logits
 

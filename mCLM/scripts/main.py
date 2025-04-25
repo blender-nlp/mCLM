@@ -62,7 +62,7 @@ def main(args):
             base_model=config["base_model"],
             batch_size=config["batch_size"],
             trunc_length=config["trunc_length"],
-            GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v2.pth',
+            GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v3.pth',
         )
     elif config["data_module"] == "Total":
         dm = TotalDataModule(
