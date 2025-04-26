@@ -520,6 +520,7 @@ class MolInstDataset(Dataset):
             "task_id": self.task_name,
             "raw_instruction": raw_instruction,
             "raw_response": raw_response,
+            "mol_list": '',
             "input": {
                 "input_ids": token_input['input_ids'].squeeze(),
                 "labels": token_input['input_ids'].squeeze(),
@@ -582,6 +583,7 @@ class TuluDataset(Dataset):
             "task_id": self.task_name,
             "raw_instruction": raw_instruction,
             "raw_response": raw_response,
+            "mol_list": '',
             "input": {
                 "input_ids": token_input['input_ids'].squeeze(),
                 "labels": token_input['input_ids'].squeeze(),
@@ -667,7 +669,8 @@ class TotalDataModule(LightningDataModule):
                 print(len(df))
                 total += len(df)
                 #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
-                to_split_data.append((df, f.replace('.csv', ''), self.shrink_data))
+                task_name = subdir + '/' + f.replace('.csv', '')
+                to_split_data.append((df, task_name, self.shrink_data))
                 #if f == 'Tox21_class.csv': break
             print(subdir, total)
 

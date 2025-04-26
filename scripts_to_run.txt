@@ -32,6 +32,20 @@ wandb sync wandb/offline-run-20250425_170151-di0qb8ek/
 
 wandb sync wandb/offline-run-20250425_164759-n2u55qcj/
 
+
 wandb sync wandb/offline-run-20250425_190540-ca1qzmj7/
+
+wandb sync wandb/offline-run-20250425_195324-uahnxyd9/
+
+wandb sync wandb/offline-run-20250425_225658-c6qhd9jl/
+
+
+
+
+
+
+wandb sync wandb/offline-run-20250425_221005-tasjv26j/
+
+wandb sync wandb/offline-run-20250426_004906-o9mwynd3/
 
 
