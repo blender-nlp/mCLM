@@ -62,7 +62,7 @@ def main(args):
             base_model=config["base_model"],
             batch_size=config["batch_size"],
             trunc_length=config["trunc_length"],
-            GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v3.pth',
+            GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v4.pth',
         )
     elif config["data_module"] == "Total":
         dm = TotalDataModule(
@@ -332,6 +332,7 @@ if __name__ == "__main__":
     parser.add_argument("--latent_size", default=256, type=int)
     parser.add_argument("--validate_every_n", default=1000, type=int)
     parser.add_argument("--lr", default=5e-5, type=float)
+    parser.add_argument("--mol_lr", default=None, type=float)
     parser.add_argument("--ckpt_path", default="ckpts/", type=str)
     parser.add_argument("--loss", default="CLIP", type=str)
     parser.add_argument("--load_ckpt", default=None, type=str)
@@ -377,6 +378,9 @@ if __name__ == "__main__":
 
     if args.val_batch_size == None:
         args.val_batch_size = args.batch_size
+
+    if args.mol_lr == None:
+        args.mol_lr = args.lr
 
     config = vars(args)
 

@@ -407,7 +407,7 @@ class GeneralDataset(Dataset):
             self.all_data = data
             self.data = self.all_data.sample(min(self.shrink_size, len(self.all_data)), random_state=0)
 
-    def set_new_epoch(epoch):
+    def set_new_epoch(self, epoch):
         if self.shrink_size != None:
             self.data = self.all_data.sample(min(self.shrink_size, len(self.all_data)), random_state=epoch)
 
@@ -482,7 +482,7 @@ class MolInstDataset(Dataset):
         self.trunc_length = trunc_length
         self.task_name = task_name
 
-    def set_new_epoch(epoch):
+    def set_new_epoch(self, epoch):
         pass
 
     def len(self):
@@ -545,7 +545,7 @@ class TuluDataset(Dataset):
         self.trunc_length = trunc_length
         self.task_name = task_name
 
-    def set_new_epoch(epoch):
+    def set_new_epoch(self, epoch):
         pass
 
     def len(self):
@@ -612,7 +612,7 @@ class TotalDataModule(LightningDataModule):
         trunc_length=512,
         instruction_data_path="captions/",
         synthetic_data_path="captions/",
-        GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v3.pth',
+        GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v4.pth',
         shrink_data = None,
     ):
         super().__init__()
@@ -628,7 +628,7 @@ class TotalDataModule(LightningDataModule):
         self.GNN_cache = GNN_cache
         self.shrink_data = shrink_data
 
-    def set_new_epoch(epoch):
+    def set_new_epoch(self, epoch):
         for ds in self.train_dses:
             ds.set_new_epoch(epoch)
         for ds in self.valid_dses:
@@ -829,7 +829,8 @@ class TotalDataModule(LightningDataModule):
 
         self.train_ds = ConcatDataset(self.train_dses)
         self.train_ds = StatefulShuffleDataset(self.train_ds, seed=0)
-        #print(len(self.train_ds))
+        print('Total Training Data Length:', len(self.train_ds))
+        #zz
         
         for df, task, shrink in valid_data:
             if task.startswith('tulu'): ds_type = TuluDataset
@@ -864,19 +865,19 @@ class TotalDataModule(LightningDataModule):
         return CustomDataLoader(
             self.train_ds,
             batch_size=self.batch_size,
-            num_workers=16,
+            num_workers=8,
             shuffle=True,
             drop_last=True,
         )
 
     def val_dataloader(self):
         return [CustomDataLoader(
-            ds, batch_size=self.batch_size, num_workers=8, shuffle=False
+            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
         ) for ds in self.valid_dses]
 
     def test_dataloader(self):
         return [CustomDataLoader(
-            ds, batch_size=self.batch_size, num_workers=8, shuffle=False
+            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
         ) for ds in self.test_dses]
 
     def teardown(self, stage: str):
@@ -894,7 +895,7 @@ class SMolInstructDataModule(LightningDataModule):
         trunc_length=512,
         instruction_data_path="captions/",
         synthetic_data_path="captions/",
-        GNN_cache = '../GNN_input_cache/SMolInstruct.molecule_tokenizer.v2.pth'
+        GNN_cache = '../GNN_input_cache/SMolInstruct.molecule_tokenizer.v4.pth'
     ):
         super().__init__()
         self.prepare_data_per_node = True
@@ -985,7 +986,7 @@ class SMolInstructDataModule(LightningDataModule):
                 with open(GNN_cache, "wb") as f:
                     torch.save(self.molecule_tokenizer.GNN_input_map, f)
 
-
+   
 
         print('Molecule Building Block Input Created / Loaded')
 

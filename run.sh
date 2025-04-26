@@ -4,7 +4,7 @@
 #SBATCH --gres=gpu:2
 #SBATCH -N 1
 #SBATCH --ntasks-per-node=2
-#SBATCH --cpus-per-task=6
+#SBATCH --cpus-per-task=12
 #SBATCH --mail-user cne2@illinois.edu
 #SBATCH -J Train-mCLM
 #SBATCH -o slurm_outputs/slurm-%A_%a.out
@@ -101,7 +101,7 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
     --max_epochs 3 \
     --data_module SMolInstruct --task SMolInstruct \
     --num_warmup_steps 2000 \
-    --GNN_cache ../GNN_input_cache/Total.molecule_tokenizer.v3.graphs.pth \
+    --GNN_cache ../GNN_input_cache/Total.molecule_tokenizer.v4.graphs.pth \
 
     #--load_GNN_ckpt ckpts_GNN/OnlyBlocks/128_dim/best_val_checkpoint.ckpt \
     #that GNN is too big :(
@@ -127,13 +127,13 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
 fi
 
 
-if false; then
+if true; then
 
 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
-    --batch_size=32 --lr 1e-4 \
-    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-0.5B_SMolInstruct_NoGNN/ --version Qwen2.5-0.5B_NoGNN_FastV2_OnlyBlocks \
+    --batch_size=32 --lr 2e-5 --mol_lr 2e-6 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-0.5B_SMolInstruct_NoGNN_splitLR/ --version Qwen2.5-0.5B_NoGNN_FastV3_OnlyBlocks2_splitLR \
     --max_epochs 3 \
     --data_module SMolInstruct --task SMolInstruct \
     --freeze_GNN \
@@ -147,15 +147,15 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
 
 fi
 
-if true; then
+if false; then
 
 
 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
     --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
-    --check_val_every_n_steps 10000 \
+    --check_val_every_n_steps 5000 \
     --batch_size=3 --lr 1e-4 \
-    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-7B_SMolInstruct_NoGNN/ --version Qwen2.5-7B_NoGNN_FastV2_OnlyBlocks \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-7B_SMolInstruct_NoGNN/ --version Qwen2.5-7B_NoGNN_FastV3_OnlyBlocks2 \
     --max_epochs 3 \
     --data_module SMolInstruct --task SMolInstruct \
     --save_checkpoint_every_n_steps 2500 \
