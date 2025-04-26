@@ -520,7 +520,7 @@ class MolInstDataset(Dataset):
             "task_id": self.task_name,
             "raw_instruction": raw_instruction,
             "raw_response": raw_response,
-            "mol_list": "",
+            "mol_list": '',
             "input": {
                 "input_ids": token_input['input_ids'].squeeze(),
                 "labels": token_input['input_ids'].squeeze(),
@@ -583,7 +583,7 @@ class TuluDataset(Dataset):
             "task_id": self.task_name,
             "raw_instruction": raw_instruction,
             "raw_response": raw_response,
-            "mol_list": "",
+            "mol_list": '',
             "input": {
                 "input_ids": token_input['input_ids'].squeeze(),
                 "labels": token_input['input_ids'].squeeze(),
@@ -614,7 +614,7 @@ class TotalDataModule(LightningDataModule):
         trunc_length=512,
         instruction_data_path="captions/",
         synthetic_data_path="captions/",
-        GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v3.pth',
+        GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v4.pth',
         shrink_data = None,
     ):
         super().__init__()
@@ -669,7 +669,8 @@ class TotalDataModule(LightningDataModule):
                 print(len(df))
                 total += len(df)
                 #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
-                to_split_data.append((df, f.replace('.csv', ''), self.shrink_data))
+                task_name = subdir + '/' + f.replace('.csv', '')
+                to_split_data.append((df, task_name, self.shrink_data))
                 #if f == 'Tox21_class.csv': break
             print(subdir, total)
 
@@ -831,7 +832,8 @@ class TotalDataModule(LightningDataModule):
 
         self.train_ds = ConcatDataset(self.train_dses)
         self.train_ds = StatefulShuffleDataset(self.train_ds, seed=0)
-        #print(len(self.train_ds))
+        print('Total Training Data Length:', len(self.train_ds))
+        #zz
         
         for df, task, shrink in valid_data:
             if task.startswith('tulu'): ds_type = TuluDataset
@@ -866,7 +868,7 @@ class TotalDataModule(LightningDataModule):
         return CustomDataLoader(
             self.train_ds,
             batch_size=self.batch_size,
-            num_workers=16,
+            num_workers=8,
             shuffle=True,
             drop_last=True,
         )
@@ -896,7 +898,7 @@ class SMolInstructDataModule(LightningDataModule):
         trunc_length=512,
         instruction_data_path="captions/",
         synthetic_data_path="captions/",
-        GNN_cache = '../GNN_input_cache/SMolInstruct.molecule_tokenizer.v2.pth'
+        GNN_cache = '../GNN_input_cache/SMolInstruct.molecule_tokenizer.v4.pth'
     ):
         super().__init__()
         self.prepare_data_per_node = True
@@ -987,7 +989,7 @@ class SMolInstructDataModule(LightningDataModule):
                 with open(GNN_cache, "wb") as f:
                     torch.save(self.molecule_tokenizer.GNN_input_map, f)
 
-
+   
 
         print('Molecule Building Block Input Created / Loaded')
 
