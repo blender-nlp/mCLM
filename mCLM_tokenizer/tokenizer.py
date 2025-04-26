@@ -408,6 +408,24 @@ def reverse_rfrags(frags):
     return '^'.join(frags).replace('1*', '3*').replace('2*', '1*').replace('3*', '2*')
 
 
+
+def replace_ends(mol):
+
+    new_react = []
+    for mo in mol.split('.'):
+        
+        split = mo.split('^')
+        new_mol = []
+        for m in split:
+            if ('[1*]' in m) and (not '[2*]' in m): new_mol.append(m.replace('[1*]', '[3*]'))
+            elif (not '[1*]' in m) and ('[2*]' in m): new_mol.append(m.replace('[2*]', '[3*]'))
+            else: new_mol.append(m)
+
+        new_react.append('^'.join(new_mol))
+        
+    return '.'.join(new_react)
+
+
 def get_blocks(smi, preprocessed=None):
 
     #csmi = canonicalize(smi)
@@ -471,6 +489,9 @@ def get_blocks(smi, preprocessed=None):
 
     rfrags = reorder_fragments(frags)
     rrfrags = reverse_rfrags(rfrags)
+
+    rfrags = replace_ends(rfrags)
+    rrfrags = replace_ends(rrfrags)
 
     if preprocessed:
         preprocessed[smi] = rfrags
@@ -614,6 +635,80 @@ def remove_placeholder_atoms(mol):
 
 
 def join_fragments(fragment_string: str) -> Chem.Mol:
+    """
+    Joins molecular fragments into a single molecule based on attachment points.
+    
+    Parameters:
+        fragment_string (str): A dot-separated string of molecular fragments with attachment points.
+    
+    Returns:
+        Chem.Mol: A single RDKit molecule object after joining fragments.
+    """
+
+    if '.' in fragment_string:
+        mol_list = [join_fragments(s) for s in fragment_string.split('.')]
+        combined_mol = mol_list[0]
+        for mol in mol_list[1:]:
+            combined_mol = Chem.CombineMols(combined_mol, mol)
+        return combined_mol
+
+    fragments = [Chem.MolFromSmiles(frag) for frag in fragment_string.split('^')]
+    
+    if None in fragments:
+        raise ValueError("One or more fragments could not be parsed.")
+    
+    rw_mol = Chem.RWMol()
+    
+    # Track attachment points and sequentially bond fragments
+    for i in range(len(fragments)):
+        frag = Chem.RWMol(fragments[i])
+        
+        attachment_atoms_1 = [atom.GetIdx() for atom in frag.GetAtoms() if atom.GetSymbol() == '*' and atom.GetIsotope() == 1]
+        attachment_atoms_2 = [atom.GetIdx() for atom in frag.GetAtoms() if atom.GetSymbol() == '*' and atom.GetIsotope() == 2]
+        attachment_atoms_3 = [atom.GetIdx() for atom in frag.GetAtoms() if atom.GetSymbol() == '*' and atom.GetIsotope() == 3]
+        
+        adj_1 = get_adj_bond(frag, attachment_atoms_1[0]) if attachment_atoms_1 else None
+        adj_2 = get_adj_bond(frag, attachment_atoms_2[0]) if attachment_atoms_2 else None
+        adj_3 = get_adj_bond(frag, attachment_atoms_3[0]) if attachment_atoms_3 else None
+
+        if adj_1:
+            frag.GetAtomWithIdx(adj_1).SetProp('ind', f'1_{i}')
+        if adj_2:
+            frag.GetAtomWithIdx(adj_2).SetProp('ind', f'2_{i}')
+        if adj_3:
+            frag.GetAtomWithIdx(adj_3).SetProp('ind', f'3_{i}')
+
+        rw_mol.InsertMol(frag)
+
+    if len(fragments) == 2:
+        attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'3_{0}']
+        attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'3_{1}']
+
+        rw_mol.AddBond(attachment_atoms_1[0], attachment_atoms_2[0], Chem.BondType.SINGLE)
+
+    else:
+        for i in range(0, len(fragments)-1):
+            
+            if i == 0: #start
+                attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'1_{i+1}']
+                attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'3_{i}']
+            elif i == len(fragments)-2: #end
+                attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'3_{i+1}']
+                attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'2_{i}']
+            else: 
+                attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'1_{i}']
+                attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'2_{i+1}']
+            
+
+            rw_mol.AddBond(attachment_atoms_1[0], attachment_atoms_2[0], Chem.BondType.SINGLE)
+        
+    mol = remove_placeholder_atoms(rw_mol)
+    
+    return mol
+
+
+
+def join_fragments_old(fragment_string: str) -> Chem.Mol:
     """
     Joins molecular fragments into a single molecule based on attachment points.
     

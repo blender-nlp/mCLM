@@ -4,6 +4,7 @@ import os
 # import lightning as L
 # import sys
 import torch
+from torch import nn
 # from lightning import Trainer, seed_everything
 # from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 # from lightning.pytorch.loggers import WandbLogger
@@ -80,12 +81,12 @@ if __name__ == "__main__":
     parser.add_argument("--seed", default=42, type=int)
 
     parser.add_argument("--model", default="mCLM", type=str)
-    parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
-    parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
-    parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
-    #parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Qwen2.5-1.5B-Instruct/", type=str)
-    #parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Qwen2.5-1.5B-Instruct/", type=str)
-    #parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Qwen2.5-1.5B-Instruct/", type=str)
+    #parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
+    #parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
+    #parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
+    parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Qwen2.5-0.5B/", type=str)
+    parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Qwen2.5-0.5B/", type=str)
+    parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Qwen2.5-0.5B/", type=str)
 
     parser.add_argument(
         "--freeze_GNN", type=bool, action=argparse.BooleanOptionalAction
@@ -103,6 +104,8 @@ if __name__ == "__main__":
     parser.add_argument("--data_path", type=str, default='kinase_data_processing/')
     parser.add_argument("--instruction_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/instruction/dataloader_processed/')
     parser.add_argument("--synthetic_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/synthetic/dataloader_processed/')
+
+    parser.add_argument("--pretrained_embeddings", default="/home/cne2/data/Chemistry/mCLM_MolCLR/preprocess/OnlyBlocks/128_dim/", type=str)
 
 
     args = parser.parse_args()
@@ -156,15 +159,28 @@ if __name__ == "__main__":
             trunc_length=config["trunc_length"],
         )
     
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = 'cpu' #torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
     #model = LlamaForCausalLM.from_pretrained(ckpt_path)
     model = mCLM(config)
     model.to(device)
 
+    if config['pretrained_embeddings'] != None:
+        pretrain_mol_embeddings = torch.load(config['pretrained_embeddings'] + 'precomputed_tokens.pt')#.to(torch.bfloat16)
+        pretrain_mol_embeddings = nn.Embedding.from_pretrained(pretrain_mol_embeddings, freeze=True)
+        pretrain_mol_embeddings.weight.data = pretrain_mol_embeddings.weight.data#.to(torch.bfloat16)
+
+        
+        model.model.finalize_molecule_embeddings(embeddings=pretrain_mol_embeddings)
+        model.model.use_mol_embeddings(True)
+
+    #model = model.to(torch.bfloat16)
+
     for p in model.named_parameters():
         print(p[0], p[1].requires_grad)
+
+    print('lm_head', model.model.lm_head.weight.requires_grad)
 
 
     dm.setup('test')
@@ -190,7 +206,7 @@ if __name__ == "__main__":
     print(list(block_ID_to_data.values())[0])
 
     # test graph forwarding
-    if True:
+    if False:
         graph = list(block_ID_to_data.values())[0].to(device)
         print(graph)
         #graph_feature = model.model.mol_gnn(graph)
@@ -209,12 +225,6 @@ if __name__ == "__main__":
     item["input"]["attention_mask"] = item["input"]["attention_mask"].to(device)
     item["input"]["labels"] = item["input"]["labels"].to(device)
 
-    model.train(False)
-    model.model.post_training()
-    inference_output = model.compute_step(
-        item,
-        'test',
-    )
         #input_ids=item["input"]["input_ids"],
         #attention_mask=item["input"]["attention_mask"],
         #labels=item["input"]["input_ids"]
@@ -229,6 +239,8 @@ if __name__ == "__main__":
 
     # model forwarding, training mode
     model.train(True)
+    #model.model.train()
+    #model.model.model.train()
     training_output = model.compute_step(
         item,
         'train',
@@ -243,6 +255,7 @@ if __name__ == "__main__":
 
     #grad_dict = {k:v.grad for k, v in zip(model.state_dict(), model.parameters())}
     grad_dict = {k:v.grad for k, v in model.named_parameters()}
+    print('grad_dict:', grad_dict.keys())
     #print(len(list(model.state_dict())), len(list(model.parameters())))
     print(grad_dict['model.base_model.model.model.mol_gnn.convs.1.nn.0.bias'])
     print(grad_dict['model.base_model.model.lm_head.weight'])
@@ -261,10 +274,21 @@ if __name__ == "__main__":
     print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
     key = 'model.base_model.model.model.layers.15.mlp.up_proj.lora_A.default.weight'
     print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
+    key = 'model.base_model.model.model.mol_adaptor.mlp.0.weight'
+    print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
+
+    exit()
+
+    model.train(False)
+    #model.model.post_training()
+    inference_output = model.compute_step(
+        item,
+        'test',
+    )
 
     print("Testing model generation...")
     model.train(False)
-    model.model.post_training()
+    #model.model.post_training()
     prompt = item["input"]["input_ids"][0, :].tolist()
     #print(prompt)
     prompt = prompt[:prompt.index(tokenizer.eos_token_id)]

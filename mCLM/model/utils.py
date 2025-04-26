@@ -392,7 +392,6 @@ def compute_loss_optimized2(logits, labels, mapping_tensor=None):
 
     loss_fct_opt = linear_cross_entropy
     loss_fct_opt2 = CrossEntropyLoss()
-    loss_fct_opt3 = linear_cross_entropy
 
     #print("Labels Pre:", labels.min(), labels.max())
 
@@ -404,9 +403,20 @@ def compute_loss_optimized2(logits, labels, mapping_tensor=None):
         labels = mapping_tensor[labels]
 
     #print(self.embeddings.shape, self.classifier.shape, labels.shape)
+    #print()
 
     loss = loss_fct_opt(self.embeddings, \
-        self.classifier, labels, shift=1)#, impl='cce_kahan_full_c_full_e')
+        self.classifier, labels, shift=1)#, impl='torch_compile')#, impl='cce_kahan_full_c_full_e')
+
+    if False:
+        logits = self.embeddings @ self.classifier.t()
+        shift_logits = logits[..., :-1, :].contiguous()
+        shift_labels = labels[..., 1:].contiguous()
+        shift_logits = shift_logits.view(-1, shift_logits.size(-1))
+        shift_labels = shift_labels.view(-1)
+        loss = loss_fct_opt2(shift_logits, shift_labels)
+
+    #print('Loss:', loss)
 
     if False:
         logits = self.embeddings @ self.classifier.t()

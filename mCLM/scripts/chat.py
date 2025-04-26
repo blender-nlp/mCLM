@@ -124,7 +124,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", default=4, type=int) #2 takes up 29733MiB
     parser.add_argument("--val_batch_size", default=None, type=int)
 
-    parser.add_argument("--node_dim", default=137, type=int)
+    parser.add_argument("--node_dim", default=138, type=int)
     parser.add_argument("--edge_dim", default=12, type=int)
     parser.add_argument("--hidden_dim_graph", default=512, type=int)
     parser.add_argument("--num_mp_layers", default=5, type=int)
@@ -136,14 +136,15 @@ if __name__ == "__main__":
     parser.add_argument("--latent_size", default=256, type=int)
     parser.add_argument("--validate_every_n", default=1000, type=int)
     parser.add_argument("--lr", default=5e-5, type=float)
-    parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B_SMolInstruct_NoGNN/", type=str)
-    parser.add_argument("--tokenizer_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B_SMolInstruct_NoGNN/", type=str)
-    parser.add_argument("--ckpt", default="latest_checkpoint-epoch=01-step=57500.ckpt", type=str)
+    parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B_SMolInstruct_NoGNN_OnlyBlocks2_lowLR/", type=str)
+    parser.add_argument("--tokenizer_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B_SMolInstruct_NoGNN_OnlyBlocks2_lowLR/", type=str)
+    parser.add_argument("--ckpt", default="latest_checkpoint-epoch=02-step=9486.ckpt", type=str)
     #parser.add_argument("--tokenizer_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B-SMolInstruct/", type=str)
     parser.add_argument("--loss", default="CLIP", type=str)
     parser.add_argument("--load_ckpt", default=None, type=str)
     parser.add_argument("--load_GNN_ckpt", default=None, type=str)
-    parser.add_argument("--pretrained_embeddings", default="/shared/nas2/shared/llms/mCLM/1536_dim/", type=str)
+    parser.add_argument("--pretrained_embeddings", default="/home/cne2/data/Chemistry/mCLM_MolCLR/preprocess/OnlyBlocks/128_dim/", type=str)
+    parser.add_argument("--GNN_cache", default="", type=str)
 
 
     parser.add_argument("--seed", default=42, type=int)
@@ -203,14 +204,14 @@ if __name__ == "__main__":
         molecule_tokenizer.change_start_idx(start_idx)
         molecule_tokenizer.bfloat16 = True
 
-        GNN_cache = config["tokenizer_path"] + 'GNN_input_map.pth'
+        GNN_cache = config["tokenizer_path"] + 'molecule_tokenizer.graphs.pth'
 
-        if False:
+        if True:
             #Preprocess molecule tokenizer
             if osp.exists(GNN_cache):
                 molecule_tokenizer.GNN_input_map = load_with_tqdm(GNN_cache, map_location=torch.device('cpu'), weights_only=False)
             else:
-                molecule_tokenizer.create_input(parallelize=False)
+                molecule_tokenizer.create_input()
                 with open(GNN_cache, "wb") as f:
                     torch.save(molecule_tokenizer.GNN_input_map, f)
 
@@ -265,20 +266,21 @@ if __name__ == "__main__":
     if False:
         bad_words_ids = []
         for block in molecule_tokenizer.block_to_idx:
-            if not '[1*]' in block or '[2*]' in block:
-                bad_words_ids.append(molecule_tokenizer.block_to_idx[block])
+            if block.count('[1*]') > 1 or block.count('[2*]') > 1 or block.count('[3*]') > 1:
+                bad_words_ids.append([molecule_tokenizer.block_to_idx[block]])
 
-        class SuppressTokensProcessor(LogitsProcessor):
-            def __init__(self, banned_token_ids):
-                self.banned_token_ids = set(banned_token_ids)
+        if False:
+            class SuppressTokensProcessor(LogitsProcessor):
+                def __init__(self, banned_token_ids):
+                    self.banned_token_ids = set(banned_token_ids)
 
-            def __call__(self, input_ids, scores):
-                scores[:, list(self.banned_token_ids)] = -float("inf")
-                return scores
+                def __call__(self, input_ids, scores):
+                    scores[:, list(self.banned_token_ids)] = -float("inf")
+                    return scores
 
-        logits_processor = LogitsProcessorList([
-            SuppressTokensProcessor(bad_words_ids)
-        ])
+            logits_processor = LogitsProcessorList([
+                SuppressTokensProcessor(bad_words_ids)
+            ])
     
 
     while True:
@@ -292,13 +294,15 @@ if __name__ == "__main__":
             mol_list, cleaned_text = extract_mol_content(MOL_input)
 
             new_blocks = []
+
             for mol in mol_list:
                 for m in mol.split('^'):
-                    molecule_tokenizer.add_block(m)
                     new_blocks.append(m)
+                    #molecule_tokenizer.add_block(m)
             new_blocks = [nb for nb in new_blocks if nb not in molecule_tokenizer.block_to_idx]
             print('New Blocks:', len(new_blocks))
-            molecule_tokenizer.create_input_from_list(new_blocks)
+            if len(new_blocks) > 0: break
+            #molecule_tokenizer.create_input_from_list(new_blocks)
 
             messages = [
                 {"role": "user", "content": cleaned_text},
@@ -316,7 +320,7 @@ if __name__ == "__main__":
                 max_new_tokens=128,
                 num_beams=1,
                 do_sample=False,
-                bad_words_ids=bad_words_ids,
+                #bad_words_ids=bad_words_ids,
             )
             #outputs = model.generate(message_tokens, max_new_tokens=128) 
             #out_text = tokenizer.decode(outputs[0])

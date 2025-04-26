@@ -206,7 +206,7 @@ class KinaseDataset(Dataset):
 
         #print(token_input)
 
-        token_input['input_ids'] = torch.Tensor(insert_sublists(token_input['input_ids'].squeeze(), frags, self.MOL_start, self.MOL_end)[:self.trunc_length]).to(torch.int)#, dtype=torch.int32)
+        token_input['input_ids'] = torch.tensor(insert_sublists(token_input['input_ids'].squeeze(), frags, self.MOL_start, self.MOL_end)[:self.trunc_length]).to(torch.int)#, dtype=torch.int32)
         pad_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer.pad_token)
         #print(token_input['input_ids'], pad_id)
         #zz
@@ -407,7 +407,7 @@ class GeneralDataset(Dataset):
             self.all_data = data
             self.data = self.all_data.sample(min(self.shrink_size, len(self.all_data)), random_state=0)
 
-    def set_new_epoch(epoch):
+    def set_new_epoch(self, epoch):
         if self.shrink_size != None:
             self.data = self.all_data.sample(min(self.shrink_size, len(self.all_data)), random_state=epoch)
 
@@ -445,7 +445,7 @@ class GeneralDataset(Dataset):
             return_tensors="pt",
         )
         
-        token_input['input_ids'] = torch.Tensor(insert_sublists(token_input['input_ids'].squeeze(), frags, self.MOL_start, self.MOL_end)[:self.trunc_length]).to(torch.int)#, dtype=torch.int32)
+        token_input['input_ids'] = torch.tensor(insert_sublists(token_input['input_ids'].squeeze(), frags, self.MOL_start, self.MOL_end)[:self.trunc_length], dtype=torch.int32)#).to(torch.int)#
         pad_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer.pad_token)
         num_attn = find_first_occurrence(token_input['input_ids'], pad_id)
         token_input['attention_mask'][:,:num_attn] = 1
@@ -482,7 +482,7 @@ class MolInstDataset(Dataset):
         self.trunc_length = trunc_length
         self.task_name = task_name
 
-    def set_new_epoch(epoch):
+    def set_new_epoch(self, epoch):
         pass
 
     def len(self):
@@ -520,6 +520,7 @@ class MolInstDataset(Dataset):
             "task_id": self.task_name,
             "raw_instruction": raw_instruction,
             "raw_response": raw_response,
+            "mol_list": "",
             "input": {
                 "input_ids": token_input['input_ids'].squeeze(),
                 "labels": token_input['input_ids'].squeeze(),
@@ -545,7 +546,7 @@ class TuluDataset(Dataset):
         self.trunc_length = trunc_length
         self.task_name = task_name
 
-    def set_new_epoch(epoch):
+    def set_new_epoch(self, epoch):
         pass
 
     def len(self):
@@ -582,6 +583,7 @@ class TuluDataset(Dataset):
             "task_id": self.task_name,
             "raw_instruction": raw_instruction,
             "raw_response": raw_response,
+            "mol_list": "",
             "input": {
                 "input_ids": token_input['input_ids'].squeeze(),
                 "labels": token_input['input_ids'].squeeze(),
@@ -628,7 +630,7 @@ class TotalDataModule(LightningDataModule):
         self.GNN_cache = GNN_cache
         self.shrink_data = shrink_data
 
-    def set_new_epoch(epoch):
+    def set_new_epoch(self, epoch):
         for ds in self.train_dses:
             ds.set_new_epoch(epoch)
         for ds in self.valid_dses:
@@ -871,12 +873,12 @@ class TotalDataModule(LightningDataModule):
 
     def val_dataloader(self):
         return [CustomDataLoader(
-            ds, batch_size=self.batch_size, num_workers=8, shuffle=False
+            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
         ) for ds in self.valid_dses]
 
     def test_dataloader(self):
         return [CustomDataLoader(
-            ds, batch_size=self.batch_size, num_workers=8, shuffle=False
+            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
         ) for ds in self.test_dses]
 
     def teardown(self, stage: str):

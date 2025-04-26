@@ -48,6 +48,9 @@ class mCLM(L.LightningModule):
         #PEFT turns these off
         for param in self.model.base_model.model.model.mol_gnn.parameters():
             param.requires_grad = True
+        for param in self.model.base_model.model.model.mol_adaptor.parameters():
+            param.requires_grad = True
+        self.model.lm_head.weight.requires_grad = True
 
 
         self.validation_step_outputs = []

@@ -99,8 +99,10 @@ if __name__ == "__main__":
     parser.add_argument("--caption_source", type=str)
     parser.add_argument("--fold_idx", type=int)
     parser.add_argument("--data_path", type=str, default='kinase_data_processing/')
-    parser.add_argument("--instruction_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/instruction/dataloader_processed/')
-    parser.add_argument("--synthetic_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/synthetic/dataloader_processed/')
+    parser.add_argument("--instruction_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/instruction/dataloader_processed_onlyblocks//')
+    parser.add_argument("--synthetic_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/synthetic/dataloader_processed_onlyblocks//')
+    parser.add_argument("--GNN_cache", default=None, type=str)
+
 
     args = parser.parse_args()
 
@@ -165,11 +167,12 @@ if __name__ == "__main__":
     
 
     dm.setup('test')
-    print(len(dm.train_ds))
-    zz
+    #print(len(dm.train_ds))
+    #zz
     test_loader = dm.test_dataloader()
 
     # model forwarding, testing mode
+    print('Test Loader Test:')
     test_iter = iter(test_loader)
     ldr = next(test_iter)
 
@@ -177,10 +180,26 @@ if __name__ == "__main__":
 
     print(item)
 
-    #Iterate through val
 
+    print('Train Loader Test:')
+    train_loader = dm.train_dataloader()
+    with tqdm(train_loader) as pbar:
+        for d in pbar:
+            pbar.set_description(d['task_id'][0])
+            break
+
+    dm.set_new_epoch(1)
+    with tqdm(train_loader) as pbar:
+        for d in pbar:
+            pbar.set_description(d['task_id'][0])
+
+            
+
+    #Iterate through val
+    print('Val Loader Test:')
     val_loader = dm.val_dataloader()
     for vldr in tqdm(val_loader):
+        print('Starting dataset:', vldr.dataset.task_name)
         with tqdm(vldr) as pbar:
             for d in pbar:
                 pbar.set_description(d['task_id'][0])
