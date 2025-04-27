@@ -265,6 +265,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         self.only_molecule_loss= False
 
 
+
     def get_input_embeddings(self):
         return self.model.embed_tokens
 
@@ -412,6 +413,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
             is_training=self.training,
             labels=labels,
         )
+
 
         # mCLM loss
         loss = None

@@ -225,7 +225,7 @@ class KinaseDataset(Dataset):
 
         #print(token_input)
 
-        token_input['input_ids'] = torch.Tensor(insert_sublists(token_input['input_ids'].squeeze(), frags, self.MOL_start, self.MOL_end)[:self.trunc_length]).to(torch.int)#, dtype=torch.int32)
+        token_input['input_ids'] = torch.tensor(insert_sublists(token_input['input_ids'].squeeze(), frags, self.MOL_start, self.MOL_end)[:self.trunc_length]).to(torch.int)#, dtype=torch.int32)
         pad_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer.pad_token)
         #print(token_input['input_ids'], pad_id)
         #zz
@@ -505,7 +505,8 @@ class GeneralDataset(Dataset):
             return_tensors="pt",
         )
         
-        token_input['input_ids'] = torch.Tensor(insert_sublists(token_input['input_ids'].squeeze(), frags, self.MOL_start, self.MOL_end)[:self.trunc_length]).to(torch.int)#, dtype=torch.int32)
+        token_input['input_ids'] = torch.tensor(insert_sublists(token_input['input_ids'].squeeze(), frags, self.MOL_start, self.MOL_end)[:self.trunc_length], dtype=torch.int32)#).to(torch.int)#
+        pad_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer.pad_token)
         num_attn = find_first_occurrence(token_input['input_ids'], pad_id)
         token_input['attention_mask'][:,:num_attn] = 1
         token_input['attention_mask'] = token_input['attention_mask'].squeeze()

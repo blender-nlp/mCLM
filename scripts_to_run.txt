@@ -89,5 +89,10 @@ wandb sync wandb/offline-run-20250427_014700-0m4f61sk/
 
 
 
+wandb sync wandb/offline-run-20250427_121921-acrzsj8s/
+
+
+
+
 
 
