@@ -218,7 +218,7 @@ class mCLM(L.LightningModule):
         )
         self.log(
             "val/loss",
-            all_validation_loss.mean().item(),
+            all_validation_loss.nanmean().item(),
             prog_bar=True,
             sync_dist=True,
         )
@@ -227,7 +227,7 @@ class mCLM(L.LightningModule):
         )
         self.log(
             "val/text_loss",
-            all_validation_loss.mean().item(),
+            all_validation_loss.nanmean().item(),
             prog_bar=True,
             sync_dist=True,
         )
@@ -236,7 +236,7 @@ class mCLM(L.LightningModule):
         )
         self.log(
             "val/mol_loss",
-            all_validation_loss.mean().item(),
+            all_validation_loss.nanmean().item(),
             prog_bar=True,
             sync_dist=True,
         )
@@ -248,7 +248,7 @@ class mCLM(L.LightningModule):
         )
         self.log(
             "test/loss",
-            all_test_loss.mean().item(),
+            all_test_loss.nanmean().item(),
             prog_bar=True,
             sync_dist=True,
         )
@@ -257,7 +257,7 @@ class mCLM(L.LightningModule):
         )
         self.log(
             "test/text_loss",
-            all_test_loss.mean().item(),
+            all_test_loss.nanmean().item(),
             prog_bar=True,
             sync_dist=True,
         )
@@ -266,7 +266,7 @@ class mCLM(L.LightningModule):
         )
         self.log(
             "test/mol_loss",
-            all_test_loss.mean().item(),
+            all_test_loss.nanmean().item(),
             prog_bar=True,
             sync_dist=True,
         )

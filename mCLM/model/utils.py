@@ -563,7 +563,7 @@ def compute_loss_optimized2_sep(logits, labels, mapping_tensor=None):
 
 
 
-    mol_labels_mask = labels >= (self.vocab_size - 1) # - 1 because MOL_END needs to be produced by the chem model
+    mol_labels_mask = labels >= (self.vocab_size - 1) # - 1 because [/MOL] needs to be produced by the chem model
 
 
     #can't use built-in shift for the split loss :(
@@ -579,11 +579,12 @@ def compute_loss_optimized2_sep(logits, labels, mapping_tensor=None):
     #print("shift_logits[~mol_labels_mask]:", shift_logits[~mol_labels_mask].shape)
     #print("shift_labels[~mol_labels_mask]:", shift_labels[~mol_labels_mask].shape)
 
+
     text_classifier = self.text_classifier
     mol_classifier = self.mol_classifier
-    mol_classifier = torch.cat([mol_classifier, text_classifier[-1:].clone()], dim=0) #move MOL_END over to mol_classifier
+    mol_classifier = torch.cat([mol_classifier, text_classifier[-1:].clone()], dim=0) #move [/MOL] over to mol_classifier
     mol_labels = shift_labels[mol_labels_mask] - self.vocab_size
-    mol_labels[mol_labels == -1] = self.mol_vocab_size
+    mol_labels[mol_labels == -1] = self.mol_vocab_size #set the [/MOL] token label
 
     if num_text != 0:
         text_loss = loss_fct_opt(shift_logits[~mol_labels_mask], \

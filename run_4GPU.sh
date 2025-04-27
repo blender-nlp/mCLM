@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH -p mmli
-#SBATCH --mem=240g
-#SBATCH --gres=gpu:2
+#SBATCH --mem=480g
+#SBATCH --gres=gpu:4
 #SBATCH -N 1
-#SBATCH --ntasks-per-node=2
+#SBATCH --ntasks-per-node=4
 #SBATCH --cpus-per-task=12
 #SBATCH --mail-user cne2@illinois.edu
 #SBATCH -J Train-mCLM
