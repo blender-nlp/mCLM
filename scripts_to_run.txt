@@ -46,6 +46,48 @@ wandb sync wandb/offline-run-20250425_225658-c6qhd9jl/
 
 wandb sync wandb/offline-run-20250425_221005-tasjv26j/
 
+
+
+
+
+
 wandb sync wandb/offline-run-20250426_004906-o9mwynd3/
+
+wandb sync wandb/offline-run-20250426_145824-40841pci/
+
+
+
+
+
+wandb sync wandb/offline-run-20250426_173026-9cgf8jgc/
+
+
+
+wandb sync wandb/offline-run-20250426_181714-18oyyz9c/
+
+wandb sync wandb/offline-run-20250426_184102-v4m5lnwr/
+
+wandb sync wandb/offline-run-20250426_190355-ltsisyga/
+
+
+
+
+
+
+wandb sync wandb/offline-run-20250426_190225-9lkd6t15/
+
+wandb sync wandb/offline-run-20250426_203307-pb90dvwb/
+
+
+wandb sync wandb/offline-run-20250426_205835-lvl2orz8/
+
+bad(?):
+wandb sync wandb/offline-run-20250427_010002-gnp3gx7c/
+
+wandb sync wandb/offline-run-20250427_014700-0m4f61sk/
+
+
+
+
 
 

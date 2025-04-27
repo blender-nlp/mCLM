@@ -53,6 +53,25 @@ from mCLM.data.processing import (
 )
 
 
+def replace_ends(mol_list):
+
+    new_mol_list = []
+    for mol in mol_list:
+        new_react = []
+        for mo in mol.split('.'):
+            
+            split = mo.split('^')
+            new_mol = []
+            for m in split:
+                if ('[1*]' in m) and (not '[2*]' in m): new_mol.append(m.replace('[1*]', '[3*]'))
+                elif (not '[1*]' in m) and ('[2*]' in m): new_mol.append(m.replace('[2*]', '[3*]'))
+                else: new_mol.append(m)
+
+            new_react.append('^'.join(new_mol))
+        new_mol_list.append('.'.join(new_react))
+
+    return new_mol_list
+
 
 class CustomCollater:
     def __init__(
@@ -241,6 +260,7 @@ class KinaseDataModule(LightningDataModule):
         batch_size=4,
         trunc_length=512,
         data_path="captions/",
+        GNN_cache = '../GNN_input_cache/Kinase.molecule_tokenizer.v4.pth'
     ):
         super().__init__()
         self.prepare_data_per_node = True
@@ -250,6 +270,7 @@ class KinaseDataModule(LightningDataModule):
         self.trunc_length = trunc_length
         self.data_path = data_path
         self.config = config
+        self.GNN_cache = GNN_cache
 
     def setup(self, stage: str):
         self.tokenizer = AutoTokenizer.from_pretrained(self.config['pretrained_tokenizer'])
@@ -265,23 +286,15 @@ class KinaseDataModule(LightningDataModule):
         valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv').head(1000)
         test_data = pd.read_csv(self.data_path + 'kinase_test.csv').head(1000)
 
-        # FIXME: test only
-        #train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
-        #valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
-        # train_data = pd.read_csv(self.data_path + 'kinase_train.csv')
-        # valid_data = pd.read_csv(self.data_path + 'kinase_valid.csv')
-        # FIXME: test only
-        #train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
-        #valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
-        #test_data = pd.read_csv(self.data_path + 'kinase_test.csv')
-
         #train_data[['mol_list', 'cleaned_text']] = train_data['description'].apply(extract_mol_content)
         train_data[['mol_list', 'cleaned_text']] = train_data['description'].progress_apply(lambda x: pd.Series(extract_mol_content(x)))
         valid_data[['mol_list', 'cleaned_text']] = valid_data['description'].progress_apply(lambda x: pd.Series(extract_mol_content(x)))
         test_data[['mol_list', 'cleaned_text']] = test_data['description'].progress_apply(lambda x: pd.Series(extract_mol_content(x)))
 
-        #print(train_data)
-        #zz
+        train_data['mol_list'] = train_data['mol_list'].apply(replace_ends)
+        valid_data['mol_list'] = valid_data['mol_list'].apply(replace_ends)
+        test_data['mol_list'] = test_data['mol_list'].apply(replace_ends)
+
 
         #Preprocess molecule tokenizer
         block_to_idx = {}
@@ -291,7 +304,28 @@ class KinaseDataModule(LightningDataModule):
                     for block in mol.split('^'):
                         self.molecule_tokenizer.add_block(block)
 
-        self.molecule_tokenizer.create_input()
+
+        #Preprocess molecule tokenizer
+        if osp.exists(self.GNN_cache):
+            with open(self.GNN_cache, "rb") as f:
+                self.molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'), weights_only=False)
+
+            self.molecule_tokenizer.change_start_idx(start_idx)
+        else:
+            self.molecule_tokenizer = MoleculeTokenizer(start_idx)
+            for df in [train_data, valid_data, test_data]:
+                if 'mol_list' in df:
+                    for d in df['mol_list']:
+                        for mol in d:
+                            for block in mol.split('^'):
+                                self.molecule_tokenizer.add_block(block)
+
+            self.molecule_tokenizer.create_input()
+            with open(self.GNN_cache, "wb") as f:
+                torch.save(self.molecule_tokenizer, f)
+        
+            print('# bad blocks:', len(self.molecule_tokenizer.bad_blocks))
+
 
         self.train_ds = KinaseDataset(
             train_data,
@@ -301,6 +335,9 @@ class KinaseDataModule(LightningDataModule):
             trunc_length=self.trunc_length,
             block_to_idx = block_to_idx,
         )
+        
+        self.train_ds = StatefulShuffleDataset(self.train_ds, seed=0)
+
         self.valid_ds = KinaseDataset(
             valid_data,
             self.tokenizer,
@@ -389,7 +426,7 @@ class ConcatDataset(Dataset):
 class GeneralDataset(Dataset):
 
     def __init__(
-        self, data, tokenizer, mol_tokenizer, task_name, trunc_length=512, shrink_size=None,
+        self, data, tokenizer, mol_tokenizer, task_name, trunc_length=512, shrink_size=None, only_mol=False,
     ):
         self.data = data
         self.tokenizer = tokenizer
@@ -402,6 +439,8 @@ class GeneralDataset(Dataset):
         self.trunc_length = trunc_length
         self.task_name = task_name
         self.shrink_size = shrink_size
+
+        self.only_mol = only_mol
         
         if self.shrink_size != None:
             self.all_data = data
@@ -425,8 +464,29 @@ class GeneralDataset(Dataset):
         cleaned_response = d['cleaned_response']
         mol_list = d['mol_list']
 
+        pad_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer.pad_token)
+
         frags = [[self.mol_tokenizer.get_Idx(m) for m in mol.split('^')] for mol in mol_list]
         #self.mol_tokenizer.create_input_from_list(sum([mol.split('^') for mol in mol_list], []))
+
+        if self.only_mol:
+            mol_input = torch.Tensor(frags[0] + [pad_id] * (self.trunc_length - len(frags[0]))).to(torch.int)
+            num_attn = find_first_occurrence(mol_input, pad_id)
+            attn = torch.zeros((self.trunc_length), dtype=torch.int)
+            attn[:num_attn] = 1
+            
+            rv = {
+                "task_id": self.task_name,
+                "raw_instruction": cleaned_instruction,
+                "raw_response": cleaned_response,
+                "mol_list": str(mol_list),
+                "input": {
+                    "input_ids": mol_input,
+                    "labels": mol_input,
+                    "attention_mask": attn,
+                },
+            }
+            return rv
 
         messages = [
             #{"role": "system", "content": "You are the mCLM, a helpful expert chemist who designs molecules in a modular fashion or answers questions.",},
@@ -446,7 +506,6 @@ class GeneralDataset(Dataset):
         )
         
         token_input['input_ids'] = torch.Tensor(insert_sublists(token_input['input_ids'].squeeze(), frags, self.MOL_start, self.MOL_end)[:self.trunc_length]).to(torch.int)#, dtype=torch.int32)
-        pad_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer.pad_token)
         num_attn = find_first_occurrence(token_input['input_ids'], pad_id)
         token_input['attention_mask'][:,:num_attn] = 1
         token_input['attention_mask'] = token_input['attention_mask'].squeeze()
@@ -660,9 +719,13 @@ class TotalDataModule(LightningDataModule):
             total = 0
             for f in files:
                 print(f)
-                df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
-                df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+                try:
+                    df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
+                except pd.errors.EmptyDataError:
+                    print(f"Warning: {f} is empty. Skipping.")
+                    continue                
                 if len(df) == 0: continue
+                df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
 
                 #if self.shrink_data != None:
                 #    df = df.sample(min(self.shrink_data, len(df)))
@@ -1049,6 +1112,654 @@ class SMolInstructDataModule(LightningDataModule):
     def test_dataloader(self):
         return [CustomDataLoader(
             ds, batch_size=self.batch_size, num_workers=8, shuffle=False
+        ) for ds in self.test_dses]
+
+    def teardown(self, stage: str):
+        pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#################### MOLGEN Testing ####################################
+
+
+
+class MolGenSMolInstructDataModule(LightningDataModule):
+    def __init__(
+        self,
+        config,
+        base_model,
+        batch_size=4,
+        trunc_length=512,
+        instruction_data_path="captions/",
+        synthetic_data_path="captions/",
+        GNN_cache = '../GNN_input_cache/SMolInstruct.molecule_tokenizer.v4.pth'
+    ):
+        super().__init__()
+        self.prepare_data_per_node = True
+
+        self.base_model = base_model
+        self.batch_size = batch_size
+        self.trunc_length = trunc_length
+        self.instruction_data_path = instruction_data_path
+        self.synthetic_data_path = synthetic_data_path
+        self.config = config
+        self.seed = config['seed']
+        self.GNN_cache = GNN_cache
+
+    def setup(self, stage: str):
+        self.tokenizer = AutoTokenizer.from_pretrained(self.config['pretrained_tokenizer'])
+        self.tokenizer.pad_token = self.tokenizer.eos_token #llama3
+
+        self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
+        
+        start_idx = len(self.tokenizer)
+
+        train_data = []
+        valid_data = []
+        test_data = []
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_train.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str},keep_default_na=False,na_values=[])#.head(1000)
+        df = df[df['sample_id'].apply(lambda x : x.startswith('molecule_generation'))]
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+
+        print(f)
+        print(df)
+        #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        train_data.append((df, f.replace('.csv', '')))
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_val.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str},keep_default_na=False,na_values=[])#.head(1000)
+        df = df[df['sample_id'].apply(lambda x : x.startswith('molecule_generation'))]
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+        print(f)
+        print(df)
+        #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        valid_data.append((df, f.replace('.csv', '')))
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_test.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str},keep_default_na=False,na_values=[])#.head(1000)
+        df = df[df['sample_id'].apply(lambda x : x.startswith('molecule_generation'))]
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+        print(f)
+        print(df)
+        #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        test_data.append((df, f.replace('.csv', '')))
+
+
+        print('Dataframes Loaded')
+
+        #Preprocess molecule tokenizer
+        if osp.exists(self.GNN_cache):
+            with open(self.GNN_cache, "rb") as f:
+                self.molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'), weights_only=False)
+
+            self.molecule_tokenizer.change_start_idx(start_idx)
+        else:
+            self.molecule_tokenizer = MoleculeTokenizer(start_idx)
+            for dfs in [train_data, valid_data, test_data]:
+                for df, task in dfs:
+                    if 'mol_list' in df:
+                        for d in df['mol_list']:
+                            for mol in d:
+                                for block in mol.split('^'):
+                                    #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
+                                    self.molecule_tokenizer.add_block(block)
+
+            #self.molecule_tokenizer.create_input()
+            with open(self.GNN_cache, "wb") as f:
+                torch.save(self.molecule_tokenizer, f)
+        
+        
+        GNN_cache = self.config["GNN_cache"]
+
+        #Preprocess molecule tokenizer
+        if GNN_cache != None:
+            self.molecule_tokenizer.bfloat16 = True
+
+            if osp.exists(GNN_cache):
+                self.molecule_tokenizer.GNN_input_map = torch.load(GNN_cache, map_location=torch.device('cpu'), weights_only=False)
+            else:
+                self.molecule_tokenizer.create_input()
+                with open(GNN_cache, "wb") as f:
+                    torch.save(self.molecule_tokenizer.GNN_input_map, f)
+
+   
+
+        print('Molecule Building Block Input Created / Loaded')
+
+        self.train_dses = []
+        self.valid_dses = []
+        self.test_dses = []
+
+        for df, task in train_data:
+            ds = GeneralDataset(
+                df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+                only_mol = False,
+            )
+            self.train_dses.append(ds)
+        self.train_ds = ConcatDataset(self.train_dses)
+        self.train_ds = StatefulShuffleDataset(self.train_ds, seed=0)
+
+        for df, task in valid_data:
+            ds = GeneralDataset(
+                df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+                only_mol = False,
+            )
+            self.valid_dses.append(ds)
+
+        for df, task in test_data:
+            ds = GeneralDataset(
+                df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+                only_mol = False,
+            )
+            self.test_dses.append(ds)
+        #zz
+
+        print('Datasets created')
+
+    def train_dataloader(self):
+        return CustomDataLoader(
+            self.train_ds,
+            batch_size=self.batch_size,
+            num_workers=16,
+            shuffle=True,
+            drop_last=True,
+        )
+
+    def val_dataloader(self):
+        return [CustomDataLoader(
+            ds, batch_size=self.batch_size, num_workers=8, shuffle=False
+        ) for ds in self.valid_dses]
+
+    def test_dataloader(self):
+        return [CustomDataLoader(
+            ds, batch_size=self.batch_size, num_workers=8, shuffle=False
+        ) for ds in self.test_dses]
+
+    def teardown(self, stage: str):
+        pass
+
+
+class MolOnlySMolInstructDataModule(LightningDataModule):
+    def __init__(
+        self,
+        config,
+        base_model,
+        batch_size=4,
+        trunc_length=512,
+        instruction_data_path="captions/",
+        synthetic_data_path="captions/",
+        GNN_cache = '../GNN_input_cache/SMolInstruct.molecule_tokenizer.v4.pth'
+    ):
+        super().__init__()
+        self.prepare_data_per_node = True
+
+        self.base_model = base_model
+        self.batch_size = batch_size
+        self.trunc_length = trunc_length
+        self.instruction_data_path = instruction_data_path
+        self.synthetic_data_path = synthetic_data_path
+        self.config = config
+        self.seed = config['seed']
+        self.GNN_cache = GNN_cache
+
+    def setup(self, stage: str):
+        self.tokenizer = AutoTokenizer.from_pretrained(self.config['pretrained_tokenizer'])
+        self.tokenizer.pad_token = self.tokenizer.eos_token #llama3
+
+        self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
+        
+        start_idx = len(self.tokenizer)
+
+        train_data = []
+        valid_data = []
+        test_data = []
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_train.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str},keep_default_na=False,na_values=[])#.head(1000)
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+
+        print(f)
+        print(df)
+        #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        train_data.append((df, f.replace('.csv', '')))
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_val.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str},keep_default_na=False,na_values=[])#.head(1000)
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+        print(f)
+        print(df)
+        #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        valid_data.append((df, f.replace('.csv', '')))
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_test.csv'
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str},keep_default_na=False,na_values=[])#.head(1000)
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+        print(f)
+        print(df)
+        #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        test_data.append((df, f.replace('.csv', '')))
+
+
+        print('Dataframes Loaded')
+
+        #Preprocess molecule tokenizer
+        if osp.exists(self.GNN_cache):
+            with open(self.GNN_cache, "rb") as f:
+                self.molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'), weights_only=False)
+
+            self.molecule_tokenizer.change_start_idx(start_idx)
+        else:
+            self.molecule_tokenizer = MoleculeTokenizer(start_idx)
+            for dfs in [train_data, valid_data, test_data]:
+                for df, task in dfs:
+                    if 'mol_list' in df:
+                        for d in df['mol_list']:
+                            for mol in d:
+                                for block in mol.split('^'):
+                                    #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
+                                    self.molecule_tokenizer.add_block(block)
+
+            #self.molecule_tokenizer.create_input()
+            with open(self.GNN_cache, "wb") as f:
+                torch.save(self.molecule_tokenizer, f)
+        
+        
+        GNN_cache = self.config["GNN_cache"]
+
+        #Preprocess molecule tokenizer
+        if GNN_cache != None:
+            self.molecule_tokenizer.bfloat16 = True
+
+            if osp.exists(GNN_cache):
+                self.molecule_tokenizer.GNN_input_map = torch.load(GNN_cache, map_location=torch.device('cpu'), weights_only=False)
+            else:
+                self.molecule_tokenizer.create_input()
+                with open(GNN_cache, "wb") as f:
+                    torch.save(self.molecule_tokenizer.GNN_input_map, f)
+
+   
+
+        print('Molecule Building Block Input Created / Loaded')
+
+        self.train_dses = []
+        self.valid_dses = []
+        self.test_dses = []
+
+        for df, task in train_data:
+            ds = GeneralDataset(
+                df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+                only_mol = True,
+            )
+            self.train_dses.append(ds)
+        self.train_ds = ConcatDataset(self.train_dses)
+        self.train_ds = StatefulShuffleDataset(self.train_ds, seed=0)
+
+        for df, task in valid_data:
+            ds = GeneralDataset(
+                df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+                only_mol = True,
+            )
+            self.valid_dses.append(ds)
+
+        for df, task in test_data:
+            ds = GeneralDataset(
+                df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+                only_mol = True,
+            )
+            self.test_dses.append(ds)
+        #zz
+
+        print('Datasets created')
+
+    def train_dataloader(self):
+        return CustomDataLoader(
+            self.train_ds,
+            batch_size=self.batch_size,
+            num_workers=16,
+            shuffle=True,
+            drop_last=True,
+        )
+
+    def val_dataloader(self):
+        return [CustomDataLoader(
+            ds, batch_size=self.batch_size, num_workers=8, shuffle=False
+        ) for ds in self.valid_dses]
+
+    def test_dataloader(self):
+        return [CustomDataLoader(
+            ds, batch_size=self.batch_size, num_workers=8, shuffle=False
+        ) for ds in self.test_dses]
+
+    def teardown(self, stage: str):
+        pass
+
+
+
+
+
+
+
+
+
+
+class MolGenTotalDataModule(LightningDataModule):
+    def __init__(
+        self,
+        config,
+        base_model,
+        batch_size=4,
+        trunc_length=512,
+        instruction_data_path="captions/",
+        synthetic_data_path="captions/",
+        GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v4.pth',
+        shrink_data = None,
+    ):
+        super().__init__()
+        self.prepare_data_per_node = True
+
+        self.base_model = base_model
+        self.batch_size = batch_size
+        self.trunc_length = trunc_length
+        self.instruction_data_path = instruction_data_path
+        self.synthetic_data_path = synthetic_data_path
+        self.config = config
+        self.seed = config['seed']
+        self.GNN_cache = GNN_cache
+        self.shrink_data = shrink_data
+
+    def set_new_epoch(self, epoch):
+        for ds in self.train_dses:
+            ds.set_new_epoch(epoch)
+        for ds in self.valid_dses:
+            ds.set_new_epoch(epoch)
+        for ds in self.test_dses:
+            ds.set_new_epoch(epoch)
+
+    def setup(self, stage: str):
+        self.tokenizer = AutoTokenizer.from_pretrained(self.config['pretrained_tokenizer'])
+        self.tokenizer.pad_token = self.tokenizer.eos_token #llama3
+
+        self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
+        #model.resize_token_embeddings(len(tokenizer)) #put this somewhere
+        
+        start_idx = len(self.tokenizer)
+
+        to_split_data = []
+        train_data = []
+        valid_data = []
+        test_data = []
+
+        print('Loading Data')
+        
+        for subdir in ['property_to_mol','multi_property_to_mol', 'mol_only', 'pos_neg', 'pos_pos']:
+            ddir = osp.join(self.synthetic_data_path, subdir)
+            files = [f for f in os.listdir(ddir) if os.path.isfile(os.path.join(ddir, f))]
+            total = 0
+            for f in files:
+                print(f)
+                df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
+                if len(df) == 0: continue
+                df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+
+                #if self.shrink_data != None:
+                #    df = df.sample(min(self.shrink_data, len(df)))
+                print(len(df))
+                total += len(df)
+                #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+                task_name = subdir + '/' + f.replace('.csv', '')
+                to_split_data.append((df, task_name, self.shrink_data))
+                #if f == 'Tox21_class.csv': break
+            print(subdir, total)
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_train.csv'
+        print(f)
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
+        df = df[df['sample_id'].apply(lambda x : x.startswith('molecule_generation'))]
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+        print(len(df))
+        #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        train_data.append((df, f.replace('.csv', ''),None))
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_val.csv'
+        print(f)
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
+        df = df[df['sample_id'].apply(lambda x : x.startswith('molecule_generation'))]
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+        print(len(df))
+        #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        valid_data.append((df, f.replace('.csv', ''),None))
+
+        ddir = osp.join(self.instruction_data_path)
+        f = 'SMolInstruct_test.csv'
+        print(f)
+        df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
+        df = df[df['sample_id'].apply(lambda x : x.startswith('molecule_generation'))]
+        df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+        print(len(df))
+        #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+        test_data.append((df, f.replace('.csv', ''),None))
+        
+
+        print('Dataframes Loaded')
+
+        # FIXME: test only
+        #train_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+        #valid_data = pd.read_csv(self.data_path + 'kinase_test.csv')
+
+        #Preprocess molecule tokenizer
+        if osp.exists(self.GNN_cache):
+            with open(self.GNN_cache, "rb") as f:
+                self.molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'), weights_only=False)
+
+            self.molecule_tokenizer.change_start_idx(start_idx)
+        else:
+            self.molecule_tokenizer = MoleculeTokenizer(start_idx)
+            for dfs in [to_split_data, train_data, valid_data, test_data]:
+                for df, task, shrink in dfs:
+                    if 'mol_list' in df:
+                        for d in df['mol_list']:
+                            for mol in d:
+                                for block in mol.split('^'):
+                                    #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
+                                    #if len(block) == 1: print(block, mol, task)#, df['mol_list'].to_list())
+                                    self.molecule_tokenizer.add_block(block)
+
+            #self.molecule_tokenizer.create_input()
+            with open(self.GNN_cache, "wb") as f:
+                torch.save(self.molecule_tokenizer, f)
+        
+            print('# bad blocks:', len(self.molecule_tokenizer.bad_blocks))
+
+        #print('length:', len(self.molecule_tokenizer.bad_blocks))
+        #print(len(self.molecule_tokenizer))
+        
+        print('Molecule Building Block Input Created / Loaded')
+        
+        GNN_cache = self.config["GNN_cache"]
+
+        #Preprocess molecule tokenizer
+        if GNN_cache != None:
+            self.molecule_tokenizer.bfloat16 = True
+
+            if osp.exists(GNN_cache):
+                self.molecule_tokenizer.GNN_input_map = torch.load(GNN_cache, map_location=torch.device('cpu'), weights_only=False)
+            else:
+                self.molecule_tokenizer.create_input()
+                with open(GNN_cache, "wb") as f:
+                    torch.save(self.molecule_tokenizer.GNN_input_map, f)
+
+
+        
+        self.train_dses = []
+        self.valid_dses = []
+        self.test_dses = []
+
+        for df, task, shrink in to_split_data:
+            if task.startswith('tulu'): ds_type = TuluDataset
+            elif task.startswith('mol-inst'): ds_type = MolInstDataset
+            else: ds_type = GeneralDataset
+            ts = min(40, max(int(0.01*len(df)), 10), int(0.1*len(df)))
+            if ts>1:
+                train_df, val_df = train_test_split(df, test_size=ts, random_state = self.seed)
+                val_df, test_df = train_test_split(val_df, test_size=0.5, random_state = self.seed)
+            ds = ds_type(
+                train_df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+                shrink_size = shrink,
+            )
+            self.train_dses.append(ds)
+            if ts>0 and len(val_df) > 0:
+                ds = ds_type(
+                    val_df,
+                    self.tokenizer,
+                    self.molecule_tokenizer,
+                    task_name=task,
+                    trunc_length=self.trunc_length,
+                )
+                self.valid_dses.append(ds)
+            if ts>0 and len(test_df) > 0:
+                ds = ds_type(
+                    test_df,
+                    self.tokenizer,
+                    self.molecule_tokenizer,
+                    task_name=task,
+                    trunc_length=self.trunc_length,
+                )
+                self.test_dses.append(ds)
+            
+
+        for df, task, shrink in train_data:
+            if task.startswith('tulu'): ds_type = TuluDataset
+            elif task.startswith('mol-inst'): ds_type = MolInstDataset
+            else: ds_type = GeneralDataset
+            ds = ds_type(
+                df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+                shrink_size = shrink,
+            )
+            self.train_dses.append(ds)
+
+        self.train_ds = ConcatDataset(self.train_dses)
+        self.train_ds = StatefulShuffleDataset(self.train_ds, seed=0)
+        print('Total Training Data Length:', len(self.train_ds))
+        #zz
+        
+        for df, task, shrink in valid_data:
+            if task.startswith('tulu'): ds_type = TuluDataset
+            elif task.startswith('mol-inst'): ds_type = MolInstDataset
+            else: ds_type = GeneralDataset
+            ds = ds_type(
+                df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+                shrink_size = shrink,
+            )
+            self.valid_dses.append(ds)
+
+        for df, task, shrink in test_data:
+            if task.startswith('tulu'): ds_type = TuluDataset
+            elif task.startswith('mol-inst'): ds_type = MolInstDataset
+            else: ds_type = GeneralDataset
+            ds = ds_type(
+                df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+                shrink_size = shrink,
+            )
+            self.test_dses.append(ds)
+
+
+    def train_dataloader(self):
+        return CustomDataLoader(
+            self.train_ds,
+            batch_size=self.batch_size,
+            num_workers=8,
+            shuffle=True,
+            drop_last=True,
+        )
+
+    def val_dataloader(self):
+        return [CustomDataLoader(
+            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
+        ) for ds in self.valid_dses]
+
+    def test_dataloader(self):
+        return [CustomDataLoader(
+            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
         ) for ds in self.test_dses]
 
     def teardown(self, stage: str):

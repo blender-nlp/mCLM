@@ -109,7 +109,7 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
 fi
 
 
-if true; then
+if false; then
 
 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
@@ -128,14 +128,126 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
 fi
 
 
+
 if false; then
 
 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
-    --batch_size=32 --lr 1e-4 --mol_lr 2e-6 \
-    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-0.5B_SMolInstruct_NoGNN_splitLR2/ --version Qwen2.5-0.5B_NoGNN_FastV3_OnlyBlocks2_splitLR2 \
+    --batch_size=4 --lr 2e-5 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-0.5B_Kinase_NoGNN_noPEFT_splitLoss/ --version Qwen2.5-0.5B_NoGNN_FastV3_OnlyBlocks2_splitLoss \
+    --max_epochs 100 \
+    --no_PEFT \
+    --data_module Kinase --task Kinase \
+    --freeze_GNN \
+    --num_warmup_steps 200 \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/Kinase/128_dim/ \
+
+fi
+
+if false; then
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --batch_size=32 --lr 1e-4 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-0.5B_Kinase_NoGNN_lowLR_splitLoss/ --version Qwen2.5-0.5B_NoGNN_FastV3_OnlyBlocks2_lowLR_splitLoss \
+    --max_epochs 100 \
+    --data_module Kinase --task Kinase \
+    --freeze_GNN \
+    --num_warmup_steps 200 \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/Kinase/128_dim/ \
+
+fi
+
+
+if true; then
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --check_val_every_n_steps 5000 \
+    --batch_size=32 --lr 2e-5 --mol_lr 2e-6 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-0.5B_SMolInstructTop50k_NoGNN_splitLR_splitLoss/ --version Qwen2.5-0.5B_NoGNN_FastV3_OnlyBlocks2_splitLR_splitLoss \
+    --max_epochs 20 \
+    --no_PEFT \
+    --data_module SMolInstructTop50k --task SMolInstructTop50k \
+    --freeze_GNN \
+    --num_warmup_steps 2000 \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/Top50k/128_dim/ \
+
+fi
+
+
+if false; then
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+#export CUDA_LAUNCH_BLOCKING=1
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --check_val_every_n_steps 10000 \
+    --batch_size=4 --lr 2e-5 --mol_lr 2e-6 \
+    --trunc_length 512 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-3B_SMolInstructTop50k_NoGNN_SplitLR_splitLoss/ --version Qwen2.5-3B_NoGNN_FastV3_OnlyBlocks2_SplitLR_splitLoss \
+    --max_epochs 20 \
+    --accumulate_grad_batches 2 \
+    --no_PEFT \
+    --data_module SMolInstructTop50k --task SMolInstructTop50k \
+    --save_checkpoint_every_n_steps 2500 \
+    --freeze_GNN \
+    --num_warmup_steps 2000 \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/Top50k/128_dim/ \
+
+fi
+
+if false; then
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+#export CUDA_LAUNCH_BLOCKING=1
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
+    --check_val_every_n_steps 5000 \
+    --batch_size=1 --lr 2e-5 --mol_lr 2e-6 \
+    --trunc_length 512 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-7B_MolGenTotal_NoGNN_SplitLR_splitLoss/ --version Qwen2.5-7B_NoGNN_FastV3_OnlyBlocks2_SplitLR_splitLoss \
+    --max_epochs 20 \
+    --accumulate_grad_batches 4 \
+    --use_deepspeed
+    --no_PEFT \
+    --data_module MolGenTotal --task MolGenTotal \
+    --save_checkpoint_every_n_steps 2500 \
+    --freeze_GNN \
+    --num_warmup_steps 2000 \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/128_dim/ \
+fi
+
+
+if false; then
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --batch_size=32 --lr 2e-5 --mol_lr 2e-6 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-0.5B_MolGenSMolInstruct_NoGNN_splitLR_splitLoss/ --version Qwen2.5-0.5B_NoGNN_FastV3_OnlyBlocks2_splitLR_splitLoss \
+    --max_epochs 20 \
+    --no_PEFT \
+    --data_module MolGenSMolInstruct --task MolGenSMolInstruct \
+    --freeze_GNN \
+    --num_warmup_steps 2000 \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/128_dim/ \
+
+    #--only_molecule_loss \
+fi
+
+if false; then
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --batch_size=32 --lr 2e-5 --mol_lr 2e-6 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-0.5B_SMolInstruct_NoGNN_noPEFT_splitLR_splitLoss/ --version Qwen2.5-0.5B_NoGNN_FastV3_OnlyBlocks2_splitLR_splitLoss \
     --max_epochs 3 \
+    --no_PEFT \
     --data_module SMolInstruct --task SMolInstruct \
     --freeze_GNN \
     --num_warmup_steps 2000 \
@@ -149,8 +261,6 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
 fi
 
 if false; then
-
-
 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
     --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
@@ -163,8 +273,6 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
     --freeze_GNN \
     --num_warmup_steps 2000 \
     --pretrained_embeddings final_embeddings/OnlyBlocks/128_dim/ \
-
-
 
 fi
 

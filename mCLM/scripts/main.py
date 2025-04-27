@@ -9,11 +9,13 @@ from lightning import Trainer, seed_everything, Callback
 from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from lightning.pytorch.loggers import WandbLogger
 
+from lightning.pytorch.strategies import DeepSpeedStrategy
+
 import pandas as pd
 
 import pickle
 
-from mCLM.data.dataloaders import KinaseDataModule, SMolInstructDataModule, TotalDataModule
+from mCLM.data.dataloaders import KinaseDataModule, SMolInstructDataModule, TotalDataModule, MolGenSMolInstructDataModule, MolGenTotalDataModule
 from mCLM.model.models import (
     mCLM,
 )
@@ -64,6 +66,17 @@ def main(args):
             trunc_length=config["trunc_length"],
             GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v4.pth',
         )
+    elif config["data_module"] == "MolGenSMolInstruct":
+        dm = MolGenSMolInstructDataModule(
+            config,
+            instruction_data_path = config['instruction_data_path'],
+            synthetic_data_path = config['synthetic_data_path'],
+            base_model=config["base_model"],
+            batch_size=config["batch_size"],
+            trunc_length=config["trunc_length"],
+            GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v4.pth',
+        )
+
     elif config["data_module"] == "Total":
         dm = TotalDataModule(
             config,
@@ -74,6 +87,39 @@ def main(args):
             trunc_length=config["trunc_length"],
             shrink_data=25000,
         )
+    elif config["data_module"] == "MolGenTotal":
+        dm = MolGenTotalDataModule(
+            config,
+            instruction_data_path = config['instruction_data_path'],
+            synthetic_data_path = config['synthetic_data_path'],
+            base_model=config["base_model"],
+            batch_size=config["batch_size"],
+            trunc_length=config["trunc_length"],
+        )
+    elif config["data_module"] == "TotalTop50k":
+        dm = TotalDataModule(
+            config,
+            instruction_data_path = config['instruction_data_path'],
+            synthetic_data_path = config['synthetic_data_path'],
+            base_model=config["base_model"],
+            batch_size=config["batch_size"],
+            trunc_length=config["trunc_length"],
+            GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.50k.pth',
+        )
+
+    elif config["data_module"] == "SMolInstructTop50k":
+        dm = TotalDataModule(
+            config,
+            instruction_data_path = config['instruction_data_path'],
+            synthetic_data_path = config['synthetic_data_path'],
+            base_model=config["base_model"],
+            batch_size=config["batch_size"],
+            trunc_length=config["trunc_length"],
+            GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.50k.pth',
+        )
+
+
+        
 
         class CallDataModuleFunctionCallback(Callback):
             def on_train_epoch_end(self, trainer, pl_module):
@@ -129,6 +175,8 @@ def main(args):
     #model = LlamaForCausalLM.from_pretrained(ckpt_path)
     model = mCLM(config)
 
+    if config['only_molecule_loss']:
+        model.model.only_molecule_loss = True
 
     if config["load_GNN_ckpt"] != None:
         gnn_ckpt_sd = torch.load(config["load_GNN_ckpt"], map_location='cpu', weights_only=False)['state_dict']
@@ -246,6 +294,15 @@ def main(args):
     if config['max_negative_sampling_schedule'] != None:
         callbacks.append(LossThresholdCallback(model, every_n_steps=100, loss_threshold=config['negative_sampling_schedule_loss']))
 
+    if config['use_deepspeed']:
+        strategy = DeepSpeedStrategy(
+            stage=2,  # ZeRO Stage 2 = optimizer sharded + optional CPU offload
+            offload_optimizer=True,  # <-- This moves optimizer states (AdamW) to CPU
+            offload_parameters=False,  # <-- Keep model weights on GPU
+        )
+    else:
+        strategy = 'ddp'
+
     if config['check_val_every_n_steps']:
         trainer = Trainer(
             default_root_dir=dirpath,
@@ -255,9 +312,10 @@ def main(args):
             logger=wandb_logger,
             callbacks=callbacks,
             val_check_interval=config['check_val_every_n_steps'],
-            strategy='ddp',
+            strategy=strategy,#'ddp',
             precision='bf16',
-            gradient_clip_val=1.0,
+            accumulate_grad_batches=config['accumulate_grad_batches'],
+            #gradient_clip_val=1.0,
         )
     else:
         trainer = Trainer(
@@ -267,9 +325,10 @@ def main(args):
             devices="auto",#torch.cuda.device_count() if torch.cuda.is_available() else None,  # limiting got iPython runs
             logger=wandb_logger,
             callbacks=callbacks,
-            strategy='ddp',
+            strategy=strategy,#'ddp',
             precision='bf16',
-            gradient_clip_val=1.0,
+            accumulate_grad_batches=config['accumulate_grad_batches'],
+            #gradient_clip_val=1.0,
         )
 
 
@@ -353,6 +412,12 @@ if __name__ == "__main__":
         "--freeze_GNN", type=bool, action=argparse.BooleanOptionalAction
     )
 
+    parser.add_argument("--no_PEFT", type=bool, action=argparse.BooleanOptionalAction)
+
+    parser.add_argument("--only_molecule_loss", type=bool, action=argparse.BooleanOptionalAction)
+
+    parser.add_argument("--use_deepspeed", type=bool, action=argparse.BooleanOptionalAction)
+
     parser.add_argument("--resume_from_checkpoint", default=None, type=str)
     parser.add_argument("--resume_wandb_run", default=None, type=str)
 
@@ -367,12 +432,16 @@ if __name__ == "__main__":
     parser.add_argument("--check_val_every_n_steps", default=None, type=int)
     parser.add_argument("--save_checkpoint_every_n_steps", default=None, type=int)
 
-    parser.add_argument("--instruction_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/instruction_onlyblocks/')
-    parser.add_argument("--synthetic_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/synthetic_onlyblocks/')
+    #parser.add_argument("--instruction_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/instruction_onlyblocks/')
+    #parser.add_argument("--synthetic_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/synthetic_onlyblocks/')
+    parser.add_argument("--instruction_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/instruction_onlyblocks_top_50000/')
+    parser.add_argument("--synthetic_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/synthetic_onlyblocks_top_50000/')
 
     parser.add_argument("--max_negative_sampling_schedule", default=None, type=int)
     #parser.add_argument("--negative_sampling_schedule", default=100, type=int)
     parser.add_argument("--negative_sampling_schedule_loss", default=0.1, type=float)
+
+    parser.add_argument("--accumulate_grad_batches", default=1, type=int)
 
     args = parser.parse_args()
 
