@@ -7,6 +7,7 @@ from torch import nn
 import lightning as L
 from pl_bolts.optimizers import LinearWarmupCosineAnnealingLR
 
+#from deepspeed.ops.adam import FusedAdam, DeepSpeedCPUAdam
 
 from peft import get_peft_config, get_peft_model, LoraConfig, TaskType
 
@@ -45,7 +46,6 @@ class mCLM(L.LightningModule):
             mCLM_Model = Qwen2ForCausalLM
         self.model = mCLM_Model.from_pretrained(ckpt_path)
 
-        
         if not self.config['no_PEFT']:
             self.model = get_peft_model(self.model, peft_config)
 
@@ -71,7 +71,6 @@ class mCLM(L.LightningModule):
                         return getattr(self.model, name)
 
             self.model = ModelWrapper(self.model)
-
 
         self.validation_step_outputs = []
         self.test_step_outputs = []
@@ -135,7 +134,7 @@ class mCLM(L.LightningModule):
 
         #print('in mCLM', self.model.negative_sampling_size)
 
-        output = self.model(
+        output, text_loss, mol_loss = self.model(
             input_ids=batch["input"]["input_ids"],
             attention_mask=batch["input"]["attention_mask"],
             labels=batch["input"]["labels"],
@@ -158,10 +157,42 @@ class mCLM(L.LightningModule):
                 sync_dist=True,
                 add_dataloader_idx=False,
             )
+            self.log(
+                f"{prefix}/{task_id[0]}/text_loss",
+                text_loss,
+                prog_bar=False,
+                batch_size=self.config['batch_size'],
+                sync_dist=True,
+                add_dataloader_idx=False,
+            )
+            self.log(
+                f"{prefix}/{task_id[0]}/mol_loss",
+                mol_loss,
+                prog_bar=False,
+                batch_size=self.config['batch_size'],
+                sync_dist=True,
+                add_dataloader_idx=False,
+            )
         else:
             self.log(
                 f"{prefix}/loss",
                 loss.item(),
+                prog_bar=True,
+                batch_size=self.config['batch_size'],
+                sync_dist=True,
+                add_dataloader_idx=False,
+            )
+            self.log(
+                f"{prefix}/text_loss",
+                text_loss,
+                prog_bar=True,
+                batch_size=self.config['batch_size'],
+                sync_dist=True,
+                add_dataloader_idx=False,
+            )
+            self.log(
+                f"{prefix}/mol_loss",
+                mol_loss,
                 prog_bar=True,
                 batch_size=self.config['batch_size'],
                 sync_dist=True,
@@ -179,7 +210,7 @@ class mCLM(L.LightningModule):
         #if prefix == "train":
         #    self._log_metric(step_name=prefix, preds=outputs, y=y)
 
-        return {"loss": loss}
+        return {"loss": loss, "text_loss":text_loss, "mol_loss":mol_loss}
 
     def on_validation_epoch_end(self):
         all_validation_loss = torch.cat(
@@ -187,7 +218,25 @@ class mCLM(L.LightningModule):
         )
         self.log(
             "val/loss",
-            all_validation_loss.mean().item(),
+            all_validation_loss.nanmean().item(),
+            prog_bar=True,
+            sync_dist=True,
+        )
+        all_validation_loss = torch.Tensor(
+            [i["text_loss"] for i in self.validation_step_outputs]
+        )
+        self.log(
+            "val/text_loss",
+            all_validation_loss.nanmean().item(),
+            prog_bar=True,
+            sync_dist=True,
+        )
+        all_validation_loss = torch.Tensor(
+            [i["mol_loss"] for i in self.validation_step_outputs]
+        )
+        self.log(
+            "val/mol_loss",
+            all_validation_loss.nanmean().item(),
             prog_bar=True,
             sync_dist=True,
         )
@@ -199,7 +248,25 @@ class mCLM(L.LightningModule):
         )
         self.log(
             "test/loss",
-            all_test_loss.mean().item(),
+            all_test_loss.nanmean().item(),
+            prog_bar=True,
+            sync_dist=True,
+        )
+        all_test_loss = torch.Tensor(
+            [i["text_loss"] for i in self.test_step_outputs]
+        )
+        self.log(
+            "test/text_loss",
+            all_test_loss.nanmean().item(),
+            prog_bar=True,
+            sync_dist=True,
+        )
+        all_test_loss = torch.Tensor(
+            [i["mol_loss"] for i in self.test_step_outputs]
+        )
+        self.log(
+            "test/mol_loss",
+            all_test_loss.nanmean().item(),
             prog_bar=True,
             sync_dist=True,
         )
@@ -230,14 +297,26 @@ class mCLM(L.LightningModule):
                 group2_params.append(param)
 
         # 2. Create the optimizer with parameter groups
-        optimizer = torch.optim.Adam(
-            [
-                {'params': group1_params, 'lr': self.config['mol_lr']},
-                {'params': group2_params, 'lr': self.config['lr']},
-            ],
-            weight_decay=self.config['weight_decay'],
-            eps=1e-7,
-        )
+
+        if self.config['use_deepspeed']:
+            optimizer = DeepSpeedCPUAdam(
+                [
+                    {'params': group1_params, 'lr': self.config['mol_lr']},
+                    {'params': group2_params, 'lr': self.config['lr']},
+                ],
+                weight_decay=self.config['weight_decay'],
+                eps=1e-7
+            )
+        else:
+            optimizer = torch.optim.AdamW(
+                [
+                    {'params': group1_params, 'lr': self.config['mol_lr']},
+                    {'params': group2_params, 'lr': self.config['lr']},
+                ],
+                weight_decay=self.config['weight_decay'],
+                eps=1e-7, fused=True
+            )
+
 
 
 

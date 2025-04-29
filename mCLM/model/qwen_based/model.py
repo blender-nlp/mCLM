@@ -35,7 +35,8 @@ from ..utils import embed_chemical_language, \
     finalized_molecule_embeddings, mclm_logit_head, embed_molecules_fn, \
     MLPAdaptor, compute_loss, \
     mclm_logit_head_optimized, compute_loss_optimized, \
-    mclm_logit_head_optimized2, compute_loss_optimized2
+    mclm_logit_head_optimized2, compute_loss_optimized2, \
+    mclm_logit_head_optimized2_sep, compute_loss_optimized2_sep
 
 
 logger = logging.get_logger(__name__)
@@ -261,6 +262,8 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         self.post_init()
         self.use_mol_embeddings(False)
 
+        self.only_molecule_loss= False
+
 
 
     def get_input_embeddings(self):
@@ -374,6 +377,11 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
             output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
         )
 
+        #torch.set_printoptions(threshold=float('inf'))
+        #print('input ids:')
+        #print(input_ids)
+        #zz
+
         # decoder outputs consists of (dec_features, layer_state, dec_hidden, dec_attn)
         outputs: BaseModelOutputWithPast = self.model(
             input_ids=input_ids,
@@ -395,12 +403,12 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
 
         #print(f"[Forward] negative_sampling_size: {self.negative_sampling_size}")
         # mCLM logit head
-        logits = mclm_logit_head_optimized2(
+        logits = mclm_logit_head_optimized2_sep(
             self.lm_head, self.model.embed_molecules,
             self._finalized_molecule_embeddings[0],
             self.vocab_size, self.mol_vocab_size, self.total_vocab_size,
-            self.negative_sampling_size.item(),
-            #None,
+            #self.negative_sampling_size.item(),
+            None,
             hidden_states,
             is_training=self.training,
             labels=labels,
@@ -427,7 +435,22 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
                 self.mapping_tensor = torch.full((self.total_vocab_size,), -1, dtype=torch.long, device=hidden_states.device)
                 self.mapping_tensor.requires_grad = False
 
-            loss = compute_loss_optimized2(logits, labels, mapping_tensor=self.mapping_tensor)
+            #loss = compute_loss_optimized2(logits, labels, mapping_tensor=self.mapping_tensor)
+            #text_loss, mol_loss = None, None
+            text_loss, mol_loss = compute_loss_optimized2_sep(logits, labels, mapping_tensor=self.mapping_tensor)
+            if mol_loss == None:
+                loss = text_loss
+                text_loss, mol_loss = text_loss.item(), torch.nan
+            elif text_loss == None:
+                loss = mol_loss
+                text_loss, mol_loss = torch.nan, mol_loss.item()
+            else:
+                loss = (text_loss + mol_loss)/2
+                text_loss, mol_loss = text_loss.item(), mol_loss.item()
+
+            if self.only_molecule_loss:
+                loss = mol_loss
+
 
         return CausalLMOutputWithPast(
             loss=loss,
@@ -435,7 +458,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
             past_key_values=outputs.past_key_values,
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
-        )
+        ), text_loss, mol_loss #for logging
 
     def finalize_molecule_embeddings(self, batch_size=None, embeddings=None):
         if batch_size is None:

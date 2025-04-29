@@ -102,10 +102,17 @@ if __name__ == "__main__":
     parser.add_argument("--caption_source", type=str)
     parser.add_argument("--fold_idx", type=int)
     parser.add_argument("--data_path", type=str, default='kinase_data_processing/')
-    parser.add_argument("--instruction_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/instruction/dataloader_processed/')
-    parser.add_argument("--synthetic_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/synthetic/dataloader_processed/')
+    parser.add_argument("--instruction_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/instruction/dataloader_processed_onlyblocks_top_50000_old/')
+    parser.add_argument("--synthetic_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/synthetic/dataloader_processed_onlyblocks_top_50000_old/')
 
-    parser.add_argument("--pretrained_embeddings", default="/home/cne2/data/Chemistry/mCLM_MolCLR/preprocess/OnlyBlocks/128_dim/", type=str)
+    parser.add_argument("--pretrained_embeddings", default="/home/cne2/data/Chemistry/mCLM_MolCLR/preprocess/Top50k/128_dim/", type=str)
+
+
+    parser.add_argument("--no_PEFT", type=bool, action=argparse.BooleanOptionalAction)
+
+    parser.add_argument("--only_molecule_loss", type=bool, action=argparse.BooleanOptionalAction)
+
+    parser.add_argument("--use_deepspeed", type=bool, action=argparse.BooleanOptionalAction)
 
 
     args = parser.parse_args()
@@ -159,23 +166,22 @@ if __name__ == "__main__":
             trunc_length=config["trunc_length"],
         )
     
-    device = 'cpu' #torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-    #model = LlamaForCausalLM.from_pretrained(ckpt_path)
     model = mCLM(config)
     model.to(device)
 
     if config['pretrained_embeddings'] != None:
-        pretrain_mol_embeddings = torch.load(config['pretrained_embeddings'] + 'precomputed_tokens.pt')#.to(torch.bfloat16)
+        pretrain_mol_embeddings = torch.load(config['pretrained_embeddings'] + 'precomputed_tokens.pt').to(torch.bfloat16)
         pretrain_mol_embeddings = nn.Embedding.from_pretrained(pretrain_mol_embeddings, freeze=True)
-        pretrain_mol_embeddings.weight.data = pretrain_mol_embeddings.weight.data#.to(torch.bfloat16)
+        pretrain_mol_embeddings.weight.data = pretrain_mol_embeddings.weight.data.to(torch.bfloat16)
 
         
         model.model.finalize_molecule_embeddings(embeddings=pretrain_mol_embeddings)
         model.model.use_mol_embeddings(True)
 
-    #model = model.to(torch.bfloat16)
+    model = model.to(torch.bfloat16)
 
     for p in model.named_parameters():
         print(p[0], p[1].requires_grad)
@@ -225,35 +231,24 @@ if __name__ == "__main__":
     item["input"]["attention_mask"] = item["input"]["attention_mask"].to(device)
     item["input"]["labels"] = item["input"]["labels"].to(device)
 
-        #input_ids=item["input"]["input_ids"],
-        #attention_mask=item["input"]["attention_mask"],
-        #labels=item["input"]["input_ids"]
 
     optimizer = torch.optim.Adam(
         model.parameters(),
         lr=config['lr'],
         weight_decay=config['weight_decay'],
     )
-    #print("training_output")
-    #print(training_output)
 
     # model forwarding, training mode
     model.train(True)
-    #model.model.train()
-    #model.model.model.train()
     training_output = model.compute_step(
         item,
         'train',
     )
-        #input_ids=item["input"]["input_ids"],
-        #attention_mask=item["input"]["attention_mask"],
-        #labels=item["input"]["labels"]
     training_output['loss'].backward()
 
     #for key in model.state_dict():
     #    print(key)
 
-    #grad_dict = {k:v.grad for k, v in zip(model.state_dict(), model.parameters())}
     grad_dict = {k:v.grad for k, v in model.named_parameters()}
     print('grad_dict:', grad_dict.keys())
     #print(len(list(model.state_dict())), len(list(model.parameters())))
@@ -266,6 +261,10 @@ if __name__ == "__main__":
     orig_model.model.extend_text_vocab_size(len(dm.tokenizer.vocab))
     orig_model.model.set_mol_vocab(dm.molecule_tokenizer.GNN_input_map)
 
+    orig_model = orig_model.to(torch.bfloat16)
+    orig_model.to(device)
+
+    print('Checking that optimizer works for keys:')
     key = 'model.base_model.model.model.mol_gnn.convs.1.nn.0.bias'
     print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
     key = 'model.base_model.model.lm_head.weight'
@@ -277,7 +276,7 @@ if __name__ == "__main__":
     key = 'model.base_model.model.model.mol_adaptor.mlp.0.weight'
     print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
 
-    exit()
+    #exit()
 
     model.train(False)
     #model.model.post_training()
