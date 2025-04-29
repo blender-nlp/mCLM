@@ -181,7 +181,7 @@ def embed_molecules_fn(
                 (mol_input_ids - text_vocab_size).clamp(0, None)
             )
         else:
-            
+
             output_features = _finalized_molecule_embeddings(
                 (mol_input_ids - text_vocab_size).clamp(0, None).to('cpu')
             ).to(device)
@@ -295,9 +295,9 @@ def compute_loss_optimized(logits, labels, mapping_tensor=None):
         mapping_tensor[self.indices] = torch.arange(len(self.indices), dtype=torch.long, device=shift_labels.device)
 
         shift_labels = mapping_tensor[shift_labels]
-        
+
         labels = mapping_tensor[labels]
-        
+
     #C = shift_logits.size(-1)
     #lo, hi = int(shift_labels.min()), int(shift_labels.max())
     #print(f"[DEBUG] labels ∈ [{lo}, {hi}], allowed range is [0, {C-1}]")
@@ -333,7 +333,7 @@ def mclm_logit_head_optimized2(
         # 3) union them via a single tensor concat + unique (all GPU):
         all_mol_ids = torch.cat([negative_set, mol_labels], dim=0)
         molecule_ids_trained = torch.unique(all_mol_ids)
-        
+
         # 4) lookup embeddings by direct weight‐slice (faster than embed()):
         #mol_embeds = embed_molecules.weight[molecule_ids_trained - vocab_size]  # (M, H)
         mol_embeds = embed_molecules(molecule_ids_trained)
@@ -362,7 +362,7 @@ def mclm_logit_head_optimized2(
         )
     if not is_training:
         logits = logits.embeddings @ logits.classifier.t()
-        
+
 
     return logits
 
@@ -399,7 +399,7 @@ def compute_loss_optimized2(logits, labels, mapping_tensor=None):
         if mapping_tensor is None:
             mapping_tensor = torch.full((self.vocab_size,), -1, dtype=torch.long, device=labels.device)
         mapping_tensor[self.indices] = torch.arange(len(self.indices), dtype=torch.long, device=labels.device)
-        
+
         labels = mapping_tensor[labels]
 
     #print(self.embeddings.shape, self.classifier.shape, labels.shape)
@@ -442,7 +442,8 @@ def mclm_logit_head_optimized2_sep(
     lm_head, embed_molecules, finalized_molecule_embeddings,
     vocab_size, mol_vocab_size, total_vocab_size,
     negative_sampling_size,
-    hidden_states, is_training, labels=None, mCLMSparseLogits=None
+    hidden_states, is_training, is_generating_mol,
+    labels=None, mCLMSparseLogits=None,
 ):
     text_logits = lm_head(hidden_states)
     text_class = lm_head.weight
@@ -462,7 +463,7 @@ def mclm_logit_head_optimized2_sep(
             # 3) union them via a single tensor concat + unique (all GPU):
             all_mol_ids = torch.cat([negative_set, mol_labels], dim=0)
             molecule_ids_trained = torch.unique(all_mol_ids)
-            
+
             # 4) lookup embeddings by direct weight‐slice (faster than embed()):
             #mol_embeds = embed_molecules.weight[molecule_ids_trained - vocab_size]  # (M, H)
             mol_embeds = embed_molecules(molecule_ids_trained)
@@ -496,19 +497,45 @@ def mclm_logit_head_optimized2_sep(
                 mol_classifier = mol_embeds,
             )
     else:
-        molecule_ids_trained = "all"
-        mol_embeds = embed_molecules(molecule_ids_trained)
-        logits = mCLMSparseLogitsOptimized_sep(
-            indices=None,
-            logits=None,
-            total_vocab_size=total_vocab_size,
-            mol_vocab_size=mol_vocab_size,
-            vocab_size=vocab_size,
-            embeddings = hidden_states,
-            text_classifier = text_class,
-            mol_classifier = mol_embeds,
-            mol_labels_mask = labels >= vocab_size,
+        # Chi: must be generating, assert
+        assert is_generating_mol.ndim == 2
+        assert is_generating_mol.shape[0] == 1
+        length = is_generating_mol.shape[1]
+        mol_logits = torch.ones(1, length, mol_vocab_size) * -1e5
+        full_logits = torch.cat(
+            (text_logits, mol_logits),
+            dim=-1
         )
+        if is_generating_mol[0, -1].item():
+            molecule_ids_trained = "all"
+            mol_embeds = embed_molecules(molecule_ids_trained)
+            text_logits = torch.ones(1, length, vocab_size) * -1e5
+            mol_logits = hidden_states[0, -1].matmul(
+                mol_embeds.transpose(-1, -2)
+            )
+            full_logits[0, -1, vocab_size:] = mol_logits
+        #     # debug only, to manually randomly switch to molecule generation
+        #     import random
+        #     if random.random() > 0.8:
+        #         full_logits[0, -1, vocab_size-1] = 1e6
+        # else:
+        #     import random
+        #     if random.random() > 0.8:
+        #         full_logits[0, -1, vocab_size-2] = 1e6
+
+        return full_logits
+
+        # logits = mCLMSparseLogitsOptimized_sep(
+        #     indices=None,
+        #     logits=None,
+        #     total_vocab_size=total_vocab_size,
+        #     mol_vocab_size=mol_vocab_size,
+        #     vocab_size=vocab_size,
+        #     embeddings = hidden_states,
+        #     text_classifier = text_class,
+        #     mol_classifier = mol_embeds,
+        #     # mol_labels_mask = labels >= vocab_size,
+        # )
 
     return logits
 
@@ -550,7 +577,7 @@ def compute_loss_optimized2_sep(logits, labels, mapping_tensor=None):
         if mapping_tensor is None:
             mapping_tensor = torch.full((self.total_vocab_size,), -1, dtype=torch.long, device=labels.device)
         mapping_tensor[self.indices] = torch.arange(len(self.indices), dtype=torch.long, device=labels.device)
-        
+
         labels = mapping_tensor[labels]
 
     if False:
