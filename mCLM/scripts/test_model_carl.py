@@ -331,6 +331,7 @@ def main(args):
             #gradient_clip_val=1.0,
         )
 
+    # Chi: test generation
     core_model = model.model.base_model.model
     core_model.train(False)
     core_model.use_mol_embeddings(True)
@@ -346,14 +347,6 @@ def main(args):
     prompt = "A good replacement of kinase inhibitor is"
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids
     input_ids = input_ids.to(core_model.device)
-
-    input_ids2 = torch.cat(
-        [
-            input_ids,
-            torch.tensor([[core_model.vocab_size-2]]).to(core_model.device),
-        ],
-        dim=1,
-    )
 
     generated = core_model.generate(input_ids, max_new_tokens=50)
     print(generated)
