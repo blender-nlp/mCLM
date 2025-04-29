@@ -181,7 +181,7 @@ def embed_molecules_fn(
                 (mol_input_ids - text_vocab_size).clamp(0, None)
             )
         else:
-            
+
             output_features = _finalized_molecule_embeddings(
                 (mol_input_ids - text_vocab_size).clamp(0, None).to('cpu')
             ).to(device)
@@ -295,9 +295,9 @@ def compute_loss_optimized(logits, labels, mapping_tensor=None):
         mapping_tensor[self.indices] = torch.arange(len(self.indices), dtype=torch.long, device=shift_labels.device)
 
         shift_labels = mapping_tensor[shift_labels]
-        
+
         labels = mapping_tensor[labels]
-        
+
     #C = shift_logits.size(-1)
     #lo, hi = int(shift_labels.min()), int(shift_labels.max())
     #print(f"[DEBUG] labels ∈ [{lo}, {hi}], allowed range is [0, {C-1}]")
@@ -333,7 +333,7 @@ def mclm_logit_head_optimized2(
         # 3) union them via a single tensor concat + unique (all GPU):
         all_mol_ids = torch.cat([negative_set, mol_labels], dim=0)
         molecule_ids_trained = torch.unique(all_mol_ids)
-        
+
         # 4) lookup embeddings by direct weight‐slice (faster than embed()):
         #mol_embeds = embed_molecules.weight[molecule_ids_trained - vocab_size]  # (M, H)
         mol_embeds = embed_molecules(molecule_ids_trained)
@@ -362,7 +362,7 @@ def mclm_logit_head_optimized2(
         )
     if not is_training:
         logits = logits.embeddings @ logits.classifier.t()
-        
+
 
     return logits
 
@@ -399,7 +399,7 @@ def compute_loss_optimized2(logits, labels, mapping_tensor=None):
         if mapping_tensor is None:
             mapping_tensor = torch.full((self.vocab_size,), -1, dtype=torch.long, device=labels.device)
         mapping_tensor[self.indices] = torch.arange(len(self.indices), dtype=torch.long, device=labels.device)
-        
+
         labels = mapping_tensor[labels]
 
     #print(self.embeddings.shape, self.classifier.shape, labels.shape)
@@ -463,7 +463,7 @@ def mclm_logit_head_optimized2_sep(
             # 3) union them via a single tensor concat + unique (all GPU):
             all_mol_ids = torch.cat([negative_set, mol_labels], dim=0)
             molecule_ids_trained = torch.unique(all_mol_ids)
-            
+
             # 4) lookup embeddings by direct weight‐slice (faster than embed()):
             #mol_embeds = embed_molecules.weight[molecule_ids_trained - vocab_size]  # (M, H)
             mol_embeds = embed_molecules(molecule_ids_trained)
@@ -571,7 +571,7 @@ def compute_loss_optimized2_sep(logits, labels, mapping_tensor=None):
         if mapping_tensor is None:
             mapping_tensor = torch.full((self.total_vocab_size,), -1, dtype=torch.long, device=labels.device)
         mapping_tensor[self.indices] = torch.arange(len(self.indices), dtype=torch.long, device=labels.device)
-        
+
         labels = mapping_tensor[labels]
 
     if False:
