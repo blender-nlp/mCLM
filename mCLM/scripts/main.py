@@ -107,17 +107,7 @@ def main(args):
             GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.50k.pth',
         )
 
-    elif config["data_module"] == "SMolInstructTop50k":
-        dm = TotalDataModule(
-            config,
-            instruction_data_path = config['instruction_data_path'],
-            synthetic_data_path = config['synthetic_data_path'],
-            base_model=config["base_model"],
-            batch_size=config["batch_size"],
-            trunc_length=config["trunc_length"],
-            GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.50k.pth',
-        )
-
+    
 
         
 

@@ -161,7 +161,7 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
 fi
 
 
-if true; then
+if false; then
 
 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
@@ -189,8 +189,8 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
     --batch_size=4 --lr 2e-5 --mol_lr 2e-6 \
     --trunc_length 512 \
     --ckpt_path ckpts/OnlyBlocks/Qwen2.5-3B_SMolInstructTop50k_NoGNN_SplitLR_splitLoss/ --version Qwen2.5-3B_NoGNN_FastV3_OnlyBlocks2_SplitLR_splitLoss \
-    --max_epochs 20 \
-    --accumulate_grad_batches 2 \
+    --max_epochs 10 \
+    --accumulate_grad_batches 1 \
     --no_PEFT \
     --data_module SMolInstructTop50k --task SMolInstructTop50k \
     --save_checkpoint_every_n_steps 2500 \
