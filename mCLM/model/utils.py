@@ -442,7 +442,8 @@ def mclm_logit_head_optimized2_sep(
     lm_head, embed_molecules, finalized_molecule_embeddings,
     vocab_size, mol_vocab_size, total_vocab_size,
     negative_sampling_size,
-    hidden_states, is_training, labels=None, mCLMSparseLogits=None
+    hidden_states, is_training, is_generating_mol,
+    labels=None, mCLMSparseLogits=None,
 ):
     text_logits = lm_head(hidden_states)
     text_class = lm_head.weight
@@ -495,22 +496,42 @@ def mclm_logit_head_optimized2_sep(
                 text_classifier = text_class,
                 mol_classifier = mol_embeds,
             )
+        return logits
     else:
-        molecule_ids_trained = "all"
-        mol_embeds = embed_molecules(molecule_ids_trained)
-        logits = mCLMSparseLogitsOptimized_sep(
-            indices=None,
-            logits=None,
-            total_vocab_size=total_vocab_size,
-            mol_vocab_size=mol_vocab_size,
-            text_vocab_size=vocab_size,
-            embeddings = hidden_states,
-            text_classifier = text_class,
-            mol_classifier = mol_embeds,
-            mol_labels_mask = labels >= vocab_size,
+        # Chi: must be generating, assert
+        assert is_generating_mol.ndim == 2
+        assert is_generating_mol.shape[0] == 1
+        length = is_generating_mol.shape[1]
+        mol_logits = torch.full((1, length, mol_vocab_size), float('-inf')) #torch.ones(1, length, mol_vocab_size) * -1e5
+        full_logits = torch.cat(
+            (text_logits, mol_logits),
+            dim=-1
         )
+        if is_generating_mol[0, -1].item():
+            molecule_ids_trained = "all"
+            mol_embeds = embed_molecules(molecule_ids_trained)
+            text_logits[0, :, :-1] = torch.full_like(text_logits[0, :, :-1], float('-inf'))
+            mol_logits = hidden_states[0, -1].matmul(
+                mol_embeds.transpose(-1, -2)
+            )
+            mol_logits = mol_logits.unsqueeze(0).unsqueeze(0)  # Shape: [1,1,99607]
+            mol_logits = mol_logits.repeat(1, text_logits.shape[1], 1)           # Shape: [1,X,99607]
+            print(mol_logits.shape, text_logits.shape)
+            full_logits = torch.cat(
+                (text_logits, mol_logits),
+                dim=-1
+            )
 
-    return logits
+            #     # debug only, to manually randomly switch to molecule generation
+            #     import random
+            #     if random.random() > 0.8:
+            #         full_logits[0, -1, vocab_size-1] = 1e6
+            # else:
+            #     import random
+            #     if random.random() > 0.8:
+            #         full_logits[0, -1, vocab_size-2] = 1e6
+
+        return full_logits
 
 
 # Optimized Version

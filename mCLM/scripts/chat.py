@@ -140,14 +140,14 @@ if __name__ == "__main__":
     #parser.add_argument("--tokenizer_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B_SMolInstruct_NoGNN_OnlyBlocks2_lowLR/", type=str)
     #parser.add_argument("--ckpt", default="latest_checkpoint-epoch=00-step=30000.ckpt", type=str)
 
-    parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/OnlyBlocks/Qwen2.5-0.5B_MolGenSMolInstruct_NoGNN_splitLR_splitLoss/", type=str)
-    parser.add_argument("--tokenizer_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B_SMolInstruct_NoGNN_OnlyBlocks2_lowLR/", type=str)
-    parser.add_argument("--ckpt", default="latest_checkpoint-epoch=19-step=8780.ckpt", type=str)
+    parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B_SMolInstructTop50k_NoGNN_splitLR_splitLoss/", type=str)
+    parser.add_argument("--tokenizer_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B_SMolInstructTop50k_NoGNN_splitLR_splitLoss/", type=str)
+    parser.add_argument("--ckpt", default="latest_checkpoint-epoch=01-step=170000.ckpt", type=str)
     
     parser.add_argument("--loss", default="CLIP", type=str)
     parser.add_argument("--load_ckpt", default=None, type=str)
     parser.add_argument("--load_GNN_ckpt", default=None, type=str)
-    parser.add_argument("--pretrained_embeddings", default="/home/cne2/data/Chemistry/mCLM_MolCLR/preprocess/OnlyBlocks/128_dim/", type=str)
+    parser.add_argument("--pretrained_embeddings", default="/home/cne2/data/Chemistry/mCLM_MolCLR/preprocess/Top50k/128_dim/", type=str)
     parser.add_argument("--GNN_cache", default="", type=str)
 
 
@@ -324,13 +324,13 @@ if __name__ == "__main__":
 
             frags = [[molecule_tokenizer.get_Idx(m) for m in mol.split('^')] for mol in mol_list]
             
-            message_tokens = torch.Tensor(insert_sublists(message_tokens.squeeze(), frags, MOL_start, MOL_end)).to(torch.int).to(device)
+            message_tokens = torch.Tensor(insert_sublists(message_tokens.squeeze(), frags, MOL_start, MOL_end)+[MOL_start]).to(torch.int).to(device)
             print(message_tokens, message_tokens.shape)
             
             generated = model.generate(
                 input_ids=message_tokens.unsqueeze(0),
-                max_new_tokens=128,
-                num_beams=5,
+                max_new_tokens=32,
+                num_beams=1,
                 do_sample=False,
                 #bad_words_ids=bad_words_ids,
             )
@@ -357,6 +357,9 @@ if __name__ == "__main__":
             #print(tokens)
             tokens = [molecule_tokenizer.get_block(int(message_ids[i]))+'^' if i in locs else t for i, t in enumerate(tokens)]
             #print(tokens)
+
+            print(tokens)
+            print()
 
             message = tokenizer.convert_tokens_to_string(tokens)
             print(message)
