@@ -252,8 +252,8 @@ if __name__ == "__main__":
     grad_dict = {k:v.grad for k, v in model.named_parameters()}
     print('grad_dict:', grad_dict.keys())
     #print(len(list(model.state_dict())), len(list(model.parameters())))
-    print(grad_dict['model.base_model.model.model.mol_gnn.convs.1.nn.0.bias'])
-    print(grad_dict['model.base_model.model.lm_head.weight'])
+    print(grad_dict['model.model.model.mol_gnn.convs.1.nn.0.bias'])
+    print(grad_dict['model.model.lm_head.weight'])
 
     optimizer.step()
 
@@ -265,15 +265,15 @@ if __name__ == "__main__":
     orig_model.to(device)
 
     print('Checking that optimizer works for keys:')
-    key = 'model.base_model.model.model.mol_gnn.convs.1.nn.0.bias'
+    key = 'model.model.model.mol_gnn.convs.1.nn.0.bias'
     print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
-    key = 'model.base_model.model.lm_head.weight'
+    key = 'model.model.lm_head.weight'
     print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
-    key = 'model.base_model.model.model.embed_tokens.weight'
+    key = 'model.model.model.embed_tokens.weight'
     print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
-    key = 'model.base_model.model.model.layers.15.mlp.up_proj.lora_A.default.weight'
-    print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
-    key = 'model.base_model.model.model.mol_adaptor.mlp.0.weight'
+    #key = 'model.model.model.layers.15.mlp.up_proj.lora_A.default.weight'
+    #print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
+    key = 'model.model.model.mol_adaptor.mlp.0.weight'
     print(key, (model.state_dict()[key] == orig_model.state_dict()[key]).all())
 
     #exit()
