@@ -41,6 +41,9 @@ class mCLM(L.LightningModule):
         if "Llama" in config["base_model"]:
             from mCLM.model.llama_based.model import LlamaForCausalLM
             mCLM_Model = LlamaForCausalLM
+        elif "Qwen3" in config["base_model"]:
+            from mCLM.model.qwen3_based.model import Qwen3ForCausalLM
+            mCLM_Model = Qwen3ForCausalLM
         elif "Qwen" in config["base_model"]:
             from mCLM.model.qwen_based.model import Qwen2ForCausalLM
             mCLM_Model = Qwen2ForCausalLM

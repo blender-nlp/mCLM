@@ -104,7 +104,18 @@ def main(args):
             base_model=config["base_model"],
             batch_size=config["batch_size"],
             trunc_length=config["trunc_length"],
-            GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.50k.pth',
+            GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.50kV2.pth',
+        )
+
+    elif config["data_module"] == "SMolInstructTop50k":
+        dm = SMolInstructDataModule(
+            config,
+            instruction_data_path = config['instruction_data_path'],
+            synthetic_data_path = config['synthetic_data_path'],
+            base_model=config["base_model"],
+            batch_size=config["batch_size"],
+            trunc_length=config["trunc_length"],
+            GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.50kV2.pth',
         )
 
     

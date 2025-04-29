@@ -5,7 +5,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from transformers.cache_utils import Cache, DynamicCache
+from transformers.cache_utils import Cache, DynamicCache, SlidingWindowCache, StaticCache
 from transformers.generation import GenerationMixin
 from transformers.modeling_flash_attention_utils import FlashAttentionKwargs
 from transformers.modeling_outputs import (
@@ -61,7 +61,7 @@ class Qwen3Model(Qwen3PreTrainedModel):
     def __init__(self, config: Qwen3Config):
         super().__init__(config)
         self.padding_idx = config.pad_token_id
-        # self.vocab_size = config.vocab_size
+        self.vocab_size = config.vocab_size
 
         # mCLM mol-related init
         self.mol_gnn = GNNMolEncoder(
@@ -385,11 +385,15 @@ class Qwen3ForCausalLM(Qwen3PreTrainedModel, GenerationMixin):
 
     def __init__(self, config):
         super().__init__(config)
-        self.model = Qwen3Model(config)
-        self.vocab_size = config.vocab_size
-        self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
+        
+        # mCLM config
+        config = Qwen3Config.from_dict(config.to_dict())
+        self._finalized_molecule_embeddings = [None]
 
+        self.model = Qwen3Model(config)
         self.config = config
+        #self.vocab_size = config.vocab_size
+        self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
 
         self.mapping_tensor = torch.full((self.total_vocab_size,), -1, dtype=torch.long)
         self.mapping_tensor.requires_grad = False
@@ -546,8 +550,8 @@ class Qwen3ForCausalLM(Qwen3PreTrainedModel, GenerationMixin):
 
 
         # Only compute necessary logits, and do not upcast them to float if we are not computing the loss
-        slice_indices = slice(-logits_to_keep, None) if isinstance(logits_to_keep, int) else logits_to_keep
-        logits = self.lm_head(hidden_states[:, slice_indices, :])
+        #slice_indices = slice(-logits_to_keep, None) if isinstance(logits_to_keep, int) else logits_to_keep
+        #logits = self.lm_head(hidden_states[:, slice_indices, :])
 
         loss = None
         if labels is not None:
