@@ -20,15 +20,15 @@ ckpt_path = os.path.join(ckpt_path, f'{task}_mlp.pt')
 
 
 
-def prepare_dataset(data_path, batch_size=batch_size, shuffle=False):
+def prepare_dataset(data_path, ckpt_path, batch_size=batch_size, shuffle=False):
     with open(data_path) as f:
         SMILES_test = f.readlines()
     SMILES_test = [i.strip() for i in SMILES_test]
 
     FARM_SMILES = farm_tokenization(SMILES_test)
-    farm_feature = farm_embedding_extractor(FARM_SMILES)
-    gnn_feature = gnn_embedding_extractor(SMILES_test)
-    chemberta_feature = chemberta_embedding_extractor(SMILES_test)
+    farm_feature = farm_embedding_extractor(FARM_SMILES, ckpt_path)
+    gnn_feature = gnn_embedding_extractor(SMILES_test, ckpt_path)
+    chemberta_feature = chemberta_embedding_extractor(SMILES_test, ckpt_path)
     assert len(farm_feature) == len(gnn_feature) == len(chemberta_feature)
     
     data = []

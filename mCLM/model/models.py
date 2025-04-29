@@ -2,6 +2,7 @@
 from typing import List, Dict, Callable, Union, Tuple
 
 import torch
+from torch import nn
 
 import lightning as L
 from pl_bolts.optimizers import LinearWarmupCosineAnnealingLR
@@ -43,14 +44,34 @@ class mCLM(L.LightningModule):
             from mCLM.model.qwen_based.model import Qwen2ForCausalLM
             mCLM_Model = Qwen2ForCausalLM
         self.model = mCLM_Model.from_pretrained(ckpt_path)
-        self.model = get_peft_model(self.model, peft_config)
 
-        #PEFT turns these off
-        for param in self.model.base_model.model.model.mol_gnn.parameters():
-            param.requires_grad = True
-        for param in self.model.base_model.model.model.mol_adaptor.parameters():
-            param.requires_grad = True
-        self.model.lm_head.weight.requires_grad = True
+        
+        if not self.config['no_PEFT']:
+            self.model = get_peft_model(self.model, peft_config)
+
+            #PEFT turns these off
+            for param in self.model.base_model.model.model.mol_gnn.parameters():
+                param.requires_grad = True
+            for param in self.model.base_model.model.model.mol_adaptor.parameters():
+                param.requires_grad = True
+            
+            #self.model.lm_head.weight.requires_grad = True #let's not change this
+        else:
+            class ModelWrapper(nn.Module):
+                def __init__(self, model: nn.Module):
+                    super(ModelWrapper, self).__init__()
+                    self.model = model
+                def forward(self, *args, **kwargs):
+                    return self.model(*args, **kwargs)
+                def __getattr__(self, name):
+                    # If attribute not found on self, delegate to model
+                    try:
+                        return super().__getattr__(name)
+                    except AttributeError:
+                        return getattr(self.model, name)
+
+            self.model = ModelWrapper(self.model)
+
 
         self.validation_step_outputs = []
         self.test_step_outputs = []

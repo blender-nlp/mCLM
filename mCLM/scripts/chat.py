@@ -136,10 +136,14 @@ if __name__ == "__main__":
     parser.add_argument("--latent_size", default=256, type=int)
     parser.add_argument("--validate_every_n", default=1000, type=int)
     parser.add_argument("--lr", default=5e-5, type=float)
-    parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B_SMolInstruct_NoGNN_OnlyBlocks2_lowLR/", type=str)
+    #parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/Total_mCLM_Qwen2.5-0.5B_NoGNN_FastV2_Shrink25k_OnlyBlocks2_splitLR/", type=str)
+    #parser.add_argument("--tokenizer_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B_SMolInstruct_NoGNN_OnlyBlocks2_lowLR/", type=str)
+    #parser.add_argument("--ckpt", default="latest_checkpoint-epoch=00-step=30000.ckpt", type=str)
+
+    parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/OnlyBlocks/Qwen2.5-0.5B_MolGenSMolInstruct_NoGNN_splitLR_splitLoss/", type=str)
     parser.add_argument("--tokenizer_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B_SMolInstruct_NoGNN_OnlyBlocks2_lowLR/", type=str)
-    parser.add_argument("--ckpt", default="latest_checkpoint-epoch=02-step=9486.ckpt", type=str)
-    #parser.add_argument("--tokenizer_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B-SMolInstruct/", type=str)
+    parser.add_argument("--ckpt", default="latest_checkpoint-epoch=19-step=8780.ckpt", type=str)
+    
     parser.add_argument("--loss", default="CLIP", type=str)
     parser.add_argument("--load_ckpt", default=None, type=str)
     parser.add_argument("--load_GNN_ckpt", default=None, type=str)
@@ -157,6 +161,9 @@ if __name__ == "__main__":
     parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Qwen2.5-0.5B/", type=str)
     parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Qwen2.5-0.5B/", type=str)
     parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Qwen2.5-0.5B/", type=str)
+    #parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Qwen2.5-7B/", type=str)
+    #parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Qwen2.5-7B/", type=str)
+    #parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Qwen2.5-7B/", type=str)
 
     #    "--freeze_text_encoder", type=bool, action=argparse.BooleanOptionalAction
     #)
@@ -173,7 +180,12 @@ if __name__ == "__main__":
 
     parser.add_argument("--check_val_every_n_steps", default=None, type=int)
 
+    parser.add_argument("--no_PEFT", type=bool, action=argparse.BooleanOptionalAction)
+
     args = parser.parse_args()
+
+
+    args.no_PEFT = True
 
     if args.val_batch_size == None:
         args.val_batch_size = args.batch_size
@@ -192,7 +204,7 @@ if __name__ == "__main__":
 
     #with open(config["ckpt_path"] + "molecule_tokenizer.pth", "rb") as f:
     
-    if False:
+    if not 'molecule_tokenizer' in locals():
         tokenizer = AutoTokenizer.from_pretrained(config["base_model"])
         tokenizer.pad_token = tokenizer.eos_token #llama3
         tokenizer.add_tokens(['[MOL]', '[/MOL]'])
@@ -221,7 +233,7 @@ if __name__ == "__main__":
 
         print('Tokenizer Loaded')
 
-    if False:
+    if not 'model' in locals():
 
         model = mCLM(config)
 
@@ -318,14 +330,14 @@ if __name__ == "__main__":
             generated = model.generate(
                 input_ids=message_tokens.unsqueeze(0),
                 max_new_tokens=128,
-                num_beams=1,
+                num_beams=5,
                 do_sample=False,
                 #bad_words_ids=bad_words_ids,
             )
             #outputs = model.generate(message_tokens, max_new_tokens=128) 
             #out_text = tokenizer.decode(outputs[0])
             
-            print('Generated:', generated)
+            #print('Generated:', generated)
 
             #extracted_mols = extract_between_MOL(generated[0])
             #print(extracted_mols)

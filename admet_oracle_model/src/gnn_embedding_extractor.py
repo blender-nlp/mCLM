@@ -14,9 +14,6 @@ warnings.filterwarnings("ignore")
 from gnn import GNNOnlyModel
 from config import task, ckpt_path, batch_size, device
 
-ckpt_path = os.path.join(ckpt_path, f'{task}_genentech.pt')
-
-
 
 
 
@@ -57,7 +54,10 @@ CONFIG_DICT = {
     }
 }
 
-def gnn_embedding_extractor(SMILES_test):
+def gnn_embedding_extractor(SMILES_test, ckpt_path):
+
+    ckpt_path = os.path.join(ckpt_path, f'{task}_genentech.pt')
+
     graphs = [smiles_to_graph(s) for s in SMILES_test]
     test_dataset = [g for g in graphs if g is not None]
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)

@@ -15,7 +15,6 @@ input_size = 768 # Input size for the GRU
 hidden_size = 256 # Hidden size for the GRU
 num_layers = 1 # Number of layers in the GRU
 sequence_length = 512 # Sequence length for input data
-ckpt_path = os.path.join(ckpt_path, f'{task}_farm.pt')
 
 
 
@@ -57,7 +56,9 @@ class GRUClassifier(nn.Module):
         out = self.relu(out)
         return out
 
-def farm_embedding_extractor(SMILES_test):
+def farm_embedding_extractor(SMILES_test, ckpt_path):
+
+    ckpt_path = os.path.join(ckpt_path, f'{task}_farm.pt')
 
     # FARM FOR MOLECULAR EMBEDDINGS
     tokenizer = PreTrainedTokenizerFast.from_pretrained('thaonguyen217/farm_molecular_representation')

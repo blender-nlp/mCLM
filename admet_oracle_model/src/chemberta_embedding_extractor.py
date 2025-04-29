@@ -15,7 +15,6 @@ input_size = 384 # Input size for the GRU
 hidden_size = 256 # Hidden size for the GRU
 num_layers = 1 # Number of layers in the GRU
 sequence_length = 512 # Sequence length for input data
-ckpt_path = os.path.join(ckpt_path, f'{task}_chemberta.pt')
 
 class SequenceDataset(Dataset):
     def __init__(self, X):
@@ -52,7 +51,10 @@ class GRUClassifier(nn.Module):
         out = self.relu(out)
         return out
     
-def chemberta_embedding_extractor(SMILES_test):
+def chemberta_embedding_extractor(SMILES_test, ckpt_path):
+    
+    ckpt_path = os.path.join(ckpt_path, f'{task}_chemberta.pt')
+
     tokenizer = AutoTokenizer.from_pretrained("DeepChem/ChemBERTa-5M-MTR")
     model = AutoModel.from_pretrained("DeepChem/ChemBERTa-5M-MTR").to(device)
 
