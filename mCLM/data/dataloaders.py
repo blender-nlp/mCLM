@@ -460,8 +460,8 @@ class GeneralDataset(Dataset):
 
         #raw_instruction = d['instruction']
         #raw_response = d['response']
-        cleaned_instruction = d['cleaned_instruction']
-        cleaned_response = d['cleaned_response']
+        cleaned_instruction = d['cleaned_instruction'].replace('[MOL] [/MOL]', '[MOL][/MOL]')
+        cleaned_response = d['cleaned_response'].replace('[MOL] [/MOL]', '[MOL][/MOL]')
         mol_list = d['mol_list']
 
         pad_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer.pad_token)
@@ -505,12 +505,13 @@ class GeneralDataset(Dataset):
             return_tensors="pt",
         )
         
+        #print('token before:', token_input['input_ids'].squeeze()[:128])
         token_input['input_ids'] = torch.tensor(insert_sublists(token_input['input_ids'].squeeze(), frags, self.MOL_start, self.MOL_end)[:self.trunc_length], dtype=torch.int32)#).to(torch.int)#
+        #print('token after:', token_input['input_ids'][:128])
         pad_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer.pad_token)
         num_attn = find_first_occurrence(token_input['input_ids'], pad_id)
         token_input['attention_mask'][:,:num_attn] = 1
         token_input['attention_mask'] = token_input['attention_mask'].squeeze()
-        token_input['input_ids'] = token_input['input_ids']
 
         rv = {
             "task_id": self.task_name,
@@ -1181,9 +1182,11 @@ class MolGenSMolInstructDataModule(LightningDataModule):
         self.tokenizer = AutoTokenizer.from_pretrained(self.config['pretrained_tokenizer'])
         self.tokenizer.pad_token = self.tokenizer.eos_token #llama3
 
+        print('tokenizer length before:', len(self.tokenizer))
         self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
         
         start_idx = len(self.tokenizer)
+        print('tokenizer length after:', len(self.tokenizer))
 
         train_data = []
         valid_data = []

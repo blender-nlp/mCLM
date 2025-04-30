@@ -447,6 +447,7 @@ class Qwen3ForCausalLM(Qwen3PreTrainedModel, GenerationMixin):
         # In Qwen2, the embedding size is rounded up to multiple of 256,
         # so we do not check if new_vocab_size is larger
         # assert new_vocab_size > self.vocab_size
+        print('Vocab size extended from', self.lm_head.weight.shape[0], 'to', new_vocab_size)
         self.lm_head.weight = nn.Parameter(
             F.pad(self.lm_head.weight,
                   (0, 0, 0, new_vocab_size - self.vocab_size), "constant", 0)

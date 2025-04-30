@@ -563,60 +563,96 @@ def compute_loss_optimized2_sep(logits, labels, mapping_tensor=None):
 
 
 
-    mol_labels_mask = labels >= (self.text_vocab_size - 1) # - 1 because [/MOL] needs to be produced by the chem model
+    #mol_labels_mask = (labels == self.text_vocab_size - 2).logical_or(
+    #            labels >= self.text_vocab_size) 
+    #print('mask test:')
+    #print(mol_labels_mask.shape, mol_labels_mask.sum())
+    #mol_labels_mask = labels >= (self.text_vocab_size - 1) 
+    #print(mol_labels_mask.shape, mol_labels_mask.sum())
+    #print('self.text_vocab_size:', self.text_vocab_size)
+    #print('self.mol_vocab_size:', self.mol_vocab_size)
 
 
     #can't use built-in shift for the split loss :(
-    shift_logits = self.embeddings[..., :-1, :].contiguous()
+    shift_embeddings = self.embeddings[..., :-1, :].contiguous()
     shift_labels = labels[..., 1:].contiguous()
-    mol_labels_mask = mol_labels_mask[..., 1:].contiguous()
+    shift_labels = shift_labels.long()
+    #mol_labels_mask = mol_labels_mask[..., 1:].contiguous()
+
+    mol_labels_mask = (shift_labels == self.text_vocab_size - 1) | (shift_labels >= self.text_vocab_size) # - 1 because [/MOL] needs to be produced by the chem model
+
+    #print('mol labels:', shift_labels[mol_labels_mask])
 
     num_mols = mol_labels_mask.sum()
     num_text = (~mol_labels_mask).sum()
+    #print('num_mols:', num_mols)
+    #print('num_text:', num_text)
 
-    #print("shift_logits:", shift_logits.shape)
+    #print("shift_labels:", shift_labels.shape)
     #print("mol_labels_mask:", mol_labels_mask.shape)
-    #print("shift_logits[~mol_labels_mask]:", shift_logits[~mol_labels_mask].shape)
+    #print("shift_labels[mol_labels_mask]:", shift_labels[mol_labels_mask].shape)
     #print("shift_labels[~mol_labels_mask]:", shift_labels[~mol_labels_mask].shape)
 
 
     text_classifier = self.text_classifier
     mol_classifier = self.mol_classifier
-    mol_classifier = torch.cat([mol_classifier, text_classifier[-1:].clone()], dim=0) #move [/MOL] over to mol_classifier
+    #print("text_classifier:", text_classifier.shape)
+    #print("mol_classifier:", mol_classifier.shape)
+    mol_classifier = torch.cat([mol_classifier, text_classifier[self.text_vocab_size-1].clone().unsqueeze(0)], dim=0) #move [/MOL] over to mol_classifier
     mol_labels = shift_labels[mol_labels_mask] - self.text_vocab_size
     mol_labels[mol_labels == -1] = self.mol_vocab_size #set the [/MOL] token label
+    #mol_labels = mol_labels.long()
+
+    #print('mol labels2:', mol_labels)
+
+    #print('Labels:')
+    #print(labels.min(), labels.max())
+    #print('shift_labels:', shift_labels.min(), shift_labels.max())
+    #print('text_labels:', shift_labels[~mol_labels_mask].min(), shift_labels[~mol_labels_mask].max())
+    #print('mol_labels:', mol_labels.min(), mol_labels.max())
+    #print('Labels Shape:')
+    #print(labels.shape)
+    #print('shift_labels:', shift_labels.shape)
+    #print('text_labels:', shift_labels[~mol_labels_mask].shape)
+    #print('mol_labels:', mol_labels.shape)
 
     if labels.device.type == 'cpu':
         impl = "torch_compile"
-        shift_labels = shift_labels.to(dtype=torch.long)
     else:
         impl = 'cce'
     
+    #print("shift_embeddings[mol_labels_mask]:", shift_embeddings[mol_labels_mask].shape)
+    #print("shift_embeddings[~mol_labels_mask]:", shift_embeddings[~mol_labels_mask].shape)
+
+    #print('Final Values for Loss:')
+
 
     if num_text != 0:
-        text_loss = loss_fct_opt(shift_logits[~mol_labels_mask], \
+        text_loss = loss_fct_opt(shift_embeddings[~mol_labels_mask], \
             text_classifier, shift_labels[~mol_labels_mask], impl=impl)#, shift=1)#, impl='cce_kahan_full_c_full_e')
     else:
         text_loss = None
 
     if num_mols != 0:
-        mol_loss = loss_fct_opt(shift_logits[mol_labels_mask], \
+        mol_loss = loss_fct_opt(shift_embeddings[mol_labels_mask], \
             mol_classifier, mol_labels, impl=impl)#, shift=1)#, impl='cce_kahan_full_c_full_e')
     else:
         mol_loss = None
 
     if False:
-        logits = self.embeddings @ self.classifier.t()
-        shift_logits = logits[..., :-1, :].contiguous()
-        shift_labels = labels[..., 1:].contiguous()
-        shift_logits = shift_logits.view(-1, shift_logits.size(-1))
-        shift_labels = shift_labels.view(-1)
-        print(shift_logits.shape, shift_labels.shape)
+        text_logits = shift_embeddings[~mol_labels_mask] @ text_classifier.t()
+        mol_logits = shift_embeddings[mol_labels_mask] @ mol_classifier.t()
         print("Labels:", shift_labels.min(), shift_labels.max())
-        loss_trad = loss_fct_opt2(shift_logits, shift_labels)
+        print("Text Labels:", shift_labels[~mol_labels_mask].min(), shift_labels[~mol_labels_mask].max())
+        print("Molecule Labels:", mol_labels.min(), mol_labels.max())
+        print(mol_logits.shape, text_logits.shape, shift_labels.shape, shift_labels[~mol_labels_mask].shape, mol_labels.shape)
+        mol_loss_trad = loss_fct_opt2(mol_logits, mol_labels)
+        text_loss_trad = loss_fct_opt2(text_logits, shift_labels[~mol_labels_mask])
 
-        print('CE loss:', loss_trad.item())
-        print('CCE loss:', loss.item())
+        print('Mol Cut loss:', mol_loss.item())
+        print('Mol Reg loss:', mol_loss_trad.item())
+        print('Text Cut loss:', text_loss.item())
+        print('Text Reg loss:', text_loss_trad.item())
 
     return text_loss, mol_loss
 
