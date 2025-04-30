@@ -516,7 +516,7 @@ def mclm_logit_head_optimized2_sep(
             )
             mol_logits = mol_logits.unsqueeze(0).unsqueeze(0)  # Shape: [1,1,99607]
             mol_logits = mol_logits.repeat(1, text_logits.shape[1], 1)           # Shape: [1,X,99607]
-            print(mol_logits.shape, text_logits.shape)
+            #print(mol_logits.shape, text_logits.shape)
             full_logits = torch.cat(
                 (text_logits, mol_logits),
                 dim=-1
