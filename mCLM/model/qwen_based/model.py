@@ -73,7 +73,7 @@ class Qwen2Model(OriginalQwen2Model):
         )
         self.mol_vocab = None
         self._use_mol_embeddings = False
-        self._finalized_molecule_embeddings = [None] 
+        self._finalized_molecule_embeddings = [None]
 
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size, self.padding_idx)
         self.layers = nn.ModuleList(
@@ -102,8 +102,8 @@ class Qwen2Model(OriginalQwen2Model):
             self.mol_vocab, self.mol_gnn, self.mol_adaptor,
             self._finalized_molecule_embeddings[0], self._use_mol_embeddings,
             self.vocab_size,
-            self.dtype, self.device, 
-            on_device=self.on_device 
+            self.dtype, self.device,
+            on_device=self.on_device
         )
 
     # mCLM extend text embedding
@@ -472,7 +472,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
                 hidden_states=outputs.hidden_states,
                 attentions=outputs.attentions,
             )
-            
+
     def finalize_molecule_embeddings(self, batch_size=None, embeddings=None):
         if batch_size is None:
             assert embeddings is not None

@@ -161,7 +161,26 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
 fi
 
 
+
 if true; then
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen3-0.6B-Base/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen3-0.6B-Base/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen3-0.6B-Base/ \
+    --check_val_every_n_steps 10000 \
+    --batch_size=32 --lr 2e-5 --mol_lr 2e-6 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen3-0.6B-Base_TotalTop50k_NoGNN_splitLR_splitLoss/ --version Qwen3-0.6B-Base_NoGNN_FastV3_OnlyBlocks2_splitLR_splitLoss \
+    --max_epochs 10 \
+    --no_PEFT \
+    --data_module TotalTop50k --task TotalTop50k \
+    --freeze_GNN \
+    --num_warmup_steps 2000 \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/Top50kV2/128_dim/ \
+
+fi
+
+
+if false; then
 
 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen3-0.6B-Base/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen3-0.6B-Base/ \

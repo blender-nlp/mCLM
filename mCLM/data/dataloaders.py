@@ -15,7 +15,9 @@ from torch_geometric.data.data import BaseData
 from torch_geometric.data.datapipes import DatasetAdapter
 from transformers import AutoTokenizer
 from typing import Any, List, Optional, Sequence, Union
-from torchdata.stateful_dataloader import StatefulDataLoader
+# Chi Debug
+# from torchdata.stateful_dataloader import StatefulDataLoader
+from torch.utils.data import DataLoader
 
 from sklearn.model_selection import train_test_split
 
@@ -59,7 +61,7 @@ def replace_ends(mol_list):
     for mol in mol_list:
         new_react = []
         for mo in mol.split('.'):
-            
+
             split = mo.split('^')
             new_mol = []
             for m in split:
@@ -121,8 +123,9 @@ class CustomCollater:
         #    return self(self.dataset.multi_get(batch))
         return self(batch)
 
-
-class CustomDataLoader(StatefulDataLoader):
+# Chi Debug
+# class CustomDataLoader(StatefulDataLoader):
+class CustomDataLoader(DataLoader):
     r"""A data loader which merges data objects from a
     :class:`torch_geometric.data.Dataset` to a mini-batch.
     Data objects can be either of type :class:`~torch_geometric.data.Data` or
@@ -221,7 +224,7 @@ class KinaseDataset(Dataset):
             padding="max_length",
             return_tensors="pt",
         )
-        
+
 
         #print(token_input)
 
@@ -278,7 +281,7 @@ class KinaseDataModule(LightningDataModule):
 
         self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
         #model.resize_token_embeddings(len(tokenizer)) #put this somewhere
-        
+
         start_idx = len(self.tokenizer)
         self.molecule_tokenizer = MoleculeTokenizer(start_idx)
 
@@ -323,7 +326,7 @@ class KinaseDataModule(LightningDataModule):
             self.molecule_tokenizer.create_input()
             with open(self.GNN_cache, "wb") as f:
                 torch.save(self.molecule_tokenizer, f)
-        
+
             print('# bad blocks:', len(self.molecule_tokenizer.bad_blocks))
 
 
@@ -335,7 +338,7 @@ class KinaseDataModule(LightningDataModule):
             trunc_length=self.trunc_length,
             block_to_idx = block_to_idx,
         )
-        
+
         self.train_ds = StatefulShuffleDataset(self.train_ds, seed=0)
 
         self.valid_ds = KinaseDataset(
@@ -397,7 +400,7 @@ class StatefulShuffleDataset(Dataset):
     def len(self):
         return len(self.dataset)
 
-    def get(self, idx):        
+    def get(self, idx):
         return self.dataset[self.random[idx]]
 
 
@@ -417,7 +420,7 @@ class ConcatDataset(Dataset):
         return sum(self.lens)
 
     def __getitem__(self, idx):
-        
+
         didx = np.digitize(idx, self.bins) - 1 #not zero indexed for some reason
         #print(idx, didx)
         return self.datasets[didx].__getitem__(idx - self.bins[didx])
@@ -441,7 +444,7 @@ class GeneralDataset(Dataset):
         self.shrink_size = shrink_size
 
         self.only_mol = only_mol
-        
+
         if self.shrink_size != None:
             self.all_data = data
             self.data = self.all_data.sample(min(self.shrink_size, len(self.all_data)), random_state=0)
@@ -460,8 +463,8 @@ class GeneralDataset(Dataset):
 
         #raw_instruction = d['instruction']
         #raw_response = d['response']
-        cleaned_instruction = d['cleaned_instruction']
-        cleaned_response = d['cleaned_response']
+        cleaned_instruction = d['cleaned_instruction'].replace('[MOL] [/MOL]', '[MOL][/MOL]')
+        cleaned_response = d['cleaned_response'].replace('[MOL] [/MOL]', '[MOL][/MOL]')
         mol_list = d['mol_list']
 
         pad_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer.pad_token)
@@ -474,7 +477,7 @@ class GeneralDataset(Dataset):
             num_attn = find_first_occurrence(mol_input, pad_id)
             attn = torch.zeros((self.trunc_length), dtype=torch.int)
             attn[:num_attn] = 1
-            
+
             rv = {
                 "task_id": self.task_name,
                 "raw_instruction": cleaned_instruction,
@@ -505,12 +508,13 @@ class GeneralDataset(Dataset):
             return_tensors="pt",
         )
         
+        #print('token before:', token_input['input_ids'].squeeze()[:128])
         token_input['input_ids'] = torch.tensor(insert_sublists(token_input['input_ids'].squeeze(), frags, self.MOL_start, self.MOL_end)[:self.trunc_length], dtype=torch.int32)#).to(torch.int)#
+        #print('token after:', token_input['input_ids'][:128])
         pad_id = self.tokenizer.convert_tokens_to_ids(self.tokenizer.pad_token)
         num_attn = find_first_occurrence(token_input['input_ids'], pad_id)
         token_input['attention_mask'][:,:num_attn] = 1
         token_input['attention_mask'] = token_input['attention_mask'].squeeze()
-        token_input['input_ids'] = token_input['input_ids']
 
         rv = {
             "task_id": self.task_name,
@@ -575,7 +579,7 @@ class MolInstDataset(Dataset):
             padding="max_length",
             return_tensors="pt",
         )
-                
+
         rv = {
             "task_id": self.task_name,
             "raw_instruction": raw_instruction,
@@ -637,7 +641,7 @@ class TuluDataset(Dataset):
             padding="max_length",
             return_tensors="pt",
         )
-        
+
 
         rv = {
             "task_id": self.task_name,
@@ -704,7 +708,7 @@ class TotalDataModule(LightningDataModule):
 
         self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
         #model.resize_token_embeddings(len(tokenizer)) #put this somewhere
-        
+
         start_idx = len(self.tokenizer)
 
         to_split_data = []
@@ -713,7 +717,7 @@ class TotalDataModule(LightningDataModule):
         test_data = []
 
         print('Loading Data')
-        
+
         for subdir in ['synthetic_chembl', 'synthetic_admet_chembl', 'pos_neg', 'pos_pos', 'property_to_mol','multi_property_to_mol', 'mol_only','mCLM','regression', 'classification']:
             ddir = osp.join(self.synthetic_data_path, subdir)
             files = [f for f in os.listdir(ddir) if os.path.isfile(os.path.join(ddir, f))]
@@ -724,7 +728,7 @@ class TotalDataModule(LightningDataModule):
                     df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
                 except pd.errors.EmptyDataError:
                     print(f"Warning: {f} is empty. Skipping.")
-                    continue                
+                    continue
                 if len(df) == 0: continue
                 df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
 
@@ -745,14 +749,14 @@ class TotalDataModule(LightningDataModule):
         df['messages'] = df['messages'].apply(lambda x : x.replace("'}\n {'", "'},{'").replace("'} {'", "'},{'")).apply(ast.literal_eval)
         print(len(df))
         to_split_data.append((df, f.replace('.csv', ''),None))
-        
+
         ddir = osp.join(self.instruction_data_path)
         f = 'mol-inst_biomol_text_train.csv'
         print(f)
         df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'input': str, 'output': str},keep_default_na=False,na_values=[])
         print(len(df))
         train_data.append((df, f.replace('.csv', ''),None))
-        
+
         ddir = osp.join(self.instruction_data_path)
         f = 'mol-inst_biomol_text_test.csv'
         print(f)
@@ -787,7 +791,7 @@ class TotalDataModule(LightningDataModule):
         print(len(df))
         #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
         test_data.append((df, f.replace('.csv', ''),None))
-        
+
 
         print('Dataframes Loaded')
 
@@ -816,14 +820,14 @@ class TotalDataModule(LightningDataModule):
             #self.molecule_tokenizer.create_input()
             with open(self.GNN_cache, "wb") as f:
                 torch.save(self.molecule_tokenizer, f)
-        
+
             print('# bad blocks:', len(self.molecule_tokenizer.bad_blocks))
 
         #print('length:', len(self.molecule_tokenizer.bad_blocks))
         #print(len(self.molecule_tokenizer))
 
         print('Molecule Building Block Input Created / Loaded')
-        
+
         GNN_cache = self.config["GNN_cache"]
 
         #Preprocess molecule tokenizer
@@ -838,7 +842,7 @@ class TotalDataModule(LightningDataModule):
                     torch.save(self.molecule_tokenizer.GNN_input_map, f)
 
 
-        
+
         self.train_dses = []
         self.valid_dses = []
         self.test_dses = []
@@ -878,7 +882,7 @@ class TotalDataModule(LightningDataModule):
                     trunc_length=self.trunc_length,
                 )
                 self.test_dses.append(ds)
-            
+
 
         for df, task, shrink in train_data:
             if task.startswith('tulu'): ds_type = TuluDataset
@@ -898,7 +902,7 @@ class TotalDataModule(LightningDataModule):
         self.train_ds = StatefulShuffleDataset(self.train_ds, seed=0)
         print('Total Training Data Length:', len(self.train_ds))
         #zz
-        
+
         for df, task, shrink in valid_data:
             if task.startswith('tulu'): ds_type = TuluDataset
             elif task.startswith('mol-inst'): ds_type = MolInstDataset
@@ -981,7 +985,7 @@ class SMolInstructDataModule(LightningDataModule):
         self.tokenizer.pad_token = self.tokenizer.eos_token #llama3
 
         self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
-        
+
         start_idx = len(self.tokenizer)
 
         train_data = []
@@ -1038,8 +1042,8 @@ class SMolInstructDataModule(LightningDataModule):
             #self.molecule_tokenizer.create_input()
             with open(self.GNN_cache, "wb") as f:
                 torch.save(self.molecule_tokenizer, f)
-        
-        
+
+
         GNN_cache = self.config["GNN_cache"]
 
         #Preprocess molecule tokenizer
@@ -1053,7 +1057,7 @@ class SMolInstructDataModule(LightningDataModule):
                 with open(GNN_cache, "wb") as f:
                     torch.save(self.molecule_tokenizer.GNN_input_map, f)
 
-   
+
 
         print('Molecule Building Block Input Created / Loaded')
 
@@ -1181,9 +1185,11 @@ class MolGenSMolInstructDataModule(LightningDataModule):
         self.tokenizer = AutoTokenizer.from_pretrained(self.config['pretrained_tokenizer'])
         self.tokenizer.pad_token = self.tokenizer.eos_token #llama3
 
+        print('tokenizer length before:', len(self.tokenizer))
         self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
-        
+
         start_idx = len(self.tokenizer)
+        print('tokenizer length after:', len(self.tokenizer))
 
         train_data = []
         valid_data = []
@@ -1243,8 +1249,8 @@ class MolGenSMolInstructDataModule(LightningDataModule):
             #self.molecule_tokenizer.create_input()
             with open(self.GNN_cache, "wb") as f:
                 torch.save(self.molecule_tokenizer, f)
-        
-        
+
+
         GNN_cache = self.config["GNN_cache"]
 
         #Preprocess molecule tokenizer
@@ -1258,7 +1264,7 @@ class MolGenSMolInstructDataModule(LightningDataModule):
                 with open(GNN_cache, "wb") as f:
                     torch.save(self.molecule_tokenizer.GNN_input_map, f)
 
-   
+
 
         print('Molecule Building Block Input Created / Loaded')
 
@@ -1355,7 +1361,7 @@ class MolOnlySMolInstructDataModule(LightningDataModule):
         self.tokenizer.pad_token = self.tokenizer.eos_token #llama3
 
         self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
-        
+
         start_idx = len(self.tokenizer)
 
         train_data = []
@@ -1413,8 +1419,8 @@ class MolOnlySMolInstructDataModule(LightningDataModule):
             #self.molecule_tokenizer.create_input()
             with open(self.GNN_cache, "wb") as f:
                 torch.save(self.molecule_tokenizer, f)
-        
-        
+
+
         GNN_cache = self.config["GNN_cache"]
 
         #Preprocess molecule tokenizer
@@ -1428,7 +1434,7 @@ class MolOnlySMolInstructDataModule(LightningDataModule):
                 with open(GNN_cache, "wb") as f:
                     torch.save(self.molecule_tokenizer.GNN_input_map, f)
 
-   
+
 
         print('Molecule Building Block Input Created / Loaded')
 
@@ -1544,7 +1550,7 @@ class MolGenTotalDataModule(LightningDataModule):
 
         self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
         #model.resize_token_embeddings(len(tokenizer)) #put this somewhere
-        
+
         start_idx = len(self.tokenizer)
 
         to_split_data = []
@@ -1553,7 +1559,7 @@ class MolGenTotalDataModule(LightningDataModule):
         test_data = []
 
         print('Loading Data')
-        
+
         for subdir in ['property_to_mol','multi_property_to_mol', 'mol_only', 'pos_neg', 'pos_pos']:
             ddir = osp.join(self.synthetic_data_path, subdir)
             files = [f for f in os.listdir(ddir) if os.path.isfile(os.path.join(ddir, f))]
@@ -1603,7 +1609,7 @@ class MolGenTotalDataModule(LightningDataModule):
         print(len(df))
         #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
         test_data.append((df, f.replace('.csv', ''),None))
-        
+
 
         print('Dataframes Loaded')
 
@@ -1632,14 +1638,14 @@ class MolGenTotalDataModule(LightningDataModule):
             #self.molecule_tokenizer.create_input()
             with open(self.GNN_cache, "wb") as f:
                 torch.save(self.molecule_tokenizer, f)
-        
+
             print('# bad blocks:', len(self.molecule_tokenizer.bad_blocks))
 
         #print('length:', len(self.molecule_tokenizer.bad_blocks))
         #print(len(self.molecule_tokenizer))
-        
+
         print('Molecule Building Block Input Created / Loaded')
-        
+
         GNN_cache = self.config["GNN_cache"]
 
         #Preprocess molecule tokenizer
@@ -1654,7 +1660,7 @@ class MolGenTotalDataModule(LightningDataModule):
                     torch.save(self.molecule_tokenizer.GNN_input_map, f)
 
 
-        
+
         self.train_dses = []
         self.valid_dses = []
         self.test_dses = []
@@ -1694,7 +1700,7 @@ class MolGenTotalDataModule(LightningDataModule):
                     trunc_length=self.trunc_length,
                 )
                 self.test_dses.append(ds)
-            
+
 
         for df, task, shrink in train_data:
             if task.startswith('tulu'): ds_type = TuluDataset
@@ -1714,7 +1720,7 @@ class MolGenTotalDataModule(LightningDataModule):
         self.train_ds = StatefulShuffleDataset(self.train_ds, seed=0)
         print('Total Training Data Length:', len(self.train_ds))
         #zz
-        
+
         for df, task, shrink in valid_data:
             if task.startswith('tulu'): ds_type = TuluDataset
             elif task.startswith('mol-inst'): ds_type = MolInstDataset

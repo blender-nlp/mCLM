@@ -135,7 +135,7 @@ class mCLM(L.LightningModule):
 
         #print('the input:', batch["input"]["input_ids"].shape, batch["input"]["attention_mask"].shape, batch["input"]["labels"].shape)
 
-        #print('in mCLM', self.model.negative_sampling_size)
+        #print('batch:',batch)
 
         output, text_loss, mol_loss = self.model(
             input_ids=batch["input"]["input_ids"],
