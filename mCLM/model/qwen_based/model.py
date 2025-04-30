@@ -109,10 +109,17 @@ class Qwen2Model(OriginalQwen2Model):
     # mCLM extend text embedding
     def extend_text_vocab_size(self, new_vocab_size):
         # assert new_vocab_size > self.vocab_size
+                    
         self.embed_tokens.weight = nn.Parameter(
             F.pad(self.embed_tokens.weight,
-                  (0, 0, 0, new_vocab_size - self.vocab_size), "constant", 0)
+                (0, 0, 0, new_vocab_size - self.vocab_size), "constant", 0)
         )
+        #https://www.cs.columbia.edu/~johnhew/vocab-expansion.html
+        old_weight = self.embed_tokens.weight[:new_vocab_size-2, :] #2 is this is hardcoded for mCLM
+        mean_emb = old_weight.mean(dim=0, keepdim=True)
+        new_rows = mean_emb.repeat(2, 1) 
+        self.embed_tokens.weight = nn.Parameter(torch.cat([old_weight, new_rows], dim=0))
+
         self.vocab_size = new_vocab_size
         self.config.vocab_size = new_vocab_size
 
@@ -304,10 +311,22 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         # In Qwen2, the embedding size is rounded up to multiple of 256,
         # so we do not check if new_vocab_size is larger
         # assert new_vocab_size > self.vocab_size
+
+        #new_size = new_vocab_size
+        #old_size = self.vocab_size
+        #if new_size <= old_size:
+        #    print(f"Skipping vocab extension: new_size={new_size}, old_size={old_size}")
+
         self.lm_head.weight = nn.Parameter(
             F.pad(self.lm_head.weight,
-                  (0, 0, 0, new_vocab_size - self.vocab_size), "constant", 0)
+                (0, 0, 0, new_vocab_size - self.vocab_size), "constant", 0)
         )
+        #https://www.cs.columbia.edu/~johnhew/vocab-expansion.html
+        old_weight = self.lm_head.weight[:new_vocab_size-2, :] #2 is this is hardcoded for mCLM
+        mean_emb = old_weight.mean(dim=0, keepdim=True)
+        new_rows = mean_emb.repeat(2, 1) 
+        self.lm_head.weight = nn.Parameter(torch.cat([old_weight, new_rows], dim=0))
+
         self.model.extend_text_vocab_size(new_vocab_size)
         self.config.vocab_size = new_vocab_size
 
@@ -405,7 +424,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         is_generating_mol = (input_ids == self.vocab_size - 2).logical_or(
                 input_ids >= self.vocab_size)
         #print('is_generating_mol:')
-        print(self.vocab_size, is_generating_mol, input_ids)
+        #print(self.vocab_size, is_generating_mol, input_ids)
         #print(is_generating_mol.shape)
         # mCLM logit head
         logits = mclm_logit_head_optimized2_sep(
