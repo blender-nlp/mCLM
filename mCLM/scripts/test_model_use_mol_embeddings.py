@@ -139,7 +139,7 @@ if __name__ == "__main__":
         output_dim = 1
         dm = KinaseDataModule(
             config,
-            molecule_tokenizer = molecule_tokenizer,
+            # molecule_tokenizer = molecule_tokenizer,
             data_path = config["data_path"],
             base_model=config["base_model"],
             batch_size=config["batch_size"],
