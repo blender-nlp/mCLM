@@ -59,7 +59,7 @@ def chemberta_embedding_extractor(SMILES_test, ckpt_path):
     model = AutoModel.from_pretrained("DeepChem/ChemBERTa-5M-MTR").to(device)
 
     X_test = []
-    for sm in tqdm(SMILES_test, desc='ChemBERTa-2 feature extracting ...'):
+    for sm in SMILES_test:#tqdm(SMILES_test, desc='ChemBERTa-2 feature extracting ...'):
         inputs = tokenizer(sm, return_tensors='pt').to(device)
         with torch.no_grad():
             outputs = model(**inputs, output_hidden_states=True)

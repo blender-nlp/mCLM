@@ -70,7 +70,7 @@ def gnn_embedding_extractor(SMILES_test, ckpt_path):
     
     X = []
     with torch.no_grad():
-        for batch in tqdm(test_loader, desc='GNN feature extracting ...'):
+        for batch in test_loader:#tqdm(test_loader, desc='GNN feature extracting ...'):
             batch = batch.to(device)
             embeddings = model(batch).squeeze()
             try:

@@ -29,7 +29,7 @@ device = 'cpu'
 #data_path = 'fangels.txt'
 ckpt_path = '../admet_oracle_model/checkpoints'
 
-def score(data_path):
+def score(data_path, task):
     task_ckpt_path = os.path.join(ckpt_path, f'{task}_mlp.pt')
 
     dataloader, smiles = prepare_dataset(data_path, ckpt_path)
@@ -55,13 +55,14 @@ def score(data_path):
 
     return data
 
-print('Fallen Angels Scores:')
-for task in tasks:
-    print(task)
+if __name__ == '__main__':
+    print('Fallen Angels Scores:')
+    for task in tasks:
+        print(task)
 
-    scores = score('fangels.txt')
+        scores = score('fangels.txt')
 
-    print(scores)
+        print(scores)
 
 
 
