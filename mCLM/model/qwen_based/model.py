@@ -109,6 +109,7 @@ class Qwen2Model(OriginalQwen2Model):
     # mCLM extend text embedding
     def extend_text_vocab_size(self, new_vocab_size):
         # assert new_vocab_size > self.vocab_size
+                    
         self.embed_tokens.weight = nn.Parameter(
             F.pad(self.embed_tokens.weight,
                 (0, 0, 0, new_vocab_size - self.text_vocab_size), "constant", 0)
@@ -311,6 +312,12 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         # In Qwen2, the embedding size is rounded up to multiple of 256,
         # so we do not check if new_vocab_size is larger
         # assert new_vocab_size > self.vocab_size
+
+        #new_size = new_vocab_size
+        #old_size = self.vocab_size
+        #if new_size <= old_size:
+        #    print(f"Skipping vocab extension: new_size={new_size}, old_size={old_size}")
+
         self.lm_head.weight = nn.Parameter(
             F.pad(self.lm_head.weight,
                 (0, 0, 0, new_vocab_size - self.text_vocab_size), "constant", 0)
