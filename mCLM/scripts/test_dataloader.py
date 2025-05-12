@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 # import os.path as osp
 # import lightning as L
 # import sys
@@ -12,7 +13,7 @@ import torch
 
 from tqdm import tqdm
 
-from mCLM.data.dataloaders import TotalDataModule, SMolInstructDataModule
+from mCLM.data.dataloaders import TotalDataModule, SMolInstructDataModule, KinaseDataModule
 from mCLM_tokenizer.tokenizer import get_blocks
 
 from mCLM.model.models import mCLM
@@ -81,9 +82,13 @@ if __name__ == "__main__":
     parser.add_argument("--model", default="mCLM", type=str)
     #parser.add_argument("--base_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
     #parser.add_argument("--pretrained_text_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
-    parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
-    parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
-    parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
+    #parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
+    #parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
+    #parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
+    parser.add_argument("--base_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/", type=str)
+    parser.add_argument("--pretrained_text_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/", type=str)
+    parser.add_argument("--pretrained_tokenizer", default="/home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/", type=str)
+
 
     parser.add_argument(
         "--freeze_GNN", type=bool, action=argparse.BooleanOptionalAction
@@ -99,8 +104,11 @@ if __name__ == "__main__":
     parser.add_argument("--caption_source", type=str)
     parser.add_argument("--fold_idx", type=int)
     parser.add_argument("--data_path", type=str, default='kinase_data_processing/')
-    parser.add_argument("--instruction_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/instruction/dataloader_processed_onlyblocks//')
-    parser.add_argument("--synthetic_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/synthetic/dataloader_processed_onlyblocks//')
+    #parser.add_argument("--instruction_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/instruction/dataloader_processed_onlyblocks//')
+    #parser.add_argument("--synthetic_data_path", type=str, default='/shared/nas/data/m1/shared-resource/MoleculeLanguage/mCLM/synthetic/dataloader_processed_onlyblocks//')
+    parser.add_argument("--instruction_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/instruction_onlyblocks_top_50000/')
+    parser.add_argument("--synthetic_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/synthetic_onlyblocks_top_50000/')
+
     parser.add_argument("--GNN_cache", default=None, type=str)
 
 
@@ -136,7 +144,7 @@ if __name__ == "__main__":
     molecule_tokenizer = get_blocks
 
     if config["data_module"] == "Kinase":
-        dm = TotalDataModule(
+        dm = KinaseDataModule(
             config,
             data_path = config["data_path"],
             base_model=config["base_model"],
@@ -177,6 +185,8 @@ if __name__ == "__main__":
     ldr = next(test_iter)
 
     item = next(iter(ldr))
+
+    torch.set_printoptions(threshold=sys.maxsize)
 
     print(item)
 

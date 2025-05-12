@@ -9,6 +9,8 @@ from pl_bolts.optimizers import LinearWarmupCosineAnnealingLR
 
 #from deepspeed.ops.adam import FusedAdam, DeepSpeedCPUAdam
 
+from mCLM.data.processing import load_with_tqdm
+
 from peft import get_peft_config, get_peft_model, LoraConfig, TaskType
 
 
@@ -92,6 +94,18 @@ class mCLM(L.LightningModule):
     def setup(self, stage=None):
         self.model.extend_text_vocab_size(len(self.trainer.datamodule.tokenizer.vocab))
         self.model.set_mol_vocab(self.trainer.datamodule.molecule_tokenizer)
+
+        if self.config['finetune']:
+            print('Setting Finetune to On')
+            tokenizer = self.trainer.datamodule.tokenizer
+            self.model.use_BCE_loss(tokenizer.convert_tokens_to_ids(tokenizer.tokenize("Yes")), tokenizer.convert_tokens_to_ids(tokenizer.tokenize("No")))
+
+        if self.config['load_ckpt'] != None:
+        
+            sd = load_with_tqdm(self.config["load_ckpt"], map_location='cpu')['state_dict']
+
+            self.load_state_dict(sd, strict=True)
+
 
         #self.model.mapping_tensor = torch.full((self.model.total_vocab_size,), -1, dtype=torch.long)
         #print('mapping:', self.model.mapping_tensor.shape)
@@ -276,7 +290,12 @@ class mCLM(L.LightningModule):
         self.test_step_outputs.clear()
 
     def training_step(self, batch, batch_idx, dataloader_idx=0) -> torch.Tensor:
-        return self.compute_step(batch, prefix="train")
+        step = self.compute_step(batch, prefix="train")
+        for name, param in self.named_parameters():
+            if param.requires_grad and param.grad is None:
+                print(f"Parameter {name} has no gradient.")
+
+        return step
 
     def validation_step(self, batch, batch_idx, dataloader_idx=0) -> torch.Tensor:
         step_outputs = self.compute_step(batch, prefix="val", task_id = batch['task_id'])

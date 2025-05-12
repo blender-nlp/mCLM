@@ -35,24 +35,7 @@ from rdkit import Chem
 
 import subprocess
 
-from mCLM.data.processing import insert_sublists, find_first_occurrence
-
-def load_with_tqdm(file_path, map_location=None, weights_only=True):
-    file_size = os.path.getsize(file_path)
-    buffer_size = 1024 * 1024  # 1MB chunks
-    
-    with open(file_path, 'rb') as f, tqdm(desc='Loading', total=file_size, unit='iB', unit_scale=True, unit_divisor=1024) as pbar:
-        buffer = bytearray()
-        while True:
-            chunk = f.read(buffer_size)
-            if not chunk:
-                break
-            buffer.extend(chunk)
-            pbar.update(len(chunk))
-        
-        byte_stream = io.BytesIO(buffer)
-        data = torch.load(byte_stream, map_location=map_location, weights_only=weights_only)
-    return data
+from mCLM.data.processing import insert_sublists, find_first_occurrence, load_with_tqdm
 
 
 def extract_between_MOL(tensor):

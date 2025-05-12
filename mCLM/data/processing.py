@@ -1,6 +1,7 @@
 import logging
 import numpy as np
 import os
+import io
 import pandas as pd
 import torch
 from torch_geometric.data import Data
@@ -524,3 +525,21 @@ def canonicalize(smi):
         return Chem.MolToSmiles(Chem.MolFromSmiles(smi))
     except:
         return None
+
+
+def load_with_tqdm(file_path, map_location=None, weights_only=True):
+    file_size = os.path.getsize(file_path)
+    buffer_size = 1024 * 1024  # 1MB chunks
+    
+    with open(file_path, 'rb') as f, tqdm(desc='Loading', total=file_size, unit='iB', unit_scale=True, unit_divisor=1024) as pbar:
+        buffer = bytearray()
+        while True:
+            chunk = f.read(buffer_size)
+            if not chunk:
+                break
+            buffer.extend(chunk)
+            pbar.update(len(chunk))
+        
+        byte_stream = io.BytesIO(buffer)
+        data = torch.load(byte_stream, map_location=map_location, weights_only=weights_only)
+    return data

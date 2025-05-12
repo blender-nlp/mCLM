@@ -33,6 +33,158 @@ export PL_FAULT_TOLERANT_TRAINING=1
 echo "Starting Main Script" 
 
 
+
+if false; then
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+#export TORCH_DISTRIBUTED_DEBUG=DETAIL
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --check_val_every_n_steps 10000 \
+    --batch_size=4 --lr 2e-5 --mol_lr 2e-6 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-3B_TotalTop1k_Adaptor_splitLoss/ --version Qwen2.5-3B_Adaptor_splitLoss \
+    --max_epochs 1 \
+    --no_PEFT \
+    --train_adapter \
+    --accumulate_grad_batches 4 \
+    --data_module TotalTopK --task TotalTop500 \
+    --num_warmup_steps 2000 \
+    --save_checkpoint_every_n_steps 1000 \
+    --instruction_data_path /home/a-m/cne2/MMLI_projects/mCLM/data/instruction_onlyblocks_top_500/ \
+    --synthetic_data_path /home/a-m/cne2/MMLI_projects/mCLM/data/synthetic_onlyblocks_top_500/ \
+    --downsample_tulu 0.1 \
+    --tokenizer_cache ../GNN_input_cache/Total.molecule_tokenizer.500.pth \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/Top500/128_dim/ \
+
+    #--freeze_GNN \
+
+fi
+
+if false; then
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-7B/ \
+    --check_val_every_n_steps 10000 \
+    --batch_size=1 --lr 2e-5 --mol_lr 2e-6 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-7B_TotalTop1k_PreAdaptor_splitLoss/ --version Qwen2.5-7B_PreAdaptor_splitLoss \
+    --max_epochs 5 \
+    --no_PEFT \
+    --accumulate_grad_batches 4 \
+    --data_module TotalTopK --task TotalTop500 \
+    --num_warmup_steps 2000 \
+    --save_checkpoint_every_n_steps 1000 \
+    --instruction_data_path /home/a-m/cne2/MMLI_projects/mCLM/data/instruction_onlyblocks_top_500/ \
+    --synthetic_data_path /home/a-m/cne2/MMLI_projects/mCLM/data/synthetic_onlyblocks_top_500/ \
+    --downsample_tulu 0.1 \
+    --tokenizer_cache ../GNN_input_cache/Total.molecule_tokenizer.500.pth \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/Top500/128_dim/ \
+    --train_adapter \
+
+fi
+
+if true; then
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --batch_size=4 --lr 2e-5 --mol_lr 2e-6 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-3B_TotalTop1k_FT2_splitLoss/ --version Qwen2.5-3B_FT2_splitLoss \
+    --max_epochs 25 \
+    --no_PEFT \
+    --accumulate_grad_batches 4 \
+    --data_module FinetuneTopK --task FinetuneTop500 \
+    --num_warmup_steps 5000 \
+    --save_checkpoint_every_n_steps 1000 \
+    --synthetic_data_path /home/a-m/cne2/MMLI_projects/mCLM/data/finetune_top_500/ \
+    --tokenizer_cache ../GNN_input_cache/Total.molecule_tokenizer.500.pth \
+    --load_ckpt ckpts/OnlyBlocks/Qwen2.5-3B_TotalTop1k_PreAdaptor_splitLoss/latest_checkpoint-epoch=04-step=129000.ckpt \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/Top500/128_dim/ \
+
+fi
+
+if false; then
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --check_val_every_n_steps 10000 \
+    --batch_size=4 --lr 2e-5 --mol_lr 2e-6 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-3B_TotalTop1k_PreAdaptor_splitLoss/ --version Qwen2.5-3B_PreAdaptor_splitLoss \
+    --max_epochs 5 \
+    --no_PEFT \
+    --accumulate_grad_batches 4 \
+    --data_module TotalTopK --task TotalTop500 \
+    --num_warmup_steps 2000 \
+    --save_checkpoint_every_n_steps 1000 \
+    --instruction_data_path /home/a-m/cne2/MMLI_projects/mCLM/data/instruction_onlyblocks_top_500/ \
+    --synthetic_data_path /home/a-m/cne2/MMLI_projects/mCLM/data/synthetic_onlyblocks_top_500/ \
+    --downsample_tulu 0.1 \
+    --tokenizer_cache ../GNN_input_cache/Total.molecule_tokenizer.500.pth \
+    --load_ckpt ckpts/OnlyBlocks/Qwen2.5-3B_TotalTop1k_Adaptor_splitLoss/latest_checkpoint-epoch=00-step=25000.ckpt \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/Top500/128_dim/ \
+
+fi
+
+if false; then
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --check_val_every_n_steps 10000 \
+    --batch_size=4 --lr 2e-5 --mol_lr 2e-6 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-3B_TotalTop1k_splitLoss_10kPretrain/ --version Qwen2.5-3B_splitLoss \
+    --max_epochs 2 \
+    --no_PEFT \
+    --accumulate_grad_batches 4 \
+    --data_module TotalTopK --task TotalTop500 \
+    --freeze_GNN \
+    --num_warmup_steps 2000 \
+    --save_checkpoint_every_n_steps 1000 \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/Top500/128_dim/ \
+    --instruction_data_path /home/a-m/cne2/MMLI_projects/mCLM/data/instruction_onlyblocks_top_500/ \
+    --synthetic_data_path /home/a-m/cne2/MMLI_projects/mCLM/data/synthetic_onlyblocks_top_500/ \
+    --tokenizer_cache ../GNN_input_cache/Total.molecule_tokenizer.500.pth \
+    --load_from_ckpt ckpts/OnlyBlocks/Qwen2.5-3B_TotalTop1k_splitLoss_1kPretrain/latest_checkpoint-epoch=04-step=129000.ckpt \
+    --only_text_loss \
+
+fi
+
+
+if false; then
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+#export TORCH_DISTRIBUTED_DEBUG=DETAIL
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --check_val_every_n_steps 10000 \
+    --batch_size=4 --lr 2e-5 --mol_lr 2e-6 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-3B_TotalTop1k_GNN_splitLoss/ --version Qwen2.5-3B_PreGNN_splitLoss \
+    --max_epochs 5 \
+    --no_PEFT \
+    --accumulate_grad_batches 4 \
+    --data_module TotalTopK --task TotalTop500 \
+    --num_warmup_steps 2000 \
+    --save_checkpoint_every_n_steps 1000 \
+    --instruction_data_path /home/a-m/cne2/MMLI_projects/mCLM/data/instruction_onlyblocks_top_500/ \
+    --synthetic_data_path /home/a-m/cne2/MMLI_projects/mCLM/data/synthetic_onlyblocks_top_500/ \
+    --downsample_tulu 0.1 \
+    --load_GNN_ckpt ckpts_GNN/OnlyBlocks/128_dim/best_val_checkpoint.ckpt \
+    --tokenizer_cache ../GNN_input_cache/Total.molecule_tokenizer.500.pth \
+    
+    #--freeze_GNN \
+    #--pretrained_embeddings final_embeddings/OnlyBlocks/Top500/128_dim/ \
+
+fi
+
 #PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
 #    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ --check_val_every_n_steps 10000 \
 #    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
@@ -161,23 +313,25 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
 fi
 
 
-if true; then
+if false; then
 
 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
     --check_val_every_n_steps 10000 \
     --batch_size=32 --lr 2e-5 --mol_lr 2e-6 \
-    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-0.5B_TotalTop50kV2_NoGNN_splitLR_splitLoss_EmbInit/ --version Qwen2.5-0.5B_NoGNN_splitLR_splitLoss_EmbInit \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-0.5B_TotalTop50kV2_NoGNN_splitLR_splitLoss/ --version Qwen2.5-0.5B_NoGNN_splitLR_splitLoss \
     --max_epochs 10 \
     --no_PEFT \
     --data_module TotalTop50k --task TotalTop50k \
     --freeze_GNN \
     --num_warmup_steps 2000 \
-    --save_checkpoint_every_n_steps 2500 \
+    --save_checkpoint_every_n_steps 1000 \
     --pretrained_embeddings final_embeddings/OnlyBlocks/Top50kV2/128_dim/ \
+    --resume_from_checkpoint ckpts/OnlyBlocks/Qwen2.5-0.5B_TotalTop50kV2_NoGNN_splitLR_splitLoss/latest_checkpoint-epoch=00-step=40000.ckpt \
 
 fi
+
 
 
 if false; then
