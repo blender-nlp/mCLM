@@ -760,8 +760,8 @@ def compute_loss_optimized2_sep_batch(logits, labels, mapping_tensor=None):
         labels = mapping_tensor[labels]
 
     #can't use built-in shift for the split loss :(
-    shift_embeddings = self.embeddings[..., :-1, :].contiguous()
-    shift_labels = labels[..., 1:].contiguous()
+    shift_embeddings = self.embeddings[:, :-1, :].contiguous()
+    shift_labels = labels[:, 1:].contiguous()
     shift_labels = shift_labels.long()
 
     mol_labels_mask = (shift_labels == self.text_vocab_size - 1) | (shift_labels >= self.text_vocab_size) # - 1 because [/MOL] needs to be produced by the chem model
@@ -783,10 +783,11 @@ def compute_loss_optimized2_sep_batch(logits, labels, mapping_tensor=None):
         text_labels = shift_labels[~mol_labels_mask]
         text_loss = loss_fct_opt2(text_logits, text_labels)
 
-        text_loss = text_loss.clone()
-        text_loss[text_labels == MOL_start] = text_loss[text_labels == MOL_start]* 10
-
+        #text_loss = text_loss.clone()
+        #text_loss[text_labels == MOL_start] = text_loss[text_labels == MOL_start]* 10
+        print('text_loss', text_loss.shape)
         text_loss = text_loss.mean(dim=tuple(range(1, text_loss.ndim)))
+        print('text_loss', text_loss.shape)
     else:
         text_loss = None
 
@@ -796,7 +797,9 @@ def compute_loss_optimized2_sep_batch(logits, labels, mapping_tensor=None):
         #mol_loss = loss_fct_opt(shift_embeddings[mol_labels_mask], \
         #    mol_classifier, mol_labels, impl=impl, reduction='none')#, shift=1)#, impl='cce_kahan_full_c_full_e')
 
+        print('mol_loss', mol_loss.shape)
         mol_loss = mol_loss.mean(dim=tuple(range(1, mol_loss.ndim)))
+        print('mol_loss', mol_loss.shape)
     else:
         mol_loss = None
 
@@ -828,12 +831,16 @@ def compute_loss_BCE(logits, labels, Yes_token, No_token, mapping_tensor=None):
 
 
     #can't use built-in shift for the split loss :(
-    shift_embeddings = self.embeddings[..., :-1, :].contiguous()
-    shift_labels = labels[..., 1:].contiguous()
+    shift_embeddings = self.embeddings[:, :-1, :].contiguous()
+    shift_labels = labels[:, 1:].contiguous()
     shift_labels = shift_labels.long()
+
+    print(shift_labels.shape, shift_embeddings.shape)
 
     ans_labels_mask = (shift_labels == Yes_token) | (shift_labels == No_token) 
 
+    print(ans_labels_mask.shape)
+    
     num_yesno = ans_labels_mask.sum()
 
     text_classifier = self.text_classifier[[No_token, Yes_token]]
@@ -849,12 +856,13 @@ def compute_loss_BCE(logits, labels, Yes_token, No_token, mapping_tensor=None):
         #text_loss[text_labels == MOL_start] = text_loss[text_labels == MOL_start]* 10
 
         text_loss = text_loss.mean(dim=tuple(range(1, text_loss.ndim)))
-        #mol_loss = None
-    #else:
+        print('text_loss', text_loss.shape)
     
     _, mol_loss = compute_loss_optimized2_sep_batch(logits, labels)
 
     batch_labels_mask = (ans_labels_mask.sum(dim=tuple(range(1, ans_labels_mask.ndim))) > 0).long()
+
+    print('batch_labels_mask', batch_labels_mask, batch_labels_mask.shape)
 
     if batch_labels_mask.sum() != 0:
         text_loss = text_loss[batch_labels_mask].mean()

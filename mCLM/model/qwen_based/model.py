@@ -481,8 +481,8 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         #print('mapping in forward:', self.mapping_tensor.shape)
 
         if labels is not None:
-            if len(self.mapping_tensor) != self.total_vocab_size:
-                self.mapping_tensor = torch.full((self.total_vocab_size,), -1, dtype=torch.long, device=hidden_states.device)
+            if len(self.mapping_tensor) != self.vocab_size:
+                self.mapping_tensor = torch.full((self.vocab_size,), -1, dtype=torch.long, device=hidden_states.device)
                 self.mapping_tensor.requires_grad = False
 
             #loss = compute_loss_optimized2(logits, labels, mapping_tensor=self.mapping_tensor)

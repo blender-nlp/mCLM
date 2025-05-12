@@ -96,6 +96,7 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
     --ckpt_path ckpts/OnlyBlocks/Qwen2.5-3B_TotalTop1k_FT2_splitLoss/ --version Qwen2.5-3B_FT2_splitLoss \
     --max_epochs 25 \
     --no_PEFT \
+    --finetune \
     --accumulate_grad_batches 4 \
     --data_module FinetuneTopK --task FinetuneTop500 \
     --num_warmup_steps 5000 \
