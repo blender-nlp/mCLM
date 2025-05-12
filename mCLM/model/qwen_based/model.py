@@ -62,7 +62,7 @@ class Qwen2Model(OriginalQwen2Model):
         super().__init__(config)
         self.padding_idx = config.pad_token_id
         # self.vocab_size = config.vocab_size
-
+        self.text_vocab_size = config.vocab_size
         # mCLM mol-related init
         self.mol_gnn = GNNMolEncoder(
             **config.molecule_config)
@@ -102,7 +102,7 @@ class Qwen2Model(OriginalQwen2Model):
             mol_input_ids, self.config.molecule_config["out_channels_adapter"],
             self.mol_vocab, self.mol_gnn, self.mol_adaptor,
             self._finalized_molecule_embeddings[0], self._use_mol_embeddings,
-            self.vocab_size,
+            self.text_vocab_size,
             self.dtype, self.device,
             on_device=self.on_device
         )
@@ -113,7 +113,7 @@ class Qwen2Model(OriginalQwen2Model):
                     
         self.embed_tokens.weight = nn.Parameter(
             F.pad(self.embed_tokens.weight,
-                (0, 0, 0, new_vocab_size - self.vocab_size), "constant", 0)
+                (0, 0, 0, new_vocab_size - self.text_vocab_size), "constant", 0)
         )
         if False: #this didn't work #https://www.cs.columbia.edu/~johnhew/vocab-expansion.html
             old_weight = self.embed_tokens.weight[:new_vocab_size-2, :] #2 is this is hardcoded for mCLM
@@ -121,8 +121,8 @@ class Qwen2Model(OriginalQwen2Model):
             new_rows = mean_emb.repeat(2, 1) 
             self.embed_tokens.weight = nn.Parameter(torch.cat([old_weight, new_rows], dim=0))
 
-        self.vocab_size = new_vocab_size
-        self.config.vocab_size = new_vocab_size
+        self.text_vocab_size = new_vocab_size
+        self.config.vocab_size = new_vocab_size + self.config.mol_vocab_size
 
     # @can_return_tuple
     @add_start_docstrings_to_model_forward(QWEN2_INPUTS_DOCSTRING)
@@ -163,7 +163,7 @@ class Qwen2Model(OriginalQwen2Model):
         # mCLM embedding function
         if inputs_embeds is None:
             inputs_embeds = embed_chemical_language(
-                input_ids, self.vocab_size, self.embed_tokens, self.embed_molecules
+                input_ids, self.text_vocab_size, self.embed_tokens, self.embed_molecules
             )
 
         if use_cache and past_key_values is None:
@@ -257,9 +257,10 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         self.model = Qwen2Model(config)
         self.config = config
         # self.vocab_size = config.vocab_size
+        self.config.text_vocab_size = config.vocab_size
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
 
-        self.mapping_tensor = torch.full((self.total_vocab_size,), -1, dtype=torch.long)
+        self.mapping_tensor = torch.full((self.mol_vocab_size,), -1, dtype=torch.long)
         self.mapping_tensor.requires_grad = False
 
         #self.negative_sampling_size = int(self.config.negative_sampling_size)
@@ -307,7 +308,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
     def get_decoder(self):
         return self.model
 
-    # mCLM text vocab size
+    # mCLM total vocab size (to work with beam search)
     @property
     def vocab_size(self):
         return self.config.vocab_size
@@ -319,8 +320,8 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
 
     # mCLM total vocab sizes
     @property
-    def total_vocab_size(self):
-        return self.vocab_size + self.mol_vocab_size
+    def text_vocab_size(self):
+        return self.config.text_vocab_size
 
     # mCLM extend text embedding
     def extend_text_vocab_size(self, new_vocab_size):
@@ -335,7 +336,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
 
         self.lm_head.weight = nn.Parameter(
             F.pad(self.lm_head.weight,
-                (0, 0, 0, new_vocab_size - self.vocab_size), "constant", 0)
+                (0, 0, 0, new_vocab_size - self.text_vocab_size), "constant", 0)
         )
 
         if False: #this didn't work #https://www.cs.columbia.edu/~johnhew/vocab-expansion.html
@@ -345,7 +346,9 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
             self.lm_head.weight = nn.Parameter(torch.cat([old_weight, new_rows], dim=0))
 
         self.model.extend_text_vocab_size(new_vocab_size)
-        self.config.vocab_size = new_vocab_size
+        self.config.text_vocab_size = new_vocab_size
+        self.config.vocab_size = self.text_vocab_size + self.config.mol_vocab_size
+
 
 
 
@@ -360,6 +363,8 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         self.mol_vocab = mol_vocab
         self.model.mol_vocab = mol_vocab
         self.config.mol_vocab_size = len(mol_vocab)
+
+        self.config.vocab_size = self.text_vocab_size + self.config.mol_vocab_size
 
     # @can_return_tuple
     @deprecate_kwarg("num_logits_to_keep", version="4.50", new_name="logits_to_keep")
@@ -441,8 +446,8 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         # logits = self.lm_head(hidden_states[:, slice_indices, :])
 
         #print(f"[Forward] negative_sampling_size: {self.negative_sampling_size}")
-        is_generating_mol = (input_ids == self.vocab_size - 2).logical_or(
-                input_ids >= self.vocab_size)
+        is_generating_mol = (input_ids == self.text_vocab_size - 2).logical_or(
+                input_ids >= self.text_vocab_size)
         #print('is_generating_mol:')
         #print(self.vocab_size, is_generating_mol, input_ids)
         #print(is_generating_mol.shape)
@@ -450,7 +455,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         logits = mclm_logit_head_optimized2_sep(
             self.lm_head, self.model.embed_molecules,
             self._finalized_molecule_embeddings[0],
-            self.vocab_size, self.mol_vocab_size, self.total_vocab_size,
+            self.text_vocab_size, self.mol_vocab_size, self.vocab_size,
             #self.negative_sampling_size.item(),
             None,
             hidden_states,
@@ -529,7 +534,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         else:
             self._finalized_molecule_embeddings = \
                 [finalized_molecule_embeddings(
-                    self.vocab_size, self.mol_vocab_size,
+                    self.text_vocab_size, self.mol_vocab_size,
                     self.model.embed_molecules,
                     self.config.hidden_size, batch_size, self.device
                 )]

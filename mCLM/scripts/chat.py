@@ -123,14 +123,14 @@ if __name__ == "__main__":
     #parser.add_argument("--tokenizer_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B_SMolInstruct_NoGNN_OnlyBlocks2_lowLR/", type=str)
     #parser.add_argument("--ckpt", default="latest_checkpoint-epoch=00-step=30000.ckpt", type=str)
 
-    parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B_SMolInstructTop50k_NoGNN_splitLR_splitLoss/", type=str)
-    parser.add_argument("--tokenizer_path", default="/shared/nas2/shared/llms/mCLM/Qwen2.5-0.5B_SMolInstructTop50k_NoGNN_splitLR_splitLoss/", type=str)
-    parser.add_argument("--ckpt", default="latest_checkpoint-epoch=01-step=170000.ckpt", type=str)
+    parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/OnlyBlocks/Top50V2/Qwen2.5-3B_TotalTop1k_splitLoss_1kPretrain/", type=str)
+    parser.add_argument("--tokenizer_path", default="/shared/nas2/shared/llms/mCLM/OnlyBlocks/Top50V2/Qwen2.5-3B_TotalTop1k_splitLoss_1kPretrain/", type=str)
+    parser.add_argument("--ckpt", default="latest_checkpoint-epoch=01-step=34000.ckpt", type=str)
     
     parser.add_argument("--loss", default="CLIP", type=str)
     parser.add_argument("--load_ckpt", default=None, type=str)
     parser.add_argument("--load_GNN_ckpt", default=None, type=str)
-    parser.add_argument("--pretrained_embeddings", default="/home/cne2/data/Chemistry/mCLM_MolCLR/preprocess/Top50k/128_dim/", type=str)
+    parser.add_argument("--pretrained_embeddings", default="/home/cne2/data/Chemistry/mCLM_MolCLR/preprocess/Top500/128_dim/", type=str)
     parser.add_argument("--GNN_cache", default="", type=str)
 
 
@@ -141,12 +141,15 @@ if __name__ == "__main__":
     #parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
     #parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)
     #parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Llama-3.2-1B-Instruct/", type=str)    #parser.add_argument(
-    parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Qwen2.5-0.5B/", type=str)
-    parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Qwen2.5-0.5B/", type=str)
-    parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Qwen2.5-0.5B/", type=str)
-    #parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Qwen2.5-7B/", type=str)
-    #parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Qwen2.5-7B/", type=str)
-    #parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Qwen2.5-7B/", type=str)
+    #parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Qwen2.5-0.5B/", type=str)
+    #parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Qwen2.5-0.5B/", type=str)
+    #parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Qwen2.5-0.5B/", type=str)
+    #parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Qwen3-0.6B-Base/", type=str)
+    #parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Qwen3-0.6B-Base/", type=str)
+    #parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Qwen3-0.6B-Base/", type=str)
+    parser.add_argument("--base_model", default="/shared/nas2/shared/llms/Qwen2.5-3B/", type=str)
+    parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Qwen2.5-3B/", type=str)
+    parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Qwen2.5-3B/", type=str)
 
     #    "--freeze_text_encoder", type=bool, action=argparse.BooleanOptionalAction
     #)
@@ -230,19 +233,20 @@ if __name__ == "__main__":
             model.model.finalize_molecule_embeddings(embeddings=pretrain_mol_embeddings)
             model.model.use_mol_embeddings(True)
 
-        model.model.extend_text_vocab_size(len(tokenizer.vocab))
         model.model.set_mol_vocab(molecule_tokenizer.GNN_input_map)
+        model.model.extend_text_vocab_size(len(tokenizer.vocab))
 
         model = model.to(torch.bfloat16)
 
         print('Model Created')
 
-        sd = load_with_tqdm(config["ckpt_path"] + config['ckpt'], map_location='cpu')['state_dict']
-        #ignore GNN keys
-        for key in list(sd.keys()):
-            if 'mol_gnn' in key: sd.pop(key)
+        if config['ckpt'] != None:
+            sd = load_with_tqdm(config["ckpt_path"] + config['ckpt'], map_location='cpu')['state_dict']
+            #ignore GNN keys
+            for key in list(sd.keys()):
+                if 'mol_gnn' in key: sd.pop(key)
 
-        model.load_state_dict(sd, strict=False)
+            model.load_state_dict(sd, strict=False)
         model.to(device)
 
         print('Model Loaded')
@@ -257,6 +261,12 @@ if __name__ == "__main__":
         #model.model.post_training(1024)
 
         print('Model Set to Inference')
+
+    bad_words_ids = None
+
+    if False:
+        bad_words_ids = [[int(s.strip())] for s in open('bad_tokens.txt').readlines()]
+        #bad_words_ids = [[tokenizer(s)['input_ids'][0]] for s in bad_words_ids]
 
     if False:
         bad_words_ids = []
@@ -277,6 +287,36 @@ if __name__ == "__main__":
                 SuppressTokensProcessor(bad_words_ids)
             ])
     
+    def message_ids_to_string(message_ids):
+        
+        extracted_mols = message_ids > MOL_end
+        locs = extracted_mols.nonzero().squeeze()
+        #print(locs)
+
+        #print(tokenizer.decode(generated[0].tolist()[len(message_tokens):], skip_special_tokens=True))
+
+        tokens = tokenizer.convert_ids_to_tokens(message_ids, skip_special_tokens=True)
+        #print(tokens)
+        tokens = [molecule_tokenizer.get_block(int(message_ids[i]))+'^' if i in locs else t for i, t in enumerate(tokens)]
+        #print(tokens)
+
+        #print(tokens)
+        #print()
+
+        message = tokenizer.convert_tokens_to_string(tokens)
+        #print(message)
+        #print()
+        
+        mol_list, smi_message = extract_mol_content(message)
+        mol_list = [m[:-1] if m[-1]=='^' else m for m in mol_list]
+        mol_list = [Chem.MolToSmiles(join_fragments(smi)) for smi in mol_list]
+
+        #print(mol_list)
+        
+        smi_message = replace(smi_message, mol_list)
+
+        return message, smi_message
+
 
     while True:
         user_input = input("Enter an instruction (type 'quit' to exit): ")
@@ -308,14 +348,90 @@ if __name__ == "__main__":
             frags = [[molecule_tokenizer.get_Idx(m) for m in mol.split('^')] for mol in mol_list]
             
             message_tokens = torch.Tensor(insert_sublists(message_tokens.squeeze(), frags, MOL_start, MOL_end)+[MOL_start]).to(torch.int).to(device)
+            #+[MOL_start]
             print(message_tokens, message_tokens.shape)
             
+            if True:
+                output = model.generate(
+                    message_tokens.unsqueeze(0),
+                    max_new_tokens=1,
+                    return_dict_in_generate=True,
+                    output_scores=True,
+                    bad_words_ids=bad_words_ids
+                )
+
+                # Get generated token IDs (excluding prompt)
+                generated_tokens = output.sequences[0][message_tokens.shape[-1]:]
+
+                # Print top 5 tokens for each generation step
+                for step, score_distribution in enumerate(output.scores):
+                    topk = torch.topk(score_distribution[0], k=50)
+                    token_ids = topk.indices
+                    scores = topk.values
+                    tokens = tokenizer.convert_ids_to_tokens(token_ids)
+
+                    tokens = [molecule_tokenizer.get_block(int(token_ids[i])) if t == None else t for i, t in enumerate(tokens)]
+
+                    sorted_scores, sorted_indices = torch.sort(score_distribution[0], descending=True)
+
+                    rank = (sorted_indices == MOL_start).nonzero(as_tuple=True)[0].item()
+                    print('MOL_start', score_distribution[0][MOL_start], rank,'/', len(score_distribution[0]))
+                    rank = (sorted_indices == MOL_end).nonzero(as_tuple=True)[0].item()
+                    print('MOL_end', score_distribution[0][MOL_end], rank,'/', len(score_distribution[0]))
+
+                    with open('bad_tokens_tmp.txt', 'w') as f:
+                        for token_id, score in zip(token_ids, scores):
+                            token = tokenizer.convert_ids_to_tokens([token_id])[0]
+                            token = molecule_tokenizer.get_block(int(token_id)) if token == None else token
+                            print(f"  Token: {token:<12} Score: {score.item():.4f}")
+                            if token == '[MOL]': break
+
+                            print(token_id.item(), file=f)
+
+            if False:
+                output = model.generate(
+                    message_tokens.unsqueeze(0),
+                    max_new_tokens=5,
+                    return_dict_in_generate=True,
+                    output_scores=True
+                )
+
+                # Get generated token IDs (excluding prompt)
+                generated_tokens = output.sequences[0][message_tokens.shape[-1]:]
+
+                # Print top 5 tokens for each generation step
+                for step, score_distribution in enumerate(output.scores):
+                    topk = torch.topk(score_distribution[0], k=5)
+                    token_ids = topk.indices
+                    scores = topk.values
+                    tokens = tokenizer.convert_ids_to_tokens(token_ids)
+
+                    tokens = [molecule_tokenizer.get_block(int(token_ids[i])) if t == None else t for i, t in enumerate(tokens)]
+
+                    sorted_scores, sorted_indices = torch.sort(score_distribution[0], descending=True)
+
+                    print(f"\nStep {step + 1}:")
+
+                    rank = (sorted_indices == MOL_start).nonzero(as_tuple=True)[0].item()
+                    print('MOL_start', score_distribution[0][MOL_start], rank,'/', len(score_distribution[0]))
+                    rank = (sorted_indices == MOL_end).nonzero(as_tuple=True)[0].item()
+                    print('MOL_end', score_distribution[0][MOL_end], rank,'/', len(score_distribution[0]))
+
+                    for token, score in zip(tokens, scores):
+                        print(f"  Token: {token:<12} Score: {score.item():.4f}")
+
+                
+            beam_size = 5            
+
             generated = model.generate(
-                input_ids=message_tokens.unsqueeze(0),
+                input_ids=message_tokens.long().unsqueeze(0),
                 max_new_tokens=32,
-                num_beams=1,
+                num_beams=beam_size,
+                num_return_sequences=beam_size,
                 do_sample=False,
-                #bad_words_ids=bad_words_ids,
+                bad_words_ids=bad_words_ids,
+                diversity_penalty=1.0,
+                num_beam_groups=beam_size,
             )
             #outputs = model.generate(message_tokens, max_new_tokens=128) 
             #out_text = tokenizer.decode(outputs[0])
@@ -327,36 +443,15 @@ if __name__ == "__main__":
             #extracted_mols = [[molecule_tokenizer.get_block(e) for e in em] for em in extracted_mols]
             #print(extracted_mols)
 
-            message_ids = generated[0, len(message_tokens):]
-            print(message_ids)
+            for i in range(beam_size):
+                message_ids = generated[i, len(message_tokens):]
+                print(message_ids)
+                
+                mol_msg, smiles_msg = message_ids_to_string(message_ids)
 
-            extracted_mols = message_ids > MOL_end
-            locs = extracted_mols.nonzero().squeeze()
-            #print(locs)
-
-            #print(tokenizer.decode(generated[0].tolist()[len(message_tokens):], skip_special_tokens=True))
-
-            tokens = tokenizer.convert_ids_to_tokens(message_ids, skip_special_tokens=True)
-            #print(tokens)
-            tokens = [molecule_tokenizer.get_block(int(message_ids[i]))+'^' if i in locs else t for i, t in enumerate(tokens)]
-            #print(tokens)
-
-            print(tokens)
-            print()
-
-            message = tokenizer.convert_tokens_to_string(tokens)
-            print(message)
-            print()
-            
-            mol_list, message = extract_mol_content(message)
-            mol_list = [m[:-1] if m[-1]=='^' else m for m in mol_list]
-            mol_list = [Chem.MolToSmiles(join_fragments(smi)) for smi in mol_list]
-
-            #print(mol_list)
-            
-            message = replace(message, mol_list)
-
-            print(message)
+                print(mol_msg)
+                print(smiles_msg)
+                print()
         #except Exception as e:
         #    print(e)
 

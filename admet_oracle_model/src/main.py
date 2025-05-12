@@ -20,10 +20,13 @@ ckpt_path = os.path.join(ckpt_path, f'{task}_mlp.pt')
 
 
 
-def prepare_dataset(data_path, ckpt_path, batch_size=batch_size, shuffle=False):
-    with open(data_path) as f:
-        SMILES_test = f.readlines()
-    SMILES_test = [i.strip() for i in SMILES_test]
+def prepare_dataset(data, ckpt_path, batch_size=batch_size, shuffle=False):
+    if isinstance(data, list):
+        SMILES_test = data
+    else:
+        with open(data) as f:
+            SMILES_test = f.readlines()
+        SMILES_test = [i.strip() for i in SMILES_test]
 
     FARM_SMILES = farm_tokenization(SMILES_test)
     farm_feature = farm_embedding_extractor(FARM_SMILES, ckpt_path)
@@ -32,7 +35,7 @@ def prepare_dataset(data_path, ckpt_path, batch_size=batch_size, shuffle=False):
     assert len(farm_feature) == len(gnn_feature) == len(chemberta_feature)
     
     data = []
-    for i in trange(len(farm_feature), desc=f'Create ensemble data for {task}'):
+    for i in range(len(farm_feature)):#trange(len(farm_feature), desc=f'Create ensemble data for {task}'):
         data.append(farm_feature[i] + gnn_feature[i] + chemberta_feature[i])
 
     data = torch.tensor(data, dtype=torch.float32)
@@ -57,7 +60,7 @@ def evaluate(model, dataloader, device):
     model.eval()
     all_preds = []
     with torch.no_grad():
-        for X_batch in tqdm(dataloader, desc=f'Ensemble inference for {task}'):
+        for X_batch in dataloader:#tqdm(dataloader, desc=f'Ensemble inference for {task}'):
             X_batch = X_batch[0].to(device)
             logits = model(X_batch)
             probs = torch.sigmoid(logits)

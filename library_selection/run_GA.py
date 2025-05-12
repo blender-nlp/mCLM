@@ -73,7 +73,7 @@ def build_set(blocks):
 
 def histo(mols):
 
-    props = [MolLogP(mol) for mol in built_library]
+    props = [MolLogP(mol) for mol in mols]
 
     #print(props)
 

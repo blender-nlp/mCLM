@@ -65,7 +65,7 @@ def farm_embedding_extractor(SMILES_test, ckpt_path):
     model = BertForMaskedLM.from_pretrained('thaonguyen217/farm_molecular_representation').to(device)
 
     X_test = []
-    for sm in tqdm(SMILES_test, desc='FARM feature extracting ...'):
+    for sm in SMILES_test:#tqdm(SMILES_test, desc='FARM feature extracting ...'):
         inputs = tokenizer(sm, return_tensors='pt').to(device)
         with torch.no_grad():
             outputs = model(**inputs, output_hidden_states=True)
