@@ -453,7 +453,7 @@ def compute_loss_optimized2(logits, labels, mapping_tensor=None):
 # mCLM logit function
 def mclm_logit_head_optimized2_sep(
     lm_head, embed_molecules, finalized_molecule_embeddings,
-    vocab_size, mol_vocab_size, total_vocab_size,
+    text_vocab_size, mol_vocab_size, total_vocab_size,
     negative_sampling_size,
     hidden_states, is_training, is_generating_mol,
     labels=None, mCLMSparseLogits=None,
@@ -467,11 +467,11 @@ def mclm_logit_head_optimized2_sep(
                 torch.ones(mol_vocab_size, device=device),
                 min(mol_vocab_size, negative_sampling_size),
                 replacement=False
-            ) + vocab_size
+            ) + text_vocab_size
 
             # 2) pull out the “positive” molecule IDs that actually appear in labels:
             labels_flat = labels.view(-1)
-            mol_labels = labels_flat[labels_flat >= vocab_size]
+            mol_labels = labels_flat[labels_flat >= text_vocab_size]
 
             # 3) union them via a single tensor concat + unique (all GPU):
             all_mol_ids = torch.cat([negative_set, mol_labels], dim=0)
@@ -482,7 +482,7 @@ def mclm_logit_head_optimized2_sep(
             mol_embeds = embed_molecules(molecule_ids_trained)
 
             all_ids_trained = torch.cat([
-                torch.arange(vocab_size, device=device),
+                torch.arange(text_vocab_size, device=device),
                 molecule_ids_trained
             ], dim=0)
 
@@ -490,8 +490,8 @@ def mclm_logit_head_optimized2_sep(
                 indices=all_ids_trained,
                 logits=None,
                 total_vocab_size=total_vocab_size,
-                vocab_size=vocab_size,
                 mol_vocab_size=mol_vocab_size,
+                text_vocab_size=text_vocab_size,
                 embeddings = hidden_states,
                 text_classifier = text_class,
                 mol_classifier = mol_embeds,
@@ -505,7 +505,7 @@ def mclm_logit_head_optimized2_sep(
                 logits=None,
                 total_vocab_size=total_vocab_size,
                 mol_vocab_size=mol_vocab_size,
-                text_vocab_size=vocab_size,
+                text_vocab_size=text_vocab_size,
                 embeddings = hidden_states,
                 text_classifier = text_class,
                 mol_classifier = mol_embeds,
@@ -743,72 +743,8 @@ def compute_loss_optimized2_sep(logits, labels, mapping_tensor=None, MOL_start=N
 
 
 
-def compute_loss_optimized2_sep_batch(logits, labels, mapping_tensor=None):
-    if not isinstance(logits, mCLMSparseLogitsOptimized_sep):
-        self = mCLMSparseLogitsOptimized_sep(
-            indices=None,
-            logits=logits,
-        )
-    else:
-        self = logits
 
-    if self.indices is not None:
-        if mapping_tensor is None:
-            mapping_tensor = torch.full((self.total_vocab_size,), -1, dtype=torch.long, device=labels.device)
-        mapping_tensor[self.indices] = torch.arange(len(self.indices), dtype=torch.long, device=labels.device)
-
-        labels = mapping_tensor[labels]
-
-    #can't use built-in shift for the split loss :(
-    shift_embeddings = self.embeddings[:, :-1, :].contiguous()
-    shift_labels = labels[:, 1:].contiguous()
-    shift_labels = shift_labels.long()
-
-    mol_labels_mask = (shift_labels == self.text_vocab_size - 1) | (shift_labels >= self.text_vocab_size) # - 1 because [/MOL] needs to be produced by the chem model
-
-
-    num_mols = mol_labels_mask.sum()
-    num_text = (~mol_labels_mask).sum()
-
-    text_classifier = self.text_classifier
-    mol_classifier = self.mol_classifier
-    mol_classifier = torch.cat([mol_classifier, text_classifier[self.text_vocab_size-1].clone().unsqueeze(0)], dim=0) #move [/MOL] over to mol_classifier
-    mol_labels = shift_labels[mol_labels_mask] - self.text_vocab_size
-    mol_labels[mol_labels == -1] = self.mol_vocab_size #set the [/MOL] token label
-
-
-    loss_fct_opt2 = CrossEntropyLoss(reduction='none')
-    if num_text != 0:
-        text_logits = shift_embeddings[~mol_labels_mask] @ text_classifier.t()
-        text_labels = shift_labels[~mol_labels_mask]
-        text_loss = loss_fct_opt2(text_logits, text_labels)
-
-        #text_loss = text_loss.clone()
-        #text_loss[text_labels == MOL_start] = text_loss[text_labels == MOL_start]* 10
-        print('text_loss', text_loss.shape)
-        text_loss = text_loss.mean(dim=tuple(range(1, text_loss.ndim)))
-        print('text_loss', text_loss.shape)
-    else:
-        text_loss = None
-
-    if num_mols != 0:
-        mol_logits = shift_embeddings[mol_labels_mask] @ mol_classifier.t()
-        mol_loss = loss_fct_opt2(mol_logits, mol_labels)
-        #mol_loss = loss_fct_opt(shift_embeddings[mol_labels_mask], \
-        #    mol_classifier, mol_labels, impl=impl, reduction='none')#, shift=1)#, impl='cce_kahan_full_c_full_e')
-
-        print('mol_loss', mol_loss.shape)
-        mol_loss = mol_loss.mean(dim=tuple(range(1, mol_loss.ndim)))
-        print('mol_loss', mol_loss.shape)
-    else:
-        mol_loss = None
-
-
-    return text_loss, mol_loss
-
-
-
-
+# Function under test (you should import it in practice)
 def compute_loss_BCE(logits, labels, Yes_token, No_token, mapping_tensor=None):
     if not isinstance(logits, mCLMSparseLogitsOptimized_sep):
         self = mCLMSparseLogitsOptimized_sep(
@@ -835,18 +771,31 @@ def compute_loss_BCE(logits, labels, Yes_token, No_token, mapping_tensor=None):
     shift_labels = labels[:, 1:].contiguous()
     shift_labels = shift_labels.long()
 
-    print(shift_labels.shape, shift_embeddings.shape)
+    mol_labels_mask = (shift_labels == self.text_vocab_size - 1) | (shift_labels >= self.text_vocab_size) # - 1 because [/MOL] needs to be produced by the chem model
+    #print('mol_labels_mask', mol_labels_mask.shape, mol_labels_mask.sum())
+
+    assert torch.is_tensor(shift_labels), "shift_labels is not a tensor"
+    assert isinstance(Yes_token, int) and isinstance(No_token, int), "Tokens must be ints"
+
+    #print(shift_labels.shape, shift_embeddings.shape)
+    #print(Yes_token, No_token)
+    #print(self.text_vocab_size, self.mol_vocab_size, self.total_vocab_size)
 
     ans_labels_mask = (shift_labels == Yes_token) | (shift_labels == No_token) 
 
-    print(ans_labels_mask.shape)
+    #print(ans_labels_mask.shape)
     
     num_yesno = ans_labels_mask.sum()
+    #print('num_yesno', num_yesno)
+
+    text_classifier = self.text_classifier
+    mol_classifier = self.mol_classifier
+    mol_classifier = torch.cat([mol_classifier, text_classifier[self.text_vocab_size-1].clone().unsqueeze(0)], dim=0) #move [/MOL] over to mol_classifier
+
 
     text_classifier = self.text_classifier[[No_token, Yes_token]]
-    mol_classifier = self.mol_classifier
 
-    loss_fct_opt2 = CrossEntropyLoss(reduction='none')
+    #loss_fct_opt2 = CrossEntropyLoss(reduction='none')
     if num_yesno != 0:
         text_logits = shift_embeddings[ans_labels_mask] @ text_classifier.t()
         text_labels = (shift_labels[ans_labels_mask] == Yes_token).long()
@@ -855,28 +804,52 @@ def compute_loss_BCE(logits, labels, Yes_token, No_token, mapping_tensor=None):
         #text_loss = text_loss.clone()
         #text_loss[text_labels == MOL_start] = text_loss[text_labels == MOL_start]* 10
 
-        text_loss = text_loss.mean(dim=tuple(range(1, text_loss.ndim)))
-        print('text_loss', text_loss.shape)
-    
-    _, mol_loss = compute_loss_optimized2_sep_batch(logits, labels)
-
-    batch_labels_mask = (ans_labels_mask.sum(dim=tuple(range(1, ans_labels_mask.ndim))) > 0).long()
-
-    print('batch_labels_mask', batch_labels_mask, batch_labels_mask.shape)
-
-    if batch_labels_mask.sum() != 0:
-        text_loss = text_loss[batch_labels_mask].mean()
+        #text_loss = text_loss.mean(dim=tuple(range(1, text_loss.ndim)))
+        #print('text_loss', text_loss.shape)
     else:
         text_loss = None
 
+    batch_labels_mask = ans_labels_mask.sum(dim=tuple(range(1, ans_labels_mask.ndim))) > 0
 
-    if (~batch_labels_mask).sum() != 0:
-        mol_loss = mol_loss[~batch_labels_mask].mean()
+    #print('batch_labels_mask', batch_labels_mask, batch_labels_mask.shape)
+    
+
+    mol_labels_mask[batch_labels_mask,:] = False
+    #print('mol_labels_mask', mol_labels_mask.shape, mol_labels_mask.sum())
+
+    mol_labels = shift_labels[mol_labels_mask] - self.text_vocab_size
+    mol_labels[mol_labels == -1] = self.mol_vocab_size #set the [/MOL] token label
+
+    num_mols = mol_labels_mask.sum()
+    #print('num_mols', num_mols)
+
+    #print("mol_labels min/max:", mol_labels.min().item(), mol_labels.max().item())
+    #print("mol_labels dtype:", mol_labels.dtype)
+
+
+    if num_mols != 0:
+        mol_logits = shift_embeddings[mol_labels_mask] @ mol_classifier.t()
+        #print('mol_logits', mol_logits.shape)
+
+        mol_loss = loss_fct_opt2(mol_logits, mol_labels)
+        #mol_loss = loss_fct_opt(shift_embeddings[mol_labels_mask], \
+        #    mol_classifier, mol_labels, impl=impl, reduction='none')#, shift=1)#, impl='cce_kahan_full_c_full_e')
+
+        #print('mol_loss', mol_loss.shape)
+        #mol_loss = mol_loss.mean(dim=tuple(range(1, mol_loss.ndim)))
+        #print('mol_loss', mol_loss.shape)
     else:
         mol_loss = None
 
-    return text_loss, mol_loss
 
+    #if batch_labels_mask.sum() == 0:
+    #    text_loss = None
+
+
+    #if (~batch_labels_mask).sum() == 0:
+    #    mol_loss = None
+
+    return text_loss, mol_loss
 
 
 

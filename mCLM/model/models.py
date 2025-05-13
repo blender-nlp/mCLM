@@ -98,7 +98,7 @@ class mCLM(L.LightningModule):
         if self.config['finetune']:
             print('Setting Finetune to On')
             tokenizer = self.trainer.datamodule.tokenizer
-            self.model.use_BCE_loss(tokenizer.convert_tokens_to_ids(tokenizer.tokenize("Yes")), tokenizer.convert_tokens_to_ids(tokenizer.tokenize("No")))
+            self.model.use_BCE_loss(tokenizer.convert_tokens_to_ids(tokenizer.tokenize("Yes"))[0], tokenizer.convert_tokens_to_ids(tokenizer.tokenize("No"))[0])
 
         if self.config['load_ckpt'] != None:
         

@@ -89,7 +89,7 @@ fi
 if true; then
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+CUDA_LAUNCH_BLOCKING=1 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
     --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
     --batch_size=4 --lr 2e-5 --mol_lr 2e-6 \
