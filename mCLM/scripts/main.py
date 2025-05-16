@@ -225,6 +225,7 @@ def main(args):
 
 
     if config['pretrained_embeddings'] != None:
+        print('Initializing pretrained_embeddings')
         pretrain_mol_embeddings = torch.load(config['pretrained_embeddings'] + 'precomputed_tokens.pt').to(torch.bfloat16)
         pretrain_mol_embeddings = nn.Embedding.from_pretrained(pretrain_mol_embeddings, freeze=True)
         pretrain_mol_embeddings.weight.data = pretrain_mol_embeddings.weight.data.to(torch.bfloat16)

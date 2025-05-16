@@ -356,7 +356,8 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
     def use_mol_embeddings(self, use_mol_embeddings):
         self._use_mol_embeddings = use_mol_embeddings
         self.model._use_mol_embeddings = use_mol_embeddings
-        self.model.mol_gnn = None
+        if use_mol_embeddings:
+            self.model.mol_gnn = None
 
     # mCLM set molecule vocab
     def set_mol_vocab(self, mol_vocab):

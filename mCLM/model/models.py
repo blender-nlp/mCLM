@@ -104,7 +104,7 @@ class mCLM(L.LightningModule):
         
             sd = load_with_tqdm(self.config["load_ckpt"], map_location='cpu')['state_dict']
 
-            self.load_state_dict(sd, strict=True)
+            self.load_state_dict(sd, strict=False)
 
 
         #self.model.mapping_tensor = torch.full((self.model.total_vocab_size,), -1, dtype=torch.long)

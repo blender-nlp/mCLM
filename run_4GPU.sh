@@ -92,8 +92,31 @@ export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 CUDA_LAUNCH_BLOCKING=1 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
     --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --check_val_every_n_steps 10000 \
     --batch_size=4 --lr 2e-5 --mol_lr 2e-6 \
-    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-3B_TotalTop1k_FT2_splitLoss/ --version Qwen2.5-3B_FT2_splitLoss \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-3B_TotalTop1k_FT2_splitLoss/posneg/ --version Qwen2.5-3B_FT2_posneg_GNN_splitLoss \
+    --max_epochs 5 \
+    --no_PEFT \
+    --finetune \
+    --accumulate_grad_batches 4 \
+    --data_module FinetuneTopK --task FinetuneTop500 \
+    --num_warmup_steps 5000 \
+    --save_checkpoint_every_n_steps 1000 \
+    --synthetic_data_path /home/a-m/cne2/MMLI_projects/mCLM/data/finetune_top_500_v2/ \
+    --tokenizer_cache ../GNN_input_cache/Total.molecule_tokenizer.500.pth \
+    --load_ckpt ckpts/OnlyBlocks/Qwen2.5-3B_TotalTop1k_PreAdaptor_splitLoss/latest_checkpoint-epoch=04-step=129000.ckpt \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/Top500/128_dim/ \
+
+fi
+
+if false; then
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+CUDA_LAUNCH_BLOCKING=1 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --batch_size=4 --lr 2e-5 --mol_lr 2e-6 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-3B_TotalTop1k_FT2_splitLoss/predOnly_GNN/ --version Qwen2.5-3B_FT2_predOnly_GNN_splitLoss \
     --max_epochs 25 \
     --no_PEFT \
     --finetune \
@@ -104,7 +127,8 @@ CUDA_LAUNCH_BLOCKING=1 PYTHONPATH=. srun python mCLM/scripts/main.py --base_mode
     --synthetic_data_path /home/a-m/cne2/MMLI_projects/mCLM/data/finetune_top_500/ \
     --tokenizer_cache ../GNN_input_cache/Total.molecule_tokenizer.500.pth \
     --load_ckpt ckpts/OnlyBlocks/Qwen2.5-3B_TotalTop1k_PreAdaptor_splitLoss/latest_checkpoint-epoch=04-step=129000.ckpt \
-    --pretrained_embeddings final_embeddings/OnlyBlocks/Top500/128_dim/ \
+
+    #--pretrained_embeddings final_embeddings/OnlyBlocks/Top500/128_dim/ \
 
 fi
 

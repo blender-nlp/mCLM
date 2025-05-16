@@ -1778,7 +1778,16 @@ class MolGenTotalDataModule(LightningDataModule):
 
 
 
+import re
 
+def fix_backslash(s):
+    # Replace double-backslash between parentheses with single backslash
+    return re.sub(r'\(\\\\', r'(\\', s)
+
+
+def fix_backslash_list(lst):
+    # Replace double-backslash between parentheses with single backslash
+    return [fix_backslash(s) for s in lst]
 
 
 
@@ -1829,7 +1838,7 @@ class FinetuneDataModule(LightningDataModule):
 
         print('Loading Data')
 
-        for subdir in ['molgen_chembl', 'pred_chembl']:
+        for subdir in ['posneg']: #['molgen_chembl', 'pred_chembl']:
             ddir = osp.join(self.synthetic_data_path, subdir)
             files = [f for f in os.listdir(ddir) if os.path.isfile(os.path.join(ddir, f))]
             total = 0
@@ -1842,6 +1851,8 @@ class FinetuneDataModule(LightningDataModule):
                     continue
                 if len(df) == 0: continue
                 df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+                df['mol_list'] = df['mol_list'].apply(fix_backslash_list)
+                
 
                 print(len(df))
                 total += len(df)
