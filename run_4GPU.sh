@@ -175,7 +175,8 @@ PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_p
     --freeze_GNN \
     --num_warmup_steps 2000 \
     --save_checkpoint_every_n_steps 2500 \
-    --pretrained_embeddings final_embeddings/OnlyBlocks/Top50kV2/128_dim/ \
+
+    #--pretrained_embeddings final_embeddings/OnlyBlocks/Top50kV2/128_dim/ \
 
 fi
 

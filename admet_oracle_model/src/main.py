@@ -13,6 +13,12 @@ from farm_embedding_extractor import farm_embedding_extractor
 from chemberta_embedding_extractor import chemberta_embedding_extractor
 from gnn_embedding_extractor import gnn_embedding_extractor
 
+from rdkit import Chem
+from rdkit.Chem import Descriptors
+
+
+from collections import defaultdict
+
 from config import task, data_path, save_path, ckpt_path, batch_size, thresholds, device
 ckpt_path = os.path.join(ckpt_path, f'{task}_mlp.pt')
 
@@ -32,6 +38,7 @@ def prepare_dataset(data, ckpt_path, batch_size=batch_size, shuffle=False):
     farm_feature = farm_embedding_extractor(FARM_SMILES, ckpt_path)
     gnn_feature = gnn_embedding_extractor(SMILES_test, ckpt_path)
     chemberta_feature = chemberta_embedding_extractor(SMILES_test, ckpt_path)
+    #print(len(farm_feature), len(gnn_feature), len(chemberta_feature))
     assert len(farm_feature) == len(gnn_feature) == len(chemberta_feature)
     
     data = []
@@ -67,6 +74,25 @@ def evaluate(model, dataloader, device):
             all_preds.append(probs.cpu())
     all_preds = torch.cat(all_preds).numpy()
     return all_preds
+
+
+
+
+def evaluate_computed(smiles):
+    all_preds = defaultdict(list)
+    
+    for smi in smiles:
+        mol = Chem.MolFromSmiles(smi)
+        all_preds['MolWt'].append(Chem.Descriptors.ExactMolWt(mol))
+        all_preds['HBA'].append(Chem.rdMolDescriptors.CalcNumHBA(mol))
+        all_preds['HBD'].append(Chem.rdMolDescriptors.CalcNumHBD(mol))
+        all_preds['LogP'].append(Chem.Crippen.MolLogP(mol))
+        all_preds['TPSA'].append(Chem.rdMolDescriptors.CalcTPSA(mol))
+        all_preds['NumAromaticRings'].append(Chem.rdMolDescriptors.CalcNumAromaticRings(mol))
+        all_preds['NumRotatableBonds'].append(Chem.rdMolDescriptors.CalcNumRotatableBonds(mol))
+
+    return all_preds
+
 
 
 

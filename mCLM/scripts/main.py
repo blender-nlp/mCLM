@@ -141,7 +141,7 @@ def main(args):
 
     if config["resume_wandb_run"] != None:
         wandb_logger = WandbLogger(
-            entity="",
+            entity="mCLM",
             project="mCLM",
             config=config,
             id=config["resume_wandb_run"],
@@ -150,7 +150,7 @@ def main(args):
         )
     else:
         wandb_logger = WandbLogger(
-            entity="",
+            entity="mCLM",
             project="mCLM",
             config=config,
             name=name,
@@ -402,8 +402,10 @@ if __name__ == "__main__":
 
     parser.add_argument("--model", default="mCLM", type=str)
     parser.add_argument("--base_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/", type=str)
-    parser.add_argument("--pretrained_text_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/", type=str)
-    parser.add_argument("--pretrained_tokenizer", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
+    #parser.add_argument("--pretrained_text_model", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B/", type=str)
+    #parser.add_argument("--pretrained_tokenizer", default="/home/a-m/cne2/MMLI_projects/LLMs/Llama-3.2-1B-Instruct/", type=str)
+    parser.add_argument("--pretrained_text_model", default="/shared/nas2/shared/llms/Qwen2.5-0.5B/", type=str)
+    parser.add_argument("--pretrained_tokenizer", default="/shared/nas2/shared/llms/Qwen2.5-0.5B/", type=str)
     parser.add_argument("--pretrained_embeddings", default=None, type=str)
     parser.add_argument("--GNN_cache", default=None, type=str)
 

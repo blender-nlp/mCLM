@@ -500,7 +500,7 @@ def get_blocks(smi, preprocessed=None):
     return rfrags, rrfrags
 
 
-if __name__ == '__main__':
+if False:#__name__ == '__main__':
 
     import pandas as pd
 
@@ -671,18 +671,19 @@ def join_fragments(fragment_string: str) -> Chem.Mol:
         adj_2 = get_adj_bond(frag, attachment_atoms_2[0]) if attachment_atoms_2 else None
         adj_3 = get_adj_bond(frag, attachment_atoms_3[0]) if attachment_atoms_3 else None
 
-        if adj_1:
-            frag.GetAtomWithIdx(adj_1).SetProp('ind', f'1_{i}')
-        if adj_2:
-            frag.GetAtomWithIdx(adj_2).SetProp('ind', f'2_{i}')
-        if adj_3:
-            frag.GetAtomWithIdx(adj_3).SetProp('ind', f'3_{i}')
+        if adj_1 != None:
+            frag.GetAtomWithIdx(adj_1).SetProp('ind1', f'{i}')
+        if adj_2 != None:
+            frag.GetAtomWithIdx(adj_2).SetProp('ind2', f'{i}')
+        if adj_3 != None:
+            frag.GetAtomWithIdx(adj_3).SetProp('ind3', f'{i}')
 
         rw_mol.InsertMol(frag)
 
+
     if len(fragments) == 2:
-        attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'3_{0}']
-        attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'3_{1}']
+        attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind3") and atom.GetProp('ind3') == f'{0}']
+        attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind3") and atom.GetProp('ind3') == f'{1}']
 
         rw_mol.AddBond(attachment_atoms_1[0], attachment_atoms_2[0], Chem.BondType.SINGLE)
 
@@ -690,15 +691,14 @@ def join_fragments(fragment_string: str) -> Chem.Mol:
         for i in range(0, len(fragments)-1):
             
             if i == 0: #start
-                attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'1_{i+1}']
-                attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'3_{i}']
+                attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind3") and atom.GetProp('ind3') == f'{i}']
+                attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind1") and atom.GetProp('ind1') == f'{i+1}']
             elif i == len(fragments)-2: #end
-                attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'3_{i+1}']
-                attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'2_{i}']
+                attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind2") and atom.GetProp('ind2') == f'{i}']
+                attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind3") and atom.GetProp('ind3') == f'{i+1}']
             else: 
-                attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'1_{i}']
-                attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind") and atom.GetProp('ind') == f'2_{i+1}']
-            
+                attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind2") and atom.GetProp('ind2') == f'{i}']
+                attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind1") and atom.GetProp('ind1') == f'{i+1}']
 
             rw_mol.AddBond(attachment_atoms_1[0], attachment_atoms_2[0], Chem.BondType.SINGLE)
         

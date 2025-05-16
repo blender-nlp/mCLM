@@ -16,7 +16,7 @@ from lightning.pytorch.loggers import WandbLogger
 from mCLM.tokenizer.molecule_tokenizer import MoleculeTokenizer
 from mCLM.data.processing import smiles_to_data, smiles_list_to_mols, extract_mol_content
 
-from mCLM_tokenizer.tokenizer import convert_SMILES_strings, join_fragments
+from mCLM_tokenizer.tokenizer import convert_SMILES_strings, join_fragments, get_blocks
 
 from transformers import AutoTokenizer
 from transformers import LogitsProcessorList, LogitsProcessor, AutoTokenizer, AutoModelForCausalLM
@@ -31,11 +31,95 @@ from mCLM.model.models import (
     mCLM,
 )
 
+
+# Add the src directory to sys.path
+sys.path.append(os.path.abspath('admet_oracle_model/src'))
+
+from admet_oracle_model.src.main import prepare_dataset, evaluate, MLP
+
+
 from rdkit import Chem
 
 import subprocess
 
 from mCLM.data.processing import insert_sublists, find_first_occurrence
+
+def canonicalize(smi):
+    return Chem.MolToSmiles(Chem.MolFromSmiles(smi))
+
+
+def oracle_score(data_path, task):
+    ckpt_path = 'admet_oracle_model/checkpoints'
+
+    task_ckpt_path = os.path.join(ckpt_path, f'{task}_mlp.pt')
+
+    dataloader, smiles = prepare_dataset(data_path, ckpt_path)
+    model = MLP().to(device)
+
+    model.load_state_dict(torch.load(task_ckpt_path))
+    all_preds = evaluate(model, dataloader, device).squeeze()
+
+    return all_preds
+
+
+class RestrictTokensLogitsProcessor(LogitsProcessor):
+    def __init__(self, allowed_token_ids):
+        self.allowed_token_ids = set(allowed_token_ids)
+
+    def __call__(self, input_ids, scores):
+        mask = torch.full_like(scores, float('-inf'))
+        allowed_ids = list(self.allowed_token_ids)
+        mask[:, allowed_ids] = scores[:, allowed_ids]
+        return mask
+
+class ConditionalMolEndProcessor(LogitsProcessor):
+    def __init__(self, mol_token_id: int, mol_end_token_id: int, end_token: int, allowed_monoblock_ids: set, allowed_diblock_ids: set):
+        self.mol_token_id = mol_token_id
+        self.mol_end_token_id = mol_end_token_id
+        self.end_token = end_token
+        self.allowed_monoblock_ids = allowed_monoblock_ids
+        self.allowed_diblock_ids = allowed_diblock_ids
+
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:
+        # input_ids shape: (batch_size, sequence_length)
+        batch_size, seq_len = input_ids.shape
+        allowed_mask = torch.BoolTensor([j in self.allowed_monoblock_ids or j == self.mol_end_token_id for j in range(scores.shape[1])])
+        diblock_mask = torch.BoolTensor([j in self.allowed_diblock_ids for j in range(scores.shape[1])])
+
+        for i in range(batch_size):
+            input_seq = input_ids[i]
+            # Find the last occurrence of [MOL] in the sequence
+            mol_positions = (input_seq == self.mol_token_id).nonzero(as_tuple=True)[0]
+            if len(mol_positions) == 0:
+                continue  # [MOL] not found, do nothing
+            mol_start = mol_positions[-1].item()  # start counting after last [MOL]
+            relative_pos = seq_len - mol_start - 1  # how many tokens after [MOL]
+
+            if relative_pos == 0:
+                scores[i, ~allowed_mask] = float("-inf")
+
+            if input_ids[i, -1] in self.allowed_diblock_ids:
+                scores[i, self.mol_end_token_id] = float("-inf")
+
+            if input_ids[i, -1] in self.allowed_monoblock_ids and relative_pos != 1:
+                scores[i, :] = float("-inf")
+                scores[i, self.mol_end_token_id] = 0.0
+
+            if input_ids[i, -1] in self.allowed_monoblock_ids and relative_pos == 1:
+                scores[i, self.mol_end_token_id] = float("-inf")
+                scores[i, ~diblock_mask] = float("-inf")
+
+            if input_ids[i, -1] == self.mol_end_token_id:
+                mask = torch.ones_like(scores[i,:], dtype=bool)
+                mask[tokenizer.pad_token_id] = False
+                #mask[self.mol_token_id] = False
+                scores[i, ~mask] = float("-inf")
+                scores[i, tokenizer.pad_token_id] = 0.0
+
+
+        return scores
+
+
 
 def load_with_tqdm(file_path, map_location=None, weights_only=True):
     file_size = os.path.getsize(file_path)
@@ -143,8 +227,8 @@ if __name__ == "__main__":
     parser.add_argument("--tokenizer_path", default="/shared/nas2/shared/llms/mCLM/OnlyBlocks/Top50V2/Qwen2.5-3B_TotalTop1k_splitLoss_1kPretrain/", type=str)
     #parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/OnlyBlocks/Top50V2/Qwen2.5-3B_TotalTop1k_splitLoss_1kPretrain/", type=str)
     #parser.add_argument("--ckpt", default="latest_checkpoint-epoch=04-step=129000.ckpt", type=str)
-    parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/OnlyBlocks/Top50V2/Qwen2.5-3B_TotalTop1k_splitLoss_V2/", type=str)
-    parser.add_argument("--ckpt", default="latest_checkpoint-epoch=02-step=60000.ckpt", type=str)
+    parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/OnlyBlocks/Top50V2/Qwen2.5-3B_TotalTop1k_splitLoss_FinetuneV2/posneg/", type=str)
+    parser.add_argument("--ckpt", default="best_val_checkpoint.ckpt", type=str)
 
     
     parser.add_argument("--loss", default="CLIP", type=str)
@@ -316,7 +400,7 @@ if __name__ == "__main__":
                 SuppressTokensProcessor(bad_words_ids)
             ])
     
-    def message_ids_to_string(message_ids):
+    def message_ids_to_string(message_ids, add_mol=False):
         
         extracted_mols = message_ids > MOL_end
         locs = extracted_mols.nonzero().squeeze()
@@ -324,27 +408,111 @@ if __name__ == "__main__":
 
         #print(tokenizer.decode(generated[0].tolist()[len(message_tokens):], skip_special_tokens=True))
 
-        tokens = tokenizer.convert_ids_to_tokens(message_ids, skip_special_tokens=False)
+        tokens = tokenizer.convert_ids_to_tokens(message_ids, skip_special_tokens=True)
         #print(tokens)
         tokens = [molecule_tokenizer.get_block(int(message_ids[i]))+'^' if i in locs else t for i, t in enumerate(tokens)]
         #print(tokens)
-        clean_tokens = [tok for tok in tokens if tok not in tokenizer.all_special_tokens]
+
         #print(tokens)
         #print()
 
-        message = tokenizer.convert_tokens_to_string(clean_tokens)
+        message = '[MOL]'*add_mol + tokenizer.convert_tokens_to_string(tokens)
         #print(message)
         #print()
         
         mol_list, smi_message = extract_mol_content(message)
         mol_list = [m[:-1] if m[-1]=='^' else m for m in mol_list]
-        mol_list = [Chem.MolToSmiles(join_fragments(smi)) for smi in mol_list]
+        joined_mol_list = [Chem.MolToSmiles(join_fragments(smi)) for smi in mol_list]
 
         #print(mol_list)
         
         smi_message = replace(smi_message, mol_list)
 
-        return message, smi_message
+        return message, smi_message, mol_list
+
+
+    library = set()
+    for block in molecule_tokenizer.block_to_idx:
+        library.add(block)
+
+    di_blocks = set([b for b in library if '1*' in b and '2*' in b])
+    mono_blocks = set([b for b in library if ('3*' in b)])
+
+    total_blocks = list(mono_blocks.union(di_blocks))
+
+
+    def get_molecule(instruct, response, allowed_token_ids, num_beams=5):
+        #user_input = input("Enter an instruction (type 'quit' to exit): ")
+        #if user_input == 'quit': break
+
+        #mols_list, MOL_input = convert_SMILES_strings(user_input)
+
+        #print(instruct, response)
+
+        mol_list1, cleaned_instruct = extract_mol_content(instruct)
+        mol_list2, cleaned_response = extract_mol_content(response)
+
+        mol_list = mol_list1 + mol_list2
+
+
+        messages = [
+            {"role": "user", "content": cleaned_instruct},
+            {"role": "assistant", "content": cleaned_response + '[MOL]'},
+        ]
+        message_tokens = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True, return_tensors="pt")
+
+        flat_x = message_tokens.flatten()
+        indices = (flat_x == MOL_start).nonzero(as_tuple=True)[0]
+        last_index = indices[-1].item()
+        message_tokens = message_tokens[0,:last_index]
+        #print(message_tokens, message_tokens.shape)
+        #print([tokenizer.decode(t) for t in message_tokens])
+        #zz
+
+        frags = [[molecule_tokenizer.get_Idx(m) for m in mol.split('^')] for mol in mol_list]
+        
+        message_tokens = torch.Tensor(insert_sublists(message_tokens.squeeze(), frags, MOL_start, MOL_end)+[MOL_start]).to(torch.int).to(device)
+        #print(message_tokens, message_tokens.shape)
+        
+        processor = LogitsProcessorList([ RestrictTokensLogitsProcessor(allowed_token_ids + [MOL_end, tokenizer.pad_token_id]), \
+            ConditionalMolEndProcessor(MOL_start, MOL_end, tokenizer.convert_tokens_to_ids(tokenizer.eos_token), \
+                [molecule_tokenizer.get_Idx(b) for b in mono_blocks], \
+                [molecule_tokenizer.get_Idx(b) for b in di_blocks]), \
+            ])
+            
+        
+
+        generated = model.generate(
+            input_ids=message_tokens.long().unsqueeze(0),
+            max_new_tokens=10,
+            num_beams=num_beams,
+            num_return_sequences=num_beams,
+            do_sample=False,
+            bad_words_ids=bad_words_ids,
+            logits_processor=processor,
+            num_beam_groups=num_beams, diversity_penalty=1.0,
+            #no_repeat_ngram_size=2,
+        )
+        
+        all_mol_list = []
+
+        for j in range(num_beams):
+            message_ids = generated[j, len(message_tokens):] 
+            #print(message_ids)
+            tokens = tokenizer.convert_ids_to_tokens(message_ids, skip_special_tokens=True)
+            tokens = [molecule_tokenizer.get_block(int(message_ids[i]))+'^' if t == None else t for i, t in enumerate(tokens)]
+            #print(tokens)
+            #zz
+            mol_msg, smiles_msg, mol_list = message_ids_to_string(message_ids, add_mol=True)
+
+            #print(mol_msg)
+            #print(smiles_msg)
+            #print()
+            all_mol_list.append(mol_list)
+            #print(all_mol_list)
+        mols = [mol_list[0] for mol_list in all_mol_list]
+
+        return [[molecule_tokenizer.get_Idx(m) for m in mol.split('^')] for mol in mols], mols
 
 
     while True:
@@ -385,121 +553,29 @@ if __name__ == "__main__":
                 model.model.finalize_molecule_embeddings(embeddings=pretrain_mol_embeddings)
                 
 
-            messages = [
-                {"role": "user", "content": cleaned_text},
-            ]
-            message_tokens = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True, return_tensors="pt")
-            #print(message_tokens)
-
-            frags = [[molecule_tokenizer.get_Idx(m) for m in mol.split('^')] for mol in mol_list]
-            
-            message_tokens = torch.Tensor(insert_sublists(message_tokens.squeeze(), frags, MOL_start, MOL_end)).to(torch.int).to(device)
-            #+[MOL_start]
-            print(message_tokens, message_tokens.shape)
-            
-            if True:
-                output = model.generate(
-                    message_tokens.unsqueeze(0),
-                    max_new_tokens=1,
-                    return_dict_in_generate=True,
-                    output_scores=True,
-                    bad_words_ids=bad_words_ids
-                )
-
-                # Get generated token IDs (excluding prompt)
-                generated_tokens = output.sequences[0][message_tokens.shape[-1]:]
-
-                # Print top 5 tokens for each generation step
-                for step, score_distribution in enumerate(output.scores):
-                    topk = torch.topk(score_distribution[0], k=50)
-                    token_ids = topk.indices
-                    scores = topk.values
-                    tokens = tokenizer.convert_ids_to_tokens(token_ids)
-
-                    tokens = [molecule_tokenizer.get_block(int(token_ids[i])) if t == None else t for i, t in enumerate(tokens)]
-
-                    sorted_scores, sorted_indices = torch.sort(score_distribution[0], descending=True)
-
-                    rank = (sorted_indices == MOL_start).nonzero(as_tuple=True)[0].item()
-                    print('MOL_start', score_distribution[0][MOL_start], rank,'/', len(score_distribution[0]))
-                    rank = (sorted_indices == MOL_end).nonzero(as_tuple=True)[0].item()
-                    print('MOL_end', score_distribution[0][MOL_end], rank,'/', len(score_distribution[0]))
-
-                    with open('bad_tokens_tmp.txt', 'w') as f:
-                        for token_id, score in zip(token_ids, scores):
-                            token = tokenizer.convert_ids_to_tokens([token_id])[0]
-                            token = molecule_tokenizer.get_block(int(token_id)) if token == None else token
-                            print(f"  Token: {token:<12} Score: {score.item():.4f}")
-                            if token == '[MOL]': break
-
-                            print(token_id.item(), file=f)
-
-            if False:
-                output = model.generate(
-                    message_tokens.unsqueeze(0),
-                    max_new_tokens=5,
-                    return_dict_in_generate=True,
-                    output_scores=True
-                )
-
-                # Get generated token IDs (excluding prompt)
-                generated_tokens = output.sequences[0][message_tokens.shape[-1]:]
-
-                # Print top 5 tokens for each generation step
-                for step, score_distribution in enumerate(output.scores):
-                    topk = torch.topk(score_distribution[0], k=5)
-                    token_ids = topk.indices
-                    scores = topk.values
-                    tokens = tokenizer.convert_ids_to_tokens(token_ids)
-
-                    tokens = [molecule_tokenizer.get_block(int(token_ids[i])) if t == None else t for i, t in enumerate(tokens)]
-
-                    sorted_scores, sorted_indices = torch.sort(score_distribution[0], descending=True)
-
-                    print(f"\nStep {step + 1}:")
-
-                    rank = (sorted_indices == MOL_start).nonzero(as_tuple=True)[0].item()
-                    print('MOL_start', score_distribution[0][MOL_start], rank,'/', len(score_distribution[0]))
-                    rank = (sorted_indices == MOL_end).nonzero(as_tuple=True)[0].item()
-                    print('MOL_end', score_distribution[0][MOL_end], rank,'/', len(score_distribution[0]))
-
-                    for token, score in zip(tokens, scores):
-                        print(f"  Token: {token:<12} Score: {score.item():.4f}")
-
                 
-            beam_size = 5            
+            token_ids, mols = get_molecule(MOL_input, '', allowed_token_ids=list(molecule_tokenizer.idx_to_block.keys()), num_beams=10)
 
-            generated = model.generate(
-                input_ids=message_tokens.long().unsqueeze(0),
-                max_new_tokens=32,
-                num_beams=beam_size,
-                num_return_sequences=beam_size,
-                do_sample=False,
-                bad_words_ids=bad_words_ids,
-                diversity_penalty=1.0,
-                num_beam_groups=beam_size,
-            )
-            #outputs = model.generate(message_tokens, max_new_tokens=128) 
-            #out_text = tokenizer.decode(outputs[0])
-            
-            #print('Generated:', generated)
+            #print(MOL_input)
+            start_smiles = Chem.MolToSmiles(join_fragments(mol_list[0]))
 
-            #extracted_mols = extract_between_MOL(generated[0])
-            #print(extracted_mols)
-            #extracted_mols = [[molecule_tokenizer.get_block(e) for e in em] for em in extracted_mols]
-            #print(extracted_mols)
+            if len(mols) != 0:
+                new_smis = []
+                for mol in mols:
+                    new_smi = Chem.MolToSmiles(join_fragments(mol))#'.'.join([Chem.MolToSmiles(join_fragments(mol)) for mol in inp])
 
-            for i in range(beam_size):
-                message_ids = generated[i, len(message_tokens):]
-                print(message_ids)
-                
-                mol_msg, smiles_msg = message_ids_to_string(message_ids)
+                    new_smis.append(new_smi)
 
-                print(mol_msg)
-                print(smiles_msg)
-                print()
-        #except Exception as e:
-        #    print(e)
+                    #print(new_smi)
+                #print()
+                task = input("Enter an task: ")
+                scores = oracle_score([start_smiles] + new_smis, task)
+
+                for smi, s, mol in zip([start_smiles] + new_smis, scores, [mol_list[0]] + mols):
+                    print(smi, s, mol)
+
+            else:
+                print(task,smi, blck, 'failed')
+                zz
 
 
-        

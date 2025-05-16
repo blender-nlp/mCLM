@@ -467,7 +467,7 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
 
             #loss = compute_loss_optimized2(logits, labels, mapping_tensor=self.mapping_tensor)
             #text_loss, mol_loss = None, None
-            text_loss, mol_loss = compute_loss_optimized2_sep(logits, labels, mapping_tensor=self.mapping_tensor)
+            text_loss, mol_loss = compute_loss_optimized2_sep(logits, labels, mapping_tensor=self.mapping_tensor, MOL_start=self.text_vocab_size-2)
             if mol_loss == None:
                 loss = text_loss
                 text_loss, mol_loss = text_loss.item(), torch.nan

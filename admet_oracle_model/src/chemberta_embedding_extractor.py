@@ -9,6 +9,10 @@ from transformers import AutoModel, AutoTokenizer
 import warnings
 warnings.filterwarnings("ignore")
 
+from transformers import logging
+logging.set_verbosity_error()
+
+
 from config import task, batch_size, ckpt_path, device
 
 input_size = 384 # Input size for the GRU

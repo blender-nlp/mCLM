@@ -19,7 +19,7 @@ from config import task, ckpt_path, batch_size, device
 
 # === SMILES to Graph Function ===
 def smiles_to_graph(smiles):
-    mol = Chem.MolFromSmiles(smiles)
+    mol = Chem.MolFromSmiles(smiles, sanitize=False)
     if mol is None:
         return None
 

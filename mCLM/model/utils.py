@@ -503,19 +503,21 @@ def mclm_logit_head_optimized2_sep(
         #print(text_logits.shape)
         # Chi: must be generating, assert
         assert is_generating_mol.ndim == 2
+        #print('is_generating_mol.device', is_generating_mol.device)
         #assert is_generating_mol.shape[0] == 1
         bs = is_generating_mol.shape[0]
         length = is_generating_mol.shape[1]
-        mol_logits = torch.full((bs, length, mol_vocab_size), float('-inf')) #torch.ones(1, length, mol_vocab_size) * -1e5
+        #mol_logits = torch.full((bs, length, mol_vocab_size), float('-inf'), device=is_generating_mol.device) #torch.ones(1, length, mol_vocab_size) * -1e5
         #full_logits = torch.cat(
         #    (text_logits, mol_logits),
         #    dim=-1
         #)
         #print(mol_logits.shape)
         #print(is_generating_mol[:,-1].sum())
-        if is_generating_mol[:,-1].any():
-            molecule_ids_trained = "all"
-            mol_embeds = embed_molecules(molecule_ids_trained)
+        #if is_generating_mol[:,-1].any():
+        molecule_ids_trained = "all"
+        mol_embeds = embed_molecules(molecule_ids_trained)
+
         ml = []
         for i in range(bs):
             #print(i)
@@ -528,12 +530,14 @@ def mclm_logit_head_optimized2_sep(
                 mol_logits = mol_logits.repeat(1, text_logits.shape[1], 1)           # Shape: [1,X,99607]
                 #print(mol_logits.shape, text_logits.shape)
             else:
-                mol_logits = torch.full((1, length, mol_vocab_size), float('-inf'))
+                #print(mol_embeds.shape, mol_vocab_size)
+                mol_logits = torch.full((1, length, mol_embeds.shape[0]), float('-inf'), device=is_generating_mol.device)
             ml.append(mol_logits)
 
         mol_logits = torch.cat(ml, dim=0)
         #print(mol_logits.shape)
 
+        #print(text_logits.shape, mol_logits.shape)
         full_logits = torch.cat(
             (text_logits, mol_logits),
             dim=-1
@@ -563,7 +567,7 @@ class mCLMSparseLogitsOptimized_sep:
         #self.num_mols = mol_labels_mask.sum()
 
 
-def compute_loss_optimized2_sep(logits, labels, mapping_tensor=None):
+def compute_loss_optimized2_sep(logits, labels, mapping_tensor=None, MOL_start=None):
     if not isinstance(logits, mCLMSparseLogitsOptimized_sep):
         self = mCLMSparseLogitsOptimized_sep(
             indices=None,
@@ -573,7 +577,6 @@ def compute_loss_optimized2_sep(logits, labels, mapping_tensor=None):
         self = logits
 
     loss_fct_opt = linear_cross_entropy
-    loss_fct_opt2 = CrossEntropyLoss()
 
     #print("Labels Pre:", labels.min(), labels.max())
 
@@ -657,18 +660,37 @@ def compute_loss_optimized2_sep(logits, labels, mapping_tensor=None):
 
     #print('Final Values for Loss:')
 
+    if MOL_start != None:
+        loss_fct_opt2 = CrossEntropyLoss(reduction='None')
 
-    if num_text != 0:
-        text_loss = loss_fct_opt(shift_embeddings[~mol_labels_mask], \
-            text_classifier, shift_labels[~mol_labels_mask], impl=impl)#, shift=1)#, impl='cce_kahan_full_c_full_e')
-    else:
-        text_loss = None
+        if num_text != 0:
+            text_logits = shift_embeddings[~mol_labels_mask] @ text_classifier.t()
+            text_labels = shift_labels[~mol_labels_mask]
+            text_loss = loss_fct_opt2(text_logits, text_labels)
+            text_loss[text_labels == MOL_start] *= 10
+            print('MOL_start loss:', text_loss[text_labels == MOL_start])
+            text_loss = text_loss.mean()
+        else:
+            text_loss = None
 
-    if num_mols != 0:
-        mol_loss = loss_fct_opt(shift_embeddings[mol_labels_mask], \
-            mol_classifier, mol_labels, impl=impl)#, shift=1)#, impl='cce_kahan_full_c_full_e')
+        if num_mols != 0:
+            mol_logits = shift_embeddings[mol_labels_mask] @ mol_classifier.t()
+            mol_loss = loss_fct_opt2(mol_logits, mol_labels)
+            mol_loss = mol_loss.mean()
+        else:
+            mol_loss = None
     else:
-        mol_loss = None
+        if num_text != 0:
+            text_loss = loss_fct_opt(shift_embeddings[~mol_labels_mask], \
+                text_classifier, shift_labels[~mol_labels_mask], impl=impl)#, shift=1)#, impl='cce_kahan_full_c_full_e')
+        else:
+            text_loss = None
+
+        if num_mols != 0:
+            mol_loss = loss_fct_opt(shift_embeddings[mol_labels_mask], \
+                mol_classifier, mol_labels, impl=impl)#, shift=1)#, impl='cce_kahan_full_c_full_e')
+        else:
+            mol_loss = None
 
     if False:
         text_logits = shift_embeddings[~mol_labels_mask] @ text_classifier.t()
