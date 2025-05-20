@@ -33,9 +33,9 @@ from mCLM.model.models import (
 
 
 # Add the src directory to sys.path
-sys.path.append(os.path.abspath('admet_oracle_model/src'))
+#sys.path.append(os.path.abspath('admet_oracle_model/src'))
 
-from admet_oracle_model.src.main import prepare_dataset, evaluate, MLP
+#from admet_oracle_model.src.main import prepare_dataset, evaluate, MLP
 
 
 from rdkit import Chem
@@ -568,11 +568,17 @@ if __name__ == "__main__":
 
                     #print(new_smi)
                 #print()
-                task = input("Enter an task: ")
-                scores = oracle_score([start_smiles] + new_smis, task)
+                if False:
+                    task = input("Enter an task: ")
+                    scores = oracle_score([start_smiles] + new_smis, task)
 
-                for smi, s, mol in zip([start_smiles] + new_smis, scores, [mol_list[0]] + mols):
-                    print(smi, s, mol)
+                    for smi, s, mol in zip([start_smiles] + new_smis, scores, [mol_list[0]] + mols):
+                        print(smi, s, mol)
+
+
+                print('Original:\t', start_smiles, mol_list[0])
+                for smi, s, mol in zip(new_smis,  mols):
+                    print('Generated:\t', smi, mol)
 
             else:
                 print(task,smi, blck, 'failed')
