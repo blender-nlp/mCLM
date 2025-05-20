@@ -36,7 +36,8 @@ from ..utils import embed_chemical_language, \
     MLPAdaptor, compute_loss, \
     mclm_logit_head_optimized, compute_loss_optimized, \
     mclm_logit_head_optimized2, compute_loss_optimized2, \
-    mclm_logit_head_optimized2_sep, compute_loss_optimized2_sep
+    mclm_logit_head_optimized2_sep, compute_loss_optimized2_sep, \
+    compute_loss_BCE
 
 
 logger = logging.get_logger(__name__)
@@ -114,11 +115,11 @@ class Qwen2Model(OriginalQwen2Model):
             F.pad(self.embed_tokens.weight,
                 (0, 0, 0, new_vocab_size - self.text_vocab_size), "constant", 0)
         )
-        #https://www.cs.columbia.edu/~johnhew/vocab-expansion.html
-        old_weight = self.embed_tokens.weight[:new_vocab_size-2, :] #2 is this is hardcoded for mCLM
-        mean_emb = old_weight.mean(dim=0, keepdim=True)
-        new_rows = mean_emb.repeat(2, 1) 
-        self.embed_tokens.weight = nn.Parameter(torch.cat([old_weight, new_rows], dim=0))
+        if False: #this didn't work #https://www.cs.columbia.edu/~johnhew/vocab-expansion.html
+            old_weight = self.embed_tokens.weight[:new_vocab_size-2, :] #2 is this is hardcoded for mCLM
+            mean_emb = old_weight.mean(dim=0, keepdim=True)
+            new_rows = mean_emb.repeat(2, 1) 
+            self.embed_tokens.weight = nn.Parameter(torch.cat([old_weight, new_rows], dim=0))
 
         self.text_vocab_size = new_vocab_size
         self.config.vocab_size = new_vocab_size + self.config.mol_vocab_size
@@ -271,8 +272,23 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         self.use_mol_embeddings(False)
 
         self.only_molecule_loss= False
+        self.only_text_loss = False
+
+        self.yes_id = None
+        self.no_id = None
 
 
+    def use_only_molecule_loss(self, only_molecule_loss):
+        self.only_molecule_loss = only_molecule_loss
+        self.model.only_molecule_loss = only_molecule_loss
+        
+    def use_only_text_loss(self, only_text_loss):
+        self.only_text_loss = only_text_loss
+        self.model.only_text_loss = only_text_loss
+
+    def use_BCE_loss(self, yes_id, no_id):
+        self.yes_id = yes_id
+        self.no_id = no_id
 
     def get_input_embeddings(self):
         return self.model.embed_tokens
@@ -322,21 +338,26 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
             F.pad(self.lm_head.weight,
                 (0, 0, 0, new_vocab_size - self.text_vocab_size), "constant", 0)
         )
-        #https://www.cs.columbia.edu/~johnhew/vocab-expansion.html
-        old_weight = self.lm_head.weight[:new_vocab_size-2, :] #2 is this is hardcoded for mCLM
-        mean_emb = old_weight.mean(dim=0, keepdim=True)
-        new_rows = mean_emb.repeat(2, 1) 
-        self.lm_head.weight = nn.Parameter(torch.cat([old_weight, new_rows], dim=0))
+
+        if False: #this didn't work #https://www.cs.columbia.edu/~johnhew/vocab-expansion.html
+            old_weight = self.lm_head.weight[:new_vocab_size-2, :] #2 is this is hardcoded for mCLM
+            mean_emb = old_weight.mean(dim=0, keepdim=True)
+            new_rows = mean_emb.repeat(2, 1) 
+            self.lm_head.weight = nn.Parameter(torch.cat([old_weight, new_rows], dim=0))
 
         self.model.extend_text_vocab_size(new_vocab_size)
         self.config.text_vocab_size = new_vocab_size
         self.config.vocab_size = self.text_vocab_size + self.config.mol_vocab_size
 
 
+
+
     # mCLM force use molecule embeddings
     def use_mol_embeddings(self, use_mol_embeddings):
         self._use_mol_embeddings = use_mol_embeddings
         self.model._use_mol_embeddings = use_mol_embeddings
+        if use_mol_embeddings:
+            self.model.mol_gnn = None
 
     # mCLM set molecule vocab
     def set_mol_vocab(self, mol_vocab):
@@ -461,13 +482,19 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
         #print('mapping in forward:', self.mapping_tensor.shape)
 
         if labels is not None:
-            if len(self.mapping_tensor) != self.total_vocab_size:
-                self.mapping_tensor = torch.full((self.total_vocab_size,), -1, dtype=torch.long, device=hidden_states.device)
+            if len(self.mapping_tensor) != self.vocab_size:
+                self.mapping_tensor = torch.full((self.vocab_size,), -1, dtype=torch.long, device=hidden_states.device)
                 self.mapping_tensor.requires_grad = False
 
             #loss = compute_loss_optimized2(logits, labels, mapping_tensor=self.mapping_tensor)
             #text_loss, mol_loss = None, None
-            text_loss, mol_loss = compute_loss_optimized2_sep(logits, labels, mapping_tensor=self.mapping_tensor, MOL_start=self.text_vocab_size-2)
+            if self.yes_id != None:
+                text_loss, mol_loss = compute_loss_BCE(logits, labels, self.yes_id, self.no_id)
+            else:
+                text_loss, mol_loss = compute_loss_optimized2_sep(logits, labels, mapping_tensor=self.mapping_tensor)#, MOL_start=self.vocab_size-2) #change to self.text_vocab_size when merging
+
+
+
             if mol_loss == None:
                 loss = text_loss
                 text_loss, mol_loss = text_loss.item(), torch.nan
@@ -480,6 +507,9 @@ class Qwen2ForCausalLM(Qwen2PreTrainedModel, GenerationMixin):
 
             if self.only_molecule_loss:
                 loss = mol_loss
+
+            if self.only_text_loss:
+                loss = text_loss
 
             return CausalLMOutputWithPast(
                 loss=loss,

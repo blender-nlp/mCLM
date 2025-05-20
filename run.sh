@@ -33,6 +33,33 @@ export PL_FAULT_TOLERANT_TRAINING=1
 echo "Starting Main Script" 
 
 
+
+
+
+if true; then
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-3B/ \
+    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
+    --check_val_every_n_steps 10000 \
+    --batch_size=4 --lr 2e-5 --mol_lr 2e-6 \
+    --ckpt_path ckpts/OnlyBlocks/Qwen2.5-0.5B_Total_splitLoss_10kPretrain/ --version Qwen2.5-0.5B_splitLoss_Top10k \
+    --max_epochs 25 \
+    --no_PEFT \
+    --accumulate_grad_batches 4 \
+    --data_module TotalTop50k --task TotalTop50k \
+    --freeze_GNN \
+    --num_warmup_steps 2000 \
+    --save_checkpoint_every_n_steps 2500 \
+    --pretrained_embeddings final_embeddings/OnlyBlocks/Top50kV2/128_dim/ \
+    --instruction_data_path /home/a-m/cne2/MMLI_projects/mCLM/data/instruction_onlyblocks_top_5000/ \
+    --synthetic_data_path /home/a-m/cne2/MMLI_projects/mCLM/data/synthetic_onlyblocks_top_5000/ \
+    --tokenizer_cache ../GNN_input_cache/Total.molecule_tokenizer.5000.pth \
+
+fi
+
+
 #PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
 #    --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ --check_val_every_n_steps 10000 \
 #    --pretrained_tokenizer /home/a-m/cne2/MMLI_projects/LLMs/Qwen2.5-0.5B/ \
@@ -162,7 +189,7 @@ fi
 
 
 
-if true; then
+if false; then
 
 PYTHONPATH=. srun python mCLM/scripts/main.py --base_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen3-0.6B-Base/ \
     --pretrained_text_model /home/a-m/cne2/MMLI_projects/LLMs/Qwen3-0.6B-Base/ \

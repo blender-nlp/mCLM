@@ -746,6 +746,8 @@ class TotalDataModule(LightningDataModule):
         f = 'tulu-3-sft_train.csv'
         print(f)
         df = pd.read_csv(osp.join(ddir, f),keep_default_na=False,na_values=[])
+        if self.config['downsample_tulu'] != None:
+            df = df.sample(frac=self.config['downsample_tulu'], random_state=self.seed)
         df['messages'] = df['messages'].apply(lambda x : x.replace("'}\n {'", "'},{'").replace("'} {'", "'},{'")).apply(ast.literal_eval)
         print(len(df))
         to_split_data.append((df, f.replace('.csv', ''),None))
@@ -1720,6 +1722,249 @@ class MolGenTotalDataModule(LightningDataModule):
         self.train_ds = StatefulShuffleDataset(self.train_ds, seed=0)
         print('Total Training Data Length:', len(self.train_ds))
         #zz
+
+        for df, task, shrink in valid_data:
+            if task.startswith('tulu'): ds_type = TuluDataset
+            elif task.startswith('mol-inst'): ds_type = MolInstDataset
+            else: ds_type = GeneralDataset
+            ds = ds_type(
+                df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+                shrink_size = shrink,
+            )
+            self.valid_dses.append(ds)
+
+        for df, task, shrink in test_data:
+            if task.startswith('tulu'): ds_type = TuluDataset
+            elif task.startswith('mol-inst'): ds_type = MolInstDataset
+            else: ds_type = GeneralDataset
+            ds = ds_type(
+                df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+                shrink_size = shrink,
+            )
+            self.test_dses.append(ds)
+
+
+    def train_dataloader(self):
+        return CustomDataLoader(
+            self.train_ds,
+            batch_size=self.batch_size,
+            num_workers=8,
+            shuffle=True,
+            drop_last=True,
+        )
+
+    def val_dataloader(self):
+        return [CustomDataLoader(
+            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
+        ) for ds in self.valid_dses]
+
+    def test_dataloader(self):
+        return [CustomDataLoader(
+            ds, batch_size=self.batch_size, num_workers=0, shuffle=False
+        ) for ds in self.test_dses]
+
+    def teardown(self, stage: str):
+        pass
+
+
+
+
+
+import re
+
+def fix_backslash(s):
+    # Replace double-backslash between parentheses with single backslash
+    return re.sub(r'\(\\\\', r'(\\', s)
+
+
+def fix_backslash_list(lst):
+    # Replace double-backslash between parentheses with single backslash
+    return [fix_backslash(s) for s in lst]
+
+
+
+class FinetuneDataModule(LightningDataModule):
+    def __init__(
+        self,
+        config,
+        base_model,
+        batch_size=4,
+        trunc_length=512,
+        synthetic_data_path="captions/",
+        GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.v4.pth',
+        shrink_data = None,
+    ):
+        super().__init__()
+        self.prepare_data_per_node = True
+
+        self.base_model = base_model
+        self.batch_size = batch_size
+        self.trunc_length = trunc_length
+        self.synthetic_data_path = synthetic_data_path
+        self.config = config
+        self.seed = config['seed']
+        self.GNN_cache = GNN_cache
+        self.shrink_data = shrink_data
+
+    def set_new_epoch(self, epoch):
+        for ds in self.train_dses:
+            ds.set_new_epoch(epoch)
+        for ds in self.valid_dses:
+            ds.set_new_epoch(epoch)
+        for ds in self.test_dses:
+            ds.set_new_epoch(epoch)
+
+    def setup(self, stage: str):
+        self.tokenizer = AutoTokenizer.from_pretrained(self.config['pretrained_tokenizer'])
+        self.tokenizer.pad_token = self.tokenizer.eos_token #llama3
+
+        self.tokenizer.add_tokens(['[MOL]', '[/MOL]'])
+        #model.resize_token_embeddings(len(tokenizer)) #put this somewhere
+
+        start_idx = len(self.tokenizer)
+
+        to_split_data = []
+        train_data = []
+        valid_data = []
+        test_data = []
+
+        print('Loading Data')
+
+        for subdir in ['posneg']: #['molgen_chembl', 'pred_chembl']:
+            ddir = osp.join(self.synthetic_data_path, subdir)
+            files = [f for f in os.listdir(ddir) if os.path.isfile(os.path.join(ddir, f))]
+            total = 0
+            for f in files:
+                print(f)
+                try:
+                    df = pd.read_csv(osp.join(ddir, f), dtype={'instruction': str, 'response': str, 'cleaned_instruction': str, 'cleaned_response': str},keep_default_na=False,na_values=[])
+                except pd.errors.EmptyDataError:
+                    print(f"Warning: {f} is empty. Skipping.")
+                    continue
+                if len(df) == 0: continue
+                df['mol_list'] = df['mol_list'].apply(ast.literal_eval)
+                df['mol_list'] = df['mol_list'].apply(fix_backslash_list)
+                
+
+                print(len(df))
+                total += len(df)
+                #df[['mol_list', 'cleaned_instruction', 'cleaned_response']] = df.progress_apply(lambda x: pd.Series(extract_mol_content2(x['instruction'], x['response'])), axis=1)
+                
+                task_name = subdir + '/' + f.replace('.csv', '')
+                to_split_data.append((df, task_name, self.shrink_data))
+                #if f == 'Tox21_class.csv': break
+            print(subdir, total)
+
+
+        print('Dataframes Loaded')
+
+        #Preprocess molecule tokenizer
+        if osp.exists(self.GNN_cache):
+            with open(self.GNN_cache, "rb") as f:
+                self.molecule_tokenizer = torch.load(f, map_location=torch.device('cpu'), weights_only=False)
+
+            self.molecule_tokenizer.change_start_idx(start_idx)
+        else:
+            self.molecule_tokenizer = MoleculeTokenizer(start_idx)
+            for dfs in [to_split_data, train_data, valid_data, test_data]:
+                for df, task, shrink in dfs:
+                    if 'mol_list' in df:
+                        for d in df['mol_list']:
+                            for mol in d:
+                                for block in mol.split('^'):
+                                    #if block == '.CCCCCCCCCCCCOS(=O)(=O)O': print(task, mol)
+                                    #if len(block) == 1: print(block, mol, task)#, df['mol_list'].to_list())
+                                    self.molecule_tokenizer.add_block(block)
+
+            #self.molecule_tokenizer.create_input()
+            with open(self.GNN_cache, "wb") as f:
+                torch.save(self.molecule_tokenizer, f)
+
+            print('# bad blocks:', len(self.molecule_tokenizer.bad_blocks))
+
+        print('Molecule Building Block Input Created / Loaded')
+
+        GNN_cache = self.config["GNN_cache"]
+
+        #Preprocess molecule tokenizer
+        if GNN_cache != None:
+            self.molecule_tokenizer.bfloat16 = True
+
+            if osp.exists(GNN_cache):
+                self.molecule_tokenizer.GNN_input_map = torch.load(GNN_cache, map_location=torch.device('cpu'), weights_only=False)
+            else:
+                self.molecule_tokenizer.create_input()
+                with open(GNN_cache, "wb") as f:
+                    torch.save(self.molecule_tokenizer.GNN_input_map, f)
+
+
+
+        self.train_dses = []
+        self.valid_dses = []
+        self.test_dses = []
+
+        for df, task, shrink in to_split_data:
+            if task.startswith('tulu'): ds_type = TuluDataset
+            elif task.startswith('mol-inst'): ds_type = MolInstDataset
+            else: ds_type = GeneralDataset
+            ts = int(0.1*len(df)) #min(40, max(int(0.01*len(df)), 10), int(0.1*len(df)))
+            if ts>1:
+                train_df, val_df = train_test_split(df, test_size=ts, random_state = self.seed)
+                val_df, test_df = train_test_split(val_df, test_size=0.5, random_state = self.seed)
+            ds = ds_type(
+                train_df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+                shrink_size = shrink,
+            )
+            self.train_dses.append(ds)
+            if ts>0 and len(val_df) > 0:
+                ds = ds_type(
+                    val_df,
+                    self.tokenizer,
+                    self.molecule_tokenizer,
+                    task_name=task,
+                    trunc_length=self.trunc_length,
+                )
+                self.valid_dses.append(ds)
+            if ts>0 and len(test_df) > 0:
+                ds = ds_type(
+                    test_df,
+                    self.tokenizer,
+                    self.molecule_tokenizer,
+                    task_name=task,
+                    trunc_length=self.trunc_length,
+                )
+                self.test_dses.append(ds)
+
+
+        for df, task, shrink in train_data:
+            if task.startswith('tulu'): ds_type = TuluDataset
+            elif task.startswith('mol-inst'): ds_type = MolInstDataset
+            else: ds_type = GeneralDataset
+            ds = ds_type(
+                df,
+                self.tokenizer,
+                self.molecule_tokenizer,
+                task_name=task,
+                trunc_length=self.trunc_length,
+                shrink_size = shrink,
+            )
+            self.train_dses.append(ds)
+
+        self.train_ds = ConcatDataset(self.train_dses)
+        self.train_ds = StatefulShuffleDataset(self.train_ds, seed=0)
+        print('Total Training Data Length:', len(self.train_ds))
 
         for df, task, shrink in valid_data:
             if task.startswith('tulu'): ds_type = TuluDataset

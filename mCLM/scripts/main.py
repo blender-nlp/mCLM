@@ -15,7 +15,7 @@ import pandas as pd
 
 import pickle
 
-from mCLM.data.dataloaders import KinaseDataModule, SMolInstructDataModule, TotalDataModule, MolGenSMolInstructDataModule, MolGenTotalDataModule
+from mCLM.data.dataloaders import KinaseDataModule, SMolInstructDataModule, TotalDataModule, MolGenSMolInstructDataModule, MolGenTotalDataModule, FinetuneDataModule
 from mCLM.model.models import (
     mCLM,
 )
@@ -118,7 +118,27 @@ def main(args):
             GNN_cache = '../GNN_input_cache/Total.molecule_tokenizer.50kV2.pth',
         )
 
-    
+    elif config["data_module"] == "TotalTopK":
+        dm = TotalDataModule(
+            config,
+            instruction_data_path = config['instruction_data_path'],
+            synthetic_data_path = config['synthetic_data_path'],
+            base_model=config["base_model"],
+            batch_size=config["batch_size"],
+            trunc_length=config["trunc_length"],
+            GNN_cache = config['tokenizer_cache'],
+        )
+
+    elif config["data_module"] == "FinetuneTopK":
+        dm = FinetuneDataModule(
+            config,
+            synthetic_data_path = config['synthetic_data_path'],
+            base_model=config["base_model"],
+            batch_size=config["batch_size"],
+            trunc_length=config["trunc_length"],
+            GNN_cache = config['tokenizer_cache'],
+        )
+
 
         
 
@@ -177,7 +197,11 @@ def main(args):
     model = mCLM(config)
 
     if config['only_molecule_loss']:
-        model.model.only_molecule_loss = True
+        model.model.use_only_molecule_loss(True)
+
+    if config['only_text_loss']:
+        model.model.use_only_text_loss(True)
+
 
     if config["load_GNN_ckpt"] != None:
         gnn_ckpt_sd = torch.load(config["load_GNN_ckpt"], map_location='cpu', weights_only=False)['state_dict']
@@ -191,7 +215,17 @@ def main(args):
         for param in model.model.model.model.mol_gnn.parameters():
             param.requires_grad = False
 
+
+    if config['train_adapter']:
+        for param in model.parameters():
+            param.requires_grad = False
+        for name, param in model.named_parameters():
+            if 'adaptor' in name:
+                param.requires_grad = True
+
+
     if config['pretrained_embeddings'] != None:
+        print('Initializing pretrained_embeddings')
         pretrain_mol_embeddings = torch.load(config['pretrained_embeddings'] + 'precomputed_tokens.pt').to(torch.bfloat16)
         pretrain_mol_embeddings = nn.Embedding.from_pretrained(pretrain_mol_embeddings, freeze=True)
         pretrain_mol_embeddings.weight.data = pretrain_mol_embeddings.weight.data.to(torch.bfloat16)
@@ -301,6 +335,8 @@ def main(args):
             offload_optimizer=True,  # <-- This moves optimizer states (AdamW) to CPU
             offload_parameters=False,  # <-- Keep model weights on GPU
         )
+    elif config['pretrained_embeddings'] == None:
+        strategy = 'ddp_find_unused_parameters_true'
     else:
         strategy = 'ddp'
 
@@ -343,35 +379,7 @@ def main(args):
 if __name__ == "__main__":
 
     torch.cuda.empty_cache()
-
-    #subprocess.run(["nvidia-smi"])
-
-    config = {
-        "pretrained_text_model": "michiyasunaga/BioLinkBERT-base",
-        "trunc_length": 512,
-        "num_warmup_steps": 1000,
-        "max_epochs": 2,
-        "batch_size": 128,
-        "val_batch_size": None,
-        "node_dim": 142,
-        "edge_dim": 12,
-        "hidden_dim_graph": 512,
-        "num_mp_layers": 5,
-        "num_readout_layers": 1,
-        "dropout": 0.13,
-        "aggr": "mean",
-        "jk": "cat",
-        "latent_size": 256,
-        "validate_every_n": 1000,
-        "lr": 2e-5,
-        "data_module": "S1B",
-        "ckpt_path": "ckpts/",
-        "loss": "CLIP",
-        "model": "GNN",
-        "load_ckpt": None,
-        "seed": 42,
-    }
-
+    
     parser = argparse.ArgumentParser(description="Biencoder")
     parser.add_argument("--trunc_length", default=512, type=int)
 
@@ -418,6 +426,11 @@ if __name__ == "__main__":
     parser.add_argument("--no_PEFT", type=bool, action=argparse.BooleanOptionalAction)
 
     parser.add_argument("--only_molecule_loss", type=bool, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--only_text_loss", type=bool, action=argparse.BooleanOptionalAction)
+    parser.add_argument("--train_adapter", type=bool, action=argparse.BooleanOptionalAction)
+
+    parser.add_argument("--finetune", type=bool, action=argparse.BooleanOptionalAction)
+
 
     parser.add_argument("--use_deepspeed", type=bool, action=argparse.BooleanOptionalAction)
 
@@ -439,6 +452,8 @@ if __name__ == "__main__":
     #parser.add_argument("--synthetic_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/synthetic_onlyblocks/')
     parser.add_argument("--instruction_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/instruction_onlyblocks_top_50000/')
     parser.add_argument("--synthetic_data_path", type=str, default='/home/a-m/cne2/MMLI_projects/mCLM/data/synthetic_onlyblocks_top_50000/')
+    parser.add_argument("--tokenizer_cache", type=str, default=None)
+    parser.add_argument("--downsample_tulu", default=None, type=float)
 
     parser.add_argument("--max_negative_sampling_schedule", default=None, type=int)
     #parser.add_argument("--negative_sampling_schedule", default=100, type=int)
