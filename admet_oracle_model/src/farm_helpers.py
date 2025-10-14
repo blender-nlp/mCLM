@@ -1460,7 +1460,11 @@ def get_new_smiles_rep(mol):
             feature_idx[idx] = ' ' + feature + ' '
 
         smiles = m2s(mol)
+        #try:
         feature_idx[0] = feature_idx[-9]
+        #except:
+        #    print('"'+smiles+'"', type(smiles))
+        #    zz
         smiles = smiles.replace('-9', '0')
         smiles = re.sub(r'\[.*?:(\d+)\]', replace_pattern, smiles)
         smiles = re.sub(r'\s+', ' ', smiles)

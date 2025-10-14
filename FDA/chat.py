@@ -329,14 +329,14 @@ if __name__ == "__main__":
     parser.add_argument("--validate_every_n", default=1000, type=int)
     parser.add_argument("--lr", default=5e-5, type=float)
     #parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/Total_mCLM_Qwen2.5-0.5B_NoGNN_FastV2_Shrink25k_OnlyBlocks2_splitLR/", type=str)
-    parser.add_argument("--tokenizer_path", default="/shared/nas2/shared/llms/mCLM/OnlyBlocks/Top50V2/Qwen2.5-3B_TotalTop1k_splitLoss_1kPretrain/", type=str)
+    #parser.add_argument("--tokenizer_path", default="/shared/nas2/shared/llms/mCLM/OnlyBlocks/Top50V2/Qwen2.5-3B_TotalTop1k_splitLoss_1kPretrain/", type=str)
     #parser.add_argument("--ckpt", default="latest_checkpoint-epoch=00-step=30000.ckpt", type=str)
 
     #parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/OnlyBlocks/Top50V2/Qwen2.5-3B_TotalTop1k_splitLoss_1kPretrain/", type=str)
     #parser.add_argument("--tokenizer_path", default="./Top1k_FDA/", type=str)
     #parser.add_argument("--ckpt", default="latest_checkpoint-epoch=04-step=129000.ckpt", type=str)
     parser.add_argument("--ckpt_path", default="/shared/nas2/shared/llms/mCLM/OnlyBlocks/Top50V2/Qwen2.5-3B_TotalTop1k_splitLoss_FinetuneV2/posneg/", type=str)
-    #parser.add_argument("--tokenizer_path", default="./Top1k_FDA/", type=str)
+    parser.add_argument("--tokenizer_path", default="./Top1k_FDA/", type=str)
     parser.add_argument("--ckpt", default="best_val_checkpoint.ckpt", type=str)
     
     parser.add_argument("--loss", default="CLIP", type=str)
@@ -624,7 +624,7 @@ if __name__ == "__main__":
     blocks = df['blocks'].tolist()
 
 
-    if True:
+    if False:
         
         print(len(library))
 

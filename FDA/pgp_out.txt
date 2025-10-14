@@ -1,1064 +1,185 @@
-/home/cne2/data/my-envs/mCLM/lib/python3.11/site-packages/pl_bolts/__init__.py:11: FutureWarning: In the future `np.object` will be defined as the corresponding NumPy scalar.
+/shared/nas2/cne2/my-envs/mCLM/lib/python3.11/site-packages/pl_bolts/__init__.py:11: FutureWarning: In the future `np.object` will be defined as the corresponding NumPy scalar.
   if not hasattr(numpy, tp_name):
-/home/cne2/data/my-envs/mCLM/lib/python3.11/site-packages/pl_bolts/models/self_supervised/amdim/amdim_module.py:34: UnderReviewWarning: The feature generate_power_seq is currently marked under review. The compatibility with other Lightning projects is not guaranteed and API may change at any time. The API and functionality may change without warning in future releases. More details: https://lightning-bolts.readthedocs.io/en/latest/stability.html
+/shared/nas2/cne2/my-envs/mCLM/lib/python3.11/site-packages/pl_bolts/models/self_supervised/amdim/amdim_module.py:34: UnderReviewWarning: The feature generate_power_seq is currently marked under review. The compatibility with other Lightning projects is not guaranteed and API may change at any time. The API and functionality may change without warning in future releases. More details: https://lightning-bolts.readthedocs.io/en/latest/stability.html
   "lr_options": generate_power_seq(LEARNING_RATE_CIFAR, 11),
-/home/cne2/data/my-envs/mCLM/lib/python3.11/site-packages/pl_bolts/models/self_supervised/amdim/amdim_module.py:92: UnderReviewWarning: The feature FeatureMapContrastiveTask is currently marked under review. The compatibility with other Lightning projects is not guaranteed and API may change at any time. The API and functionality may change without warning in future releases. More details: https://lightning-bolts.readthedocs.io/en/latest/stability.html
+/shared/nas2/cne2/my-envs/mCLM/lib/python3.11/site-packages/pl_bolts/models/self_supervised/amdim/amdim_module.py:92: UnderReviewWarning: The feature FeatureMapContrastiveTask is currently marked under review. The compatibility with other Lightning projects is not guaranteed and API may change at any time. The API and functionality may change without warning in future releases. More details: https://lightning-bolts.readthedocs.io/en/latest/stability.html
   contrastive_task: Union[FeatureMapContrastiveTask] = FeatureMapContrastiveTask("01, 02, 11"),
-/home/cne2/data/my-envs/mCLM/lib/python3.11/site-packages/pl_bolts/losses/self_supervised_learning.py:228: UnderReviewWarning: The feature AmdimNCELoss is currently marked under review. The compatibility with other Lightning projects is not guaranteed and API may change at any time. The API and functionality may change without warning in future releases. More details: https://lightning-bolts.readthedocs.io/en/latest/stability.html
+/shared/nas2/cne2/my-envs/mCLM/lib/python3.11/site-packages/pl_bolts/losses/self_supervised_learning.py:228: UnderReviewWarning: The feature AmdimNCELoss is currently marked under review. The compatibility with other Lightning projects is not guaranteed and API may change at any time. The API and functionality may change without warning in future releases. More details: https://lightning-bolts.readthedocs.io/en/latest/stability.html
   self.nce_loss = AmdimNCELoss(tclip)
 Seed set to 42
-{'trunc_length': 512, 'num_warmup_steps': 1000, 'max_epochs': 2, 'batch_size': 4, 'val_batch_size': 4, 'node_dim': 138, 'edge_dim': 12, 'hidden_dim_graph': 512, 'num_mp_layers': 5, 'num_readout_layers': 1, 'dropout': 0.13, 'aggr': 'mean', 'jk': 'cat', 'latent_size': 256, 'validate_every_n': 1000, 'lr': 5e-05, 'ckpt_path': '/shared/nas2/shared/llms/mCLM/OnlyBlocks/Top50V2/Qwen2.5-3B_TotalTop1k_splitLoss_FinetuneV2/posneg/', 'tokenizer_path': './Top1k_FDA/', 'ckpt': 'best_val_checkpoint.ckpt', 'loss': 'CLIP', 'load_ckpt': None, 'load_GNN_ckpt': None, 'pretrained_embeddings': '/home/cne2/data/Chemistry/mCLM_MolCLR/preprocess/Top500/FDA/128_dim/', 'GNN_cache': '', 'seed': 42, 'model': 'mCLM', 'base_model': '/shared/nas2/shared/llms/Qwen2.5-3B/', 'pretrained_text_model': '/shared/nas2/shared/llms/Qwen2.5-3B/', 'pretrained_tokenizer': '/shared/nas2/shared/llms/Qwen2.5-3B/', 'freeze_GNN': None, 'resume_wandb_run': None, 'task': 'Kinase', 'weight_decay': 0.0, 'fold_idx': None, 'check_val_every_n_steps': None, 'no_PEFT': True}
+{'trunc_length': 512, 'num_warmup_steps': 1000, 'max_epochs': 2, 'batch_size': 4, 'val_batch_size': 4, 'node_dim': 138, 'edge_dim': 12, 'hidden_dim_graph': 512, 'num_mp_layers': 5, 'num_readout_layers': 1, 'dropout': 0.13, 'aggr': 'mean', 'jk': 'cat', 'latent_size': 256, 'validate_every_n': 1000, 'lr': 5e-05, 'ckpt_path': '/shared/nas2/shared/llms/mCLM/OnlyBlocks/Top50V2/Qwen2.5-3B_TotalTop1k_splitLoss_FinetuneV2/posneg/', 'tokenizer_path': './Top1k_FDA2/', 'ckpt': 'best_val_checkpoint.ckpt', 'loss': 'CLIP', 'load_ckpt': None, 'load_GNN_ckpt': None, 'pretrained_embeddings': '/home/cne2/data/Chemistry/mCLM_MolCLR/preprocess/Top500V2/FDA/', 'GNN_cache': '', 'seed': 42, 'model': 'mCLM', 'base_model': '/shared/nas2/shared/llms/Qwen2.5-3B/', 'pretrained_text_model': '/shared/nas2/shared/llms/Qwen2.5-3B/', 'pretrained_tokenizer': '/shared/nas2/shared/llms/Qwen2.5-3B/', 'freeze_GNN': None, 'resume_wandb_run': None, 'task': 'Kinase', 'weight_decay': 0.0, 'fold_idx': None, 'check_val_every_n_steps': None, 'no_PEFT': True}
 Imports Done
-
-Loading:   0%|          | 0.00/124k [00:00<?, ?iB/s]
-Loading: 100%|██████████| 124k/124k [00:00<00:00, 23.8MiB/s]
-
-Changing start index:   0%|          | 0/2366 [00:00<?, ?it/s]
-Changing start index: 100%|██████████| 2366/2366 [00:00<00:00, 3544186.88it/s]
-
-Loading:   0%|          | 0.00/12.6M [00:00<?, ?iB/s]
-Loading: 100%|██████████| 12.6M/12.6M [00:00<00:00, 28.7MiB/s]
+Loading:   0%|          | 0.00/51.9k [00:00<?, ?iB/s]Loading: 100%|██████████| 51.9k/51.9k [00:00<00:00, 130kiB/s]
+Changing start index:   0%|          | 0/1110 [00:00<?, ?it/s]Changing start index: 100%|██████████| 1110/1110 [00:00<00:00, 489916.60it/s]
+Loading:   0%|          | 0.00/5.30M [00:00<?, ?iB/s]Loading:  57%|█████▋    | 3.00M/5.30M [00:00<00:00, 21.4MiB/s]Loading: 100%|██████████| 5.30M/5.30M [00:01<00:00, 2.89MiB/s]
 Tokenizer Loaded
-
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]
-Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.55it/s]
-Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.16it/s]
-Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.04it/s]
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:35<00:35, 35.52s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:48<00:00, 22.10s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:48<00:00, 24.11s/it]
 Model Created
-
-Loading:   0%|          | 0.00/19.0G [00:00<?, ?iB/s]
-Loading:   0%|          | 12.0M/19.0G [00:00<02:49, 120MiB/s]
-Loading:   0%|          | 57.0M/19.0G [00:00<01:13, 277MiB/s]
-Loading:   1%|          | 124M/19.0G [00:00<00:44, 453MiB/s] 
-Loading:   1%|▏         | 282M/19.0G [00:00<00:22, 897MiB/s]
-Loading:   2%|▏         | 443M/19.0G [00:00<00:17, 1.17GiB/s]
-Loading:   3%|▎         | 602M/19.0G [00:00<00:14, 1.33GiB/s]
-Loading:   4%|▍         | 764M/19.0G [00:00<00:13, 1.45GiB/s]
-Loading:   5%|▍         | 926M/19.0G [00:00<00:12, 1.52GiB/s]
-Loading:   6%|▌         | 1.06G/19.0G [00:00<00:12, 1.57GiB/s]
-Loading:   6%|▋         | 1.21G/19.0G [00:01<00:12, 1.55GiB/s]
-Loading:   7%|▋         | 1.36G/19.0G [00:01<00:12, 1.57GiB/s]
-Loading:   8%|▊         | 1.52G/19.0G [00:01<00:11, 1.60GiB/s]
-Loading:   9%|▉         | 1.67G/19.0G [00:01<00:11, 1.62GiB/s]
-Loading:  10%|▉         | 1.83G/19.0G [00:01<00:11, 1.64GiB/s]
-Loading:  10%|█         | 1.99G/19.0G [00:01<00:10, 1.66GiB/s]
-Loading:  11%|█▏        | 2.15G/19.0G [00:01<00:10, 1.69GiB/s]
-Loading:  12%|█▏        | 2.32G/19.0G [00:01<00:10, 1.70GiB/s]
-Loading:  13%|█▎        | 2.48G/19.0G [00:01<00:10, 1.72GiB/s]
-Loading:  14%|█▍        | 2.64G/19.0G [00:01<00:10, 1.68GiB/s]
-Loading:  15%|█▍        | 2.80G/19.0G [00:02<00:10, 1.70GiB/s]
-Loading:  16%|█▌        | 2.96G/19.0G [00:02<00:10, 1.67GiB/s]
-Loading:  16%|█▋        | 3.12G/19.0G [00:02<00:10, 1.69GiB/s]
-Loading:  17%|█▋        | 3.28G/19.0G [00:02<00:10, 1.68GiB/s]
-Loading:  18%|█▊        | 3.44G/19.0G [00:02<00:10, 1.64GiB/s]
-Loading:  19%|█▉        | 3.60G/19.0G [00:02<00:09, 1.67GiB/s]
-Loading:  20%|█▉        | 3.76G/19.0G [00:02<00:09, 1.64GiB/s]
-Loading:  21%|██        | 3.92G/19.0G [00:02<00:09, 1.67GiB/s]
-Loading:  22%|██▏       | 4.09G/19.0G [00:02<00:09, 1.71GiB/s]
-Loading:  22%|██▏       | 4.26G/19.0G [00:02<00:09, 1.74GiB/s]
-Loading:  23%|██▎       | 4.42G/19.0G [00:03<00:08, 1.75GiB/s]
-Loading:  24%|██▍       | 4.59G/19.0G [00:03<00:08, 1.74GiB/s]
-Loading:  25%|██▍       | 4.75G/19.0G [00:03<00:08, 1.74GiB/s]
-Loading:  26%|██▌       | 4.91G/19.0G [00:03<00:08, 1.75GiB/s]
-Loading:  27%|██▋       | 5.08G/19.0G [00:03<00:08, 1.75GiB/s]
-Loading:  28%|██▊       | 5.24G/19.0G [00:03<00:08, 1.73GiB/s]
-Loading:  28%|██▊       | 5.40G/19.0G [00:03<00:08, 1.65GiB/s]
-Loading:  29%|██▉       | 5.56G/19.0G [00:03<00:08, 1.67GiB/s]
-Loading:  30%|███       | 5.72G/19.0G [00:03<00:08, 1.68GiB/s]
-Loading:  31%|███       | 5.89G/19.0G [00:04<00:08, 1.70GiB/s]
-Loading:  32%|███▏      | 6.05G/19.0G [00:04<00:08, 1.69GiB/s]
-Loading:  33%|███▎      | 6.21G/19.0G [00:04<00:08, 1.71GiB/s]
-Loading:  34%|███▎      | 6.38G/19.0G [00:04<00:07, 1.73GiB/s]
-Loading:  34%|███▍      | 6.54G/19.0G [00:04<00:07, 1.75GiB/s]
-Loading:  35%|███▌      | 6.71G/19.0G [00:04<00:07, 1.77GiB/s]
-Loading:  36%|███▌      | 6.88G/19.0G [00:04<00:07, 1.78GiB/s]
-Loading:  37%|███▋      | 7.05G/19.0G [00:04<00:07, 1.79GiB/s]
-Loading:  38%|███▊      | 7.22G/19.0G [00:04<00:07, 1.73GiB/s]
-Loading:  39%|███▉      | 7.38G/19.0G [00:04<00:07, 1.68GiB/s]
-Loading:  40%|███▉      | 7.54G/19.0G [00:05<00:07, 1.56GiB/s]
-Loading:  40%|████      | 7.69G/19.0G [00:05<00:07, 1.59GiB/s]
-Loading:  41%|████▏     | 7.86G/19.0G [00:05<00:07, 1.63GiB/s]
-Loading:  42%|████▏     | 8.02G/19.0G [00:05<00:07, 1.68GiB/s]
-Loading:  43%|████▎     | 8.19G/19.0G [00:05<00:06, 1.72GiB/s]
-Loading:  44%|████▍     | 8.36G/19.0G [00:05<00:06, 1.74GiB/s]
-Loading:  45%|████▍     | 8.53G/19.0G [00:05<00:06, 1.76GiB/s]
-Loading:  46%|████▌     | 8.69G/19.0G [00:05<00:06, 1.73GiB/s]
-Loading:  47%|████▋     | 8.86G/19.0G [00:05<00:06, 1.70GiB/s]
-Loading:  47%|████▋     | 9.02G/19.0G [00:05<00:06, 1.68GiB/s]
-Loading:  48%|████▊     | 9.17G/19.0G [00:06<00:08, 1.19GiB/s]
-Loading:  49%|████▉     | 9.30G/19.0G [00:06<00:17, 610MiB/s] 
-Loading:  49%|████▉     | 9.40G/19.0G [00:06<00:16, 616MiB/s]
-Loading:  50%|████▉     | 9.49G/19.0G [00:07<00:16, 637MiB/s]
-Loading:  50%|█████     | 9.57G/19.0G [00:07<00:17, 573MiB/s]
-Loading:  51%|█████     | 9.64G/19.0G [00:07<00:23, 420MiB/s]
-Loading:  51%|█████     | 9.69G/19.0G [00:07<00:23, 424MiB/s]
-Loading:  51%|█████▏    | 9.74G/19.0G [00:07<00:24, 410MiB/s]
-Loading:  52%|█████▏    | 9.79G/19.0G [00:08<00:25, 396MiB/s]
-Loading:  52%|█████▏    | 9.86G/19.0G [00:08<00:21, 465MiB/s]
-Loading:  52%|█████▏    | 9.92G/19.0G [00:08<00:19, 512MiB/s]
-Loading:  53%|█████▎    | 9.98G/19.0G [00:08<00:19, 497MiB/s]
-Loading:  53%|█████▎    | 10.0G/19.0G [00:08<00:28, 343MiB/s]
-Loading:  53%|█████▎    | 10.1G/19.0G [00:08<00:24, 395MiB/s]
-Loading:  53%|█████▎    | 10.1G/19.0G [00:08<00:25, 369MiB/s]
-Loading:  54%|█████▍    | 10.2G/19.0G [00:09<00:19, 487MiB/s]
-Loading:  54%|█████▍    | 10.3G/19.0G [00:09<00:16, 578MiB/s]
-Loading:  55%|█████▍    | 10.4G/19.0G [00:09<00:11, 793MiB/s]
-Loading:  56%|█████▌    | 10.6G/19.0G [00:09<00:09, 942MiB/s]
-Loading:  56%|█████▋    | 10.7G/19.0G [00:09<00:08, 1.08GiB/s]
-Loading:  57%|█████▋    | 10.8G/19.0G [00:09<00:07, 1.19GiB/s]
-Loading:  58%|█████▊    | 11.0G/19.0G [00:09<00:06, 1.25GiB/s]
-Loading:  58%|█████▊    | 11.1G/19.0G [00:09<00:06, 1.31GiB/s]
-Loading:  59%|█████▉    | 11.2G/19.0G [00:09<00:06, 1.35GiB/s]
-Loading:  60%|█████▉    | 11.4G/19.0G [00:09<00:05, 1.38GiB/s]
-Loading:  61%|██████    | 11.5G/19.0G [00:10<00:05, 1.40GiB/s]
-Loading:  61%|██████▏   | 11.6G/19.0G [00:10<00:05, 1.42GiB/s]
-Loading:  62%|██████▏   | 11.8G/19.0G [00:10<00:05, 1.44GiB/s]
-Loading:  63%|██████▎   | 11.9G/19.0G [00:10<00:05, 1.45GiB/s]
-Loading:  63%|██████▎   | 12.1G/19.0G [00:10<00:05, 1.46GiB/s]
-Loading:  64%|██████▍   | 12.2G/19.0G [00:10<00:05, 1.44GiB/s]
-Loading:  65%|██████▍   | 12.3G/19.0G [00:10<00:04, 1.45GiB/s]
-Loading:  66%|██████▌   | 12.5G/19.0G [00:10<00:04, 1.43GiB/s]
-Loading:  66%|██████▋   | 12.6G/19.0G [00:10<00:04, 1.44GiB/s]
-Loading:  67%|██████▋   | 12.7G/19.0G [00:10<00:04, 1.45GiB/s]
-Loading:  68%|██████▊   | 12.9G/19.0G [00:11<00:04, 1.46GiB/s]
-Loading:  69%|██████▊   | 13.0G/19.0G [00:11<00:04, 1.46GiB/s]
-Loading:  69%|██████▉   | 13.2G/19.0G [00:11<00:04, 1.46GiB/s]
-Loading:  70%|██████▉   | 13.3G/19.0G [00:11<00:04, 1.45GiB/s]
-Loading:  71%|███████   | 13.4G/19.0G [00:11<00:04, 1.45GiB/s]
-Loading:  71%|███████▏  | 13.6G/19.0G [00:11<00:04, 1.46GiB/s]
-Loading:  72%|███████▏  | 13.7G/19.0G [00:11<00:03, 1.46GiB/s]
-Loading:  73%|███████▎  | 13.8G/19.0G [00:11<00:03, 1.46GiB/s]
-Loading:  74%|███████▎  | 14.0G/19.0G [00:11<00:03, 1.47GiB/s]
-Loading:  74%|███████▍  | 14.1G/19.0G [00:11<00:03, 1.45GiB/s]
-Loading:  75%|███████▌  | 14.3G/19.0G [00:12<00:03, 1.44GiB/s]
-Loading:  76%|███████▌  | 14.4G/19.0G [00:12<00:03, 1.44GiB/s]
-Loading:  76%|███████▋  | 14.5G/19.0G [00:12<00:03, 1.45GiB/s]
-Loading:  77%|███████▋  | 14.7G/19.0G [00:12<00:03, 1.45GiB/s]
-Loading:  78%|███████▊  | 14.8G/19.0G [00:12<00:03, 1.46GiB/s]
-Loading:  79%|███████▊  | 14.9G/19.0G [00:12<00:02, 1.46GiB/s]
-Loading:  79%|███████▉  | 15.1G/19.0G [00:12<00:02, 1.47GiB/s]
-Loading:  80%|████████  | 15.2G/19.0G [00:12<00:02, 1.47GiB/s]
-Loading:  81%|████████  | 15.3G/19.0G [00:12<00:03, 1.30GiB/s]
-Loading:  81%|████████▏ | 15.5G/19.0G [00:13<00:02, 1.34GiB/s]
-Loading:  82%|████████▏ | 15.6G/19.0G [00:13<00:02, 1.35GiB/s]
-Loading:  83%|████████▎ | 15.7G/19.0G [00:13<00:02, 1.38GiB/s]
-Loading:  84%|████████▎ | 15.9G/19.0G [00:13<00:02, 1.37GiB/s]
-Loading:  84%|████████▍ | 16.0G/19.0G [00:13<00:02, 1.39GiB/s]
-Loading:  85%|████████▍ | 16.1G/19.0G [00:13<00:02, 1.40GiB/s]
-Loading:  86%|████████▌ | 16.3G/19.0G [00:13<00:02, 1.41GiB/s]
-Loading:  86%|████████▋ | 16.4G/19.0G [00:13<00:01, 1.42GiB/s]
-Loading:  87%|████████▋ | 16.6G/19.0G [00:13<00:01, 1.42GiB/s]
-Loading:  88%|████████▊ | 16.7G/19.0G [00:13<00:01, 1.42GiB/s]
-Loading:  88%|████████▊ | 16.8G/19.0G [00:14<00:01, 1.42GiB/s]
-Loading:  89%|████████▉ | 16.9G/19.0G [00:14<00:01, 1.42GiB/s]
-Loading:  90%|████████▉ | 17.1G/19.0G [00:14<00:01, 1.44GiB/s]
-Loading:  91%|█████████ | 17.2G/19.0G [00:14<00:01, 1.45GiB/s]
-Loading:  91%|█████████▏| 17.4G/19.0G [00:14<00:01, 1.46GiB/s]
-Loading:  92%|█████████▏| 17.5G/19.0G [00:14<00:01, 1.47GiB/s]
-Loading:  93%|█████████▎| 17.6G/19.0G [00:14<00:00, 1.48GiB/s]
-Loading:  94%|█████████▎| 17.8G/19.0G [00:14<00:00, 1.45GiB/s]
-Loading:  94%|█████████▍| 17.9G/19.0G [00:14<00:00, 1.47GiB/s]
-Loading:  95%|█████████▌| 18.1G/19.0G [00:14<00:00, 1.48GiB/s]
-Loading:  96%|█████████▌| 18.2G/19.0G [00:15<00:00, 1.49GiB/s]
-Loading:  97%|█████████▋| 18.3G/19.0G [00:15<00:00, 1.50GiB/s]
-Loading:  97%|█████████▋| 18.5G/19.0G [00:15<00:00, 1.50GiB/s]
-Loading:  98%|█████████▊| 18.6G/19.0G [00:15<00:00, 1.51GiB/s]
-Loading:  99%|█████████▉| 18.8G/19.0G [00:15<00:00, 1.51GiB/s]
-Loading: 100%|█████████▉| 18.9G/19.0G [00:15<00:00, 1.51GiB/s]
-Loading: 100%|██████████| 19.0G/19.0G [00:32<00:00, 1.51GiB/s]
-Loading: 100%|██████████| 19.0G/19.0G [00:50<00:00, 404MiB/s] 
+Loading:   0%|          | 0.00/19.0G [00:00<?, ?iB/s]Loading:   0%|          | 1.00M/19.0G [00:00<1:36:56, 3.51MiB/s]Loading:   0%|          | 3.00M/19.0G [00:00<39:20, 8.64MiB/s]  Loading:   0%|          | 5.00M/19.0G [00:00<30:27, 11.2MiB/s]Loading:   0%|          | 20.0M/19.0G [00:00<07:03, 48.1MiB/s]Loading:   0%|          | 32.0M/19.0G [00:00<05:23, 63.0MiB/s]Loading:   0%|          | 39.0M/19.0G [00:00<06:13, 54.5MiB/s]Loading:   0%|          | 45.0M/19.0G [00:01<08:01, 42.3MiB/s]Loading:   0%|          | 52.0M/19.0G [00:01<07:39, 44.3MiB/s]Loading:   0%|          | 57.0M/19.0G [00:01<08:28, 40.0MiB/s]Loading:   0%|          | 64.0M/19.0G [00:01<08:19, 40.7MiB/s]Loading:   0%|          | 76.0M/19.0G [00:01<05:51, 57.8MiB/s]Loading:   0%|          | 86.0M/19.0G [00:01<04:58, 68.0MiB/s]Loading:   0%|          | 94.0M/19.0G [00:02<06:31, 51.9MiB/s]Loading:   1%|          | 104M/19.0G [00:02<05:32, 61.1MiB/s] Loading:   1%|          | 112M/19.0G [00:02<05:20, 63.4MiB/s]Loading:   1%|          | 119M/19.0G [00:02<06:11, 54.6MiB/s]Loading:   1%|          | 125M/19.0G [00:02<06:41, 50.4MiB/s]Loading:   1%|          | 131M/19.0G [00:02<06:28, 52.1MiB/s]Loading:   1%|          | 145M/19.0G [00:02<04:33, 73.9MiB/s]Loading:   1%|          | 156M/19.0G [00:03<04:01, 83.9MiB/s]Loading:   1%|          | 166M/19.0G [00:03<04:14, 79.5MiB/s]Loading:   1%|          | 175M/19.0G [00:03<04:53, 68.9MiB/s]Loading:   1%|          | 183M/19.0G [00:03<05:33, 60.6MiB/s]Loading:   1%|          | 190M/19.0G [00:03<05:36, 60.0MiB/s]Loading:   1%|          | 198M/19.0G [00:03<05:09, 65.2MiB/s]Loading:   1%|          | 208M/19.0G [00:03<04:39, 72.3MiB/s]Loading:   1%|          | 218M/19.0G [00:04<04:22, 77.0MiB/s]Loading:   1%|          | 226M/19.0G [00:04<04:39, 72.1MiB/s]Loading:   1%|          | 234M/19.0G [00:04<05:39, 59.4MiB/s]Loading:   1%|▏         | 246M/19.0G [00:04<04:42, 71.4MiB/s]Loading:   1%|▏         | 256M/19.0G [00:04<04:27, 75.4MiB/s]Loading:   1%|▏         | 264M/19.0G [00:04<04:33, 73.6MiB/s]Loading:   1%|▏         | 274M/19.0G [00:04<04:09, 80.6MiB/s]Loading:   1%|▏         | 286M/19.0G [00:04<03:38, 92.0MiB/s]Loading:   2%|▏         | 296M/19.0G [00:05<04:15, 78.8MiB/s]Loading:   2%|▏         | 305M/19.0G [00:05<04:35, 72.8MiB/s]Loading:   2%|▏         | 313M/19.0G [00:05<04:30, 74.3MiB/s]Loading:   2%|▏         | 321M/19.0G [00:05<04:46, 70.0MiB/s]Loading:   2%|▏         | 330M/19.0G [00:05<05:01, 66.5MiB/s]Loading:   2%|▏         | 344M/19.0G [00:05<04:05, 81.8MiB/s]Loading:   2%|▏         | 355M/19.0G [00:05<03:43, 89.7MiB/s]Loading:   2%|▏         | 366M/19.0G [00:06<03:50, 86.8MiB/s]Loading:   2%|▏         | 376M/19.0G [00:06<03:41, 90.1MiB/s]Loading:   2%|▏         | 388M/19.0G [00:06<03:25, 97.5MiB/s]Loading:   2%|▏         | 399M/19.0G [00:06<03:19, 100MiB/s] Loading:   2%|▏         | 409M/19.0G [00:06<03:20, 99.5MiB/s]Loading:   2%|▏         | 419M/19.0G [00:06<03:23, 97.9MiB/s]Loading:   2%|▏         | 432M/19.0G [00:06<03:21, 98.9MiB/s]Loading:   2%|▏         | 442M/19.0G [00:06<03:19, 99.9MiB/s]Loading:   2%|▏         | 456M/19.0G [00:06<03:05, 107MiB/s] Loading:   2%|▏         | 467M/19.0G [00:07<03:35, 92.5MiB/s]Loading:   2%|▏         | 477M/19.0G [00:07<03:39, 90.6MiB/s]Loading:   2%|▏         | 486M/19.0G [00:07<03:38, 91.1MiB/s]Loading:   3%|▎         | 495M/19.0G [00:07<04:24, 75.0MiB/s]Loading:   3%|▎         | 503M/19.0G [00:07<05:14, 63.2MiB/s]Loading:   3%|▎         | 510M/19.0G [00:07<05:23, 61.5MiB/s]Loading:   3%|▎         | 518M/19.0G [00:07<04:59, 66.4MiB/s]Loading:   3%|▎         | 525M/19.0G [00:08<05:50, 56.6MiB/s]Loading:   3%|▎         | 531M/19.0G [00:08<06:08, 53.9MiB/s]Loading:   3%|▎         | 540M/19.0G [00:08<05:22, 61.6MiB/s]Loading:   3%|▎         | 548M/19.0G [00:08<04:56, 66.9MiB/s]Loading:   3%|▎         | 557M/19.0G [00:08<04:34, 72.2MiB/s]Loading:   3%|▎         | 566M/19.0G [00:08<04:22, 75.4MiB/s]Loading:   3%|▎         | 577M/19.0G [00:08<03:52, 85.3MiB/s]Loading:   3%|▎         | 586M/19.0G [00:09<04:43, 69.9MiB/s]Loading:   3%|▎         | 594M/19.0G [00:09<05:01, 65.6MiB/s]Loading:   3%|▎         | 602M/19.0G [00:09<04:46, 69.0MiB/s]Loading:   3%|▎         | 614M/19.0G [00:09<03:57, 83.1MiB/s]Loading:   3%|▎         | 624M/19.0G [00:09<03:42, 88.6MiB/s]Loading:   3%|▎         | 633M/19.0G [00:09<03:41, 89.1MiB/s]Loading:   3%|▎         | 642M/19.0G [00:09<05:20, 61.5MiB/s]Loading:   3%|▎         | 650M/19.0G [00:09<05:23, 60.9MiB/s]Loading:   3%|▎         | 657M/19.0G [00:10<05:33, 59.1MiB/s]Loading:   3%|▎         | 666M/19.0G [00:10<04:58, 66.0MiB/s]Loading:   3%|▎         | 676M/19.0G [00:10<04:29, 73.2MiB/s]Loading:   4%|▎         | 687M/19.0G [00:10<04:08, 79.1MiB/s]Loading:   4%|▎         | 695M/19.0G [00:10<05:05, 64.3MiB/s]Loading:   4%|▎         | 703M/19.0G [00:10<04:47, 68.4MiB/s]Loading:   4%|▎         | 711M/19.0G [00:10<04:53, 66.9MiB/s]Loading:   4%|▎         | 724M/19.0G [00:11<04:01, 81.3MiB/s]Loading:   4%|▍         | 736M/19.0G [00:11<03:37, 90.4MiB/s]Loading:   4%|▍         | 746M/19.0G [00:11<03:32, 92.2MiB/s]Loading:   4%|▍         | 756M/19.0G [00:11<03:41, 88.4MiB/s]Loading:   4%|▍         | 766M/19.0G [00:11<03:49, 85.6MiB/s]Loading:   4%|▍         | 776M/19.0G [00:11<03:57, 82.6MiB/s]Loading:   4%|▍         | 785M/19.0G [00:11<04:08, 78.8MiB/s]Loading:   4%|▍         | 793M/19.0G [00:11<05:25, 60.1MiB/s]Loading:   4%|▍         | 800M/19.0G [00:12<06:18, 51.7MiB/s]Loading:   4%|▍         | 806M/19.0G [00:12<07:00, 46.5MiB/s]Loading:   4%|▍         | 811M/19.0G [00:12<07:02, 46.3MiB/s]Loading:   4%|▍         | 816M/19.0G [00:12<07:02, 46.3MiB/s]Loading:   4%|▍         | 821M/19.0G [00:12<06:50, 47.6MiB/s]Loading:   4%|▍         | 826M/19.0G [00:12<07:22, 44.1MiB/s]Loading:   4%|▍         | 831M/19.0G [00:13<08:04, 40.3MiB/s]Loading:   4%|▍         | 836M/19.0G [00:13<07:46, 41.9MiB/s]Loading:   4%|▍         | 841M/19.0G [00:13<08:30, 38.3MiB/s]Loading:   4%|▍         | 845M/19.0G [00:13<11:14, 28.9MiB/s]Loading:   4%|▍         | 849M/19.0G [00:13<13:51, 23.5MiB/s]Loading:   4%|▍         | 855M/19.0G [00:13<10:48, 30.1MiB/s]Loading:   4%|▍         | 861M/19.0G [00:14<08:56, 36.4MiB/s]Loading:   4%|▍         | 866M/19.0G [00:14<08:53, 36.6MiB/s]Loading:   4%|▍         | 871M/19.0G [00:14<09:00, 36.0MiB/s]Loading:   4%|▍         | 875M/19.0G [00:14<08:44, 37.1MiB/s]Loading:   5%|▍         | 879M/19.0G [00:14<08:47, 37.0MiB/s]Loading:   5%|▍         | 883M/19.0G [00:14<09:06, 35.7MiB/s]Loading:   5%|▍         | 887M/19.0G [00:14<09:34, 33.9MiB/s]Loading:   5%|▍         | 891M/19.0G [00:14<09:56, 32.7MiB/s]Loading:   5%|▍         | 895M/19.0G [00:15<10:03, 32.2MiB/s]Loading:   5%|▍         | 900M/19.0G [00:15<09:07, 35.5MiB/s]Loading:   5%|▍         | 904M/19.0G [00:15<09:17, 34.9MiB/s]Loading:   5%|▍         | 908M/19.0G [00:15<12:30, 25.9MiB/s]Loading:   5%|▍         | 911M/19.0G [00:15<12:57, 25.0MiB/s]Loading:   5%|▍         | 914M/19.0G [00:15<14:19, 22.6MiB/s]Loading:   5%|▍         | 918M/19.0G [00:16<13:57, 23.2MiB/s]Loading:   5%|▍         | 921M/19.0G [00:16<13:06, 24.7MiB/s]Loading:   5%|▍         | 925M/19.0G [00:16<12:03, 26.9MiB/s]Loading:   5%|▍         | 929M/19.0G [00:16<10:48, 30.0MiB/s]Loading:   5%|▍         | 933M/19.0G [00:16<11:01, 29.4MiB/s]Loading:   5%|▍         | 936M/19.0G [00:16<11:11, 28.9MiB/s]Loading:   5%|▍         | 940M/19.0G [00:16<10:05, 32.1MiB/s]Loading:   5%|▍         | 944M/19.0G [00:16<09:43, 33.2MiB/s]Loading:   5%|▍         | 948M/19.0G [00:17<09:26, 34.2MiB/s]Loading:   5%|▍         | 952M/19.0G [00:17<10:01, 32.3MiB/s]Loading:   5%|▍         | 956M/19.0G [00:17<11:11, 28.9MiB/s]Loading:   5%|▍         | 960M/19.0G [00:17<10:34, 30.6MiB/s]Loading:   5%|▍         | 964M/19.0G [00:17<10:30, 30.8MiB/s]Loading:   5%|▍         | 968M/19.0G [00:17<09:57, 32.4MiB/s]Loading:   5%|▍         | 972M/19.0G [00:17<10:37, 30.4MiB/s]Loading:   5%|▌         | 975M/19.0G [00:17<10:57, 29.5MiB/s]Loading:   5%|▌         | 978M/19.0G [00:18<11:07, 29.0MiB/s]Loading:   5%|▌         | 981M/19.0G [00:18<12:11, 26.5MiB/s]Loading:   5%|▌         | 984M/19.0G [00:18<12:51, 25.1MiB/s]Loading:   5%|▌         | 987M/19.0G [00:18<12:21, 26.1MiB/s]Loading:   5%|▌         | 990M/19.0G [00:18<13:24, 24.1MiB/s]Loading:   5%|▌         | 993M/19.0G [00:18<12:59, 24.8MiB/s]Loading:   5%|▌         | 996M/19.0G [00:18<12:17, 26.2MiB/s]Loading:   5%|▌         | 999M/19.0G [00:18<11:52, 27.2MiB/s]Loading:   5%|▌         | 0.98G/19.0G [00:19<10:35, 30.5MiB/s]Loading:   5%|▌         | 0.98G/19.0G [00:19<09:39, 33.4MiB/s]Loading:   5%|▌         | 0.99G/19.0G [00:19<10:15, 31.4MiB/s]Loading:   5%|▌         | 0.99G/19.0G [00:19<09:32, 33.8MiB/s]Loading:   5%|▌         | 1.00G/19.0G [00:19<09:45, 33.0MiB/s]Loading:   5%|▌         | 1.00G/19.0G [00:19<10:36, 30.3MiB/s]Loading:   5%|▌         | 1.00G/19.0G [00:19<11:32, 27.9MiB/s]Loading:   5%|▌         | 1.01G/19.0G [00:20<11:17, 28.5MiB/s]Loading:   5%|▌         | 1.01G/19.0G [00:20<11:05, 29.0MiB/s]Loading:   5%|▌         | 1.01G/19.0G [00:20<11:07, 29.0MiB/s]Loading:   5%|▌         | 1.02G/19.0G [00:20<11:59, 26.8MiB/s]Loading:   5%|▌         | 1.02G/19.0G [00:20<11:34, 27.8MiB/s]Loading:   5%|▌         | 1.02G/19.0G [00:20<11:58, 26.9MiB/s]Loading:   5%|▌         | 1.03G/19.0G [00:20<14:09, 22.7MiB/s]Loading:   5%|▌         | 1.03G/19.0G [00:20<11:59, 26.8MiB/s]Loading:   5%|▌         | 1.03G/19.0G [00:21<11:31, 27.9MiB/s]Loading:   5%|▌         | 1.04G/19.0G [00:21<12:22, 26.0MiB/s]Loading:   5%|▌         | 1.04G/19.0G [00:21<11:50, 27.1MiB/s]Loading:   5%|▌         | 1.04G/19.0G [00:21<10:38, 30.2MiB/s]Loading:   6%|▌         | 1.05G/19.0G [00:21<11:22, 28.2MiB/s]Loading:   6%|▌         | 1.05G/19.0G [00:21<11:29, 27.9MiB/s]Loading:   6%|▌         | 1.05G/19.0G [00:21<10:23, 30.9MiB/s]Loading:   6%|▌         | 1.06G/19.0G [00:22<11:30, 27.9MiB/s]Loading:   6%|▌         | 1.06G/19.0G [00:22<11:32, 27.8MiB/s]Loading:   6%|▌         | 1.06G/19.0G [00:22<11:37, 27.6MiB/s]Loading:   6%|▌         | 1.07G/19.0G [00:22<11:27, 28.0MiB/s]Loading:   6%|▌         | 1.07G/19.0G [00:22<10:37, 30.2MiB/s]Loading:   6%|▌         | 1.08G/19.0G [00:22<09:05, 35.3MiB/s]Loading:   6%|▌         | 1.08G/19.0G [00:22<07:38, 42.0MiB/s]Loading:   6%|▌         | 1.09G/19.0G [00:22<07:37, 42.0MiB/s]Loading:   6%|▌         | 1.09G/19.0G [00:23<09:04, 35.3MiB/s]Loading:   6%|▌         | 1.09G/19.0G [00:23<09:26, 34.0MiB/s]Loading:   6%|▌         | 1.10G/19.0G [00:23<11:11, 28.6MiB/s]Loading:   6%|▌         | 1.10G/19.0G [00:23<11:21, 28.2MiB/s]Loading:   6%|▌         | 1.11G/19.0G [00:23<10:15, 31.2MiB/s]Loading:   6%|▌         | 1.11G/19.0G [00:23<08:22, 38.2MiB/s]Loading:   6%|▌         | 1.12G/19.0G [00:23<07:38, 41.8MiB/s]Loading:   6%|▌         | 1.12G/19.0G [00:23<07:05, 45.1MiB/s]Loading:   6%|▌         | 1.13G/19.0G [00:24<06:58, 45.9MiB/s]Loading:   6%|▌         | 1.13G/19.0G [00:24<06:37, 48.3MiB/s]Loading:   6%|▌         | 1.14G/19.0G [00:24<06:38, 48.2MiB/s]Loading:   6%|▌         | 1.14G/19.0G [00:24<07:51, 40.7MiB/s]Loading:   6%|▌         | 1.15G/19.0G [00:24<07:50, 40.7MiB/s]Loading:   6%|▌         | 1.15G/19.0G [00:24<07:20, 43.5MiB/s]Loading:   6%|▌         | 1.16G/19.0G [00:24<07:03, 45.2MiB/s]Loading:   6%|▌         | 1.16G/19.0G [00:24<06:30, 49.1MiB/s]Loading:   6%|▌         | 1.17G/19.0G [00:25<06:58, 45.8MiB/s]Loading:   6%|▌         | 1.17G/19.0G [00:25<07:30, 42.5MiB/s]Loading:   6%|▌         | 1.18G/19.0G [00:25<07:40, 41.5MiB/s]Loading:   6%|▌         | 1.18G/19.0G [00:25<07:54, 40.3MiB/s]Loading:   6%|▋         | 1.19G/19.0G [00:25<07:57, 40.1MiB/s]Loading:   6%|▋         | 1.19G/19.0G [00:25<07:35, 42.0MiB/s]Loading:   6%|▋         | 1.20G/19.0G [00:25<07:11, 44.3MiB/s]Loading:   6%|▋         | 1.20G/19.0G [00:25<07:36, 41.9MiB/s]Loading:   6%|▋         | 1.21G/19.0G [00:26<06:50, 46.5MiB/s]Loading:   6%|▋         | 1.21G/19.0G [00:26<07:15, 43.8MiB/s]Loading:   6%|▋         | 1.22G/19.0G [00:26<07:10, 44.3MiB/s]Loading:   6%|▋         | 1.23G/19.0G [00:26<07:40, 41.4MiB/s]Loading:   6%|▋         | 1.23G/19.0G [00:26<09:50, 32.3MiB/s]Loading:   7%|▋         | 1.24G/19.0G [00:26<09:13, 34.5MiB/s]Loading:   7%|▋         | 1.24G/19.0G [00:27<08:36, 36.9MiB/s]Loading:   7%|▋         | 1.25G/19.0G [00:27<08:06, 39.2MiB/s]Loading:   7%|▋         | 1.25G/19.0G [00:27<08:19, 38.1MiB/s]Loading:   7%|▋         | 1.26G/19.0G [00:27<07:54, 40.1MiB/s]Loading:   7%|▋         | 1.26G/19.0G [00:27<09:23, 33.8MiB/s]Loading:   7%|▋         | 1.27G/19.0G [00:27<09:32, 33.3MiB/s]Loading:   7%|▋         | 1.27G/19.0G [00:27<11:01, 28.8MiB/s]Loading:   7%|▋         | 1.27G/19.0G [00:28<11:53, 26.7MiB/s]Loading:   7%|▋         | 1.28G/19.0G [00:28<11:58, 26.5MiB/s]Loading:   7%|▋         | 1.28G/19.0G [00:28<10:52, 29.1MiB/s]Loading:   7%|▋         | 1.28G/19.0G [00:28<11:33, 27.4MiB/s]Loading:   7%|▋         | 1.29G/19.0G [00:28<10:26, 30.3MiB/s]Loading:   7%|▋         | 1.29G/19.0G [00:28<09:32, 33.2MiB/s]Loading:   7%|▋         | 1.30G/19.0G [00:28<09:25, 33.6MiB/s]Loading:   7%|▋         | 1.30G/19.0G [00:29<08:57, 35.3MiB/s]Loading:   7%|▋         | 1.31G/19.0G [00:29<09:33, 33.1MiB/s]Loading:   7%|▋         | 1.31G/19.0G [00:29<09:35, 33.0MiB/s]Loading:   7%|▋         | 1.32G/19.0G [00:29<09:39, 32.8MiB/s]Loading:   7%|▋         | 1.32G/19.0G [00:29<11:28, 27.6MiB/s]Loading:   7%|▋         | 1.32G/19.0G [00:29<12:55, 24.5MiB/s]Loading:   7%|▋         | 1.33G/19.0G [00:30<13:31, 23.4MiB/s]Loading:   7%|▋         | 1.33G/19.0G [00:30<10:35, 29.8MiB/s]Loading:   7%|▋         | 1.34G/19.0G [00:30<10:10, 31.1MiB/s]Loading:   7%|▋         | 1.34G/19.0G [00:30<09:39, 32.7MiB/s]Loading:   7%|▋         | 1.34G/19.0G [00:30<11:39, 27.1MiB/s]Loading:   7%|▋         | 1.35G/19.0G [00:30<10:44, 29.4MiB/s]Loading:   7%|▋         | 1.35G/19.0G [00:30<09:49, 32.1MiB/s]Loading:   7%|▋         | 1.36G/19.0G [00:31<09:26, 33.4MiB/s]Loading:   7%|▋         | 1.36G/19.0G [00:31<09:17, 34.0MiB/s]Loading:   7%|▋         | 1.37G/19.0G [00:31<09:03, 34.9MiB/s]Loading:   7%|▋         | 1.37G/19.0G [00:31<08:21, 37.8MiB/s]Loading:   7%|▋         | 1.38G/19.0G [00:31<09:12, 34.2MiB/s]Loading:   7%|▋         | 1.38G/19.0G [00:31<07:59, 39.4MiB/s]Loading:   7%|▋         | 1.39G/19.0G [00:31<07:26, 42.3MiB/s]Loading:   7%|▋         | 1.39G/19.0G [00:32<08:53, 35.4MiB/s]Loading:   7%|▋         | 1.40G/19.0G [00:32<08:55, 35.3MiB/s]Loading:   7%|▋         | 1.40G/19.0G [00:32<08:33, 36.8MiB/s]Loading:   7%|▋         | 1.40G/19.0G [00:32<08:46, 35.9MiB/s]Loading:   7%|▋         | 1.41G/19.0G [00:32<09:06, 34.6MiB/s]Loading:   7%|▋         | 1.41G/19.0G [00:32<08:29, 37.1MiB/s]Loading:   7%|▋         | 1.42G/19.0G [00:32<09:01, 34.9MiB/s]Loading:   7%|▋         | 1.42G/19.0G [00:33<11:26, 27.5MiB/s]Loading:   8%|▊         | 1.43G/19.0G [00:33<08:13, 38.3MiB/s]Loading:   8%|▊         | 1.44G/19.0G [00:33<05:34, 56.3MiB/s]Loading:   8%|▊         | 1.45G/19.0G [00:33<05:34, 56.4MiB/s]Loading:   8%|▊         | 1.46G/19.0G [00:33<05:00, 62.7MiB/s]Loading:   8%|▊         | 1.46G/19.0G [00:33<04:49, 65.1MiB/s]Loading:   8%|▊         | 1.47G/19.0G [00:33<04:14, 73.9MiB/s]Loading:   8%|▊         | 1.48G/19.0G [00:33<05:12, 60.2MiB/s]Loading:   8%|▊         | 1.49G/19.0G [00:34<05:04, 61.8MiB/s]Loading:   8%|▊         | 1.50G/19.0G [00:34<04:54, 63.9MiB/s]Loading:   8%|▊         | 1.50G/19.0G [00:34<06:26, 48.7MiB/s]Loading:   8%|▊         | 1.51G/19.0G [00:34<06:34, 47.6MiB/s]Loading:   8%|▊         | 1.52G/19.0G [00:34<06:52, 45.6MiB/s]Loading:   8%|▊         | 1.52G/19.0G [00:34<06:29, 48.2MiB/s]Loading:   8%|▊         | 1.53G/19.0G [00:34<05:43, 54.7MiB/s]Loading:   8%|▊         | 1.54G/19.0G [00:35<05:53, 53.1MiB/s]Loading:   8%|▊         | 1.54G/19.0G [00:35<05:44, 54.5MiB/s]Loading:   8%|▊         | 1.55G/19.0G [00:35<05:20, 58.5MiB/s]Loading:   8%|▊         | 1.57G/19.0G [00:35<03:58, 78.6MiB/s]Loading:   8%|▊         | 1.57G/19.0G [00:35<04:33, 68.3MiB/s]Loading:   8%|▊         | 1.58G/19.0G [00:35<05:05, 61.1MiB/s]Loading:   8%|▊         | 1.59G/19.0G [00:35<04:35, 67.8MiB/s]Loading:   8%|▊         | 1.60G/19.0G [00:36<04:08, 75.2MiB/s]Loading:   8%|▊         | 1.61G/19.0G [00:36<04:08, 75.3MiB/s]Loading:   9%|▊         | 1.62G/19.0G [00:36<04:46, 65.3MiB/s]Loading:   9%|▊         | 1.62G/19.0G [00:36<04:47, 64.9MiB/s]Loading:   9%|▊         | 1.63G/19.0G [00:36<04:34, 67.9MiB/s]Loading:   9%|▊         | 1.64G/19.0G [00:36<06:04, 51.1MiB/s]Loading:   9%|▊         | 1.65G/19.0G [00:36<05:52, 52.9MiB/s]Loading:   9%|▊         | 1.65G/19.0G [00:37<05:29, 56.5MiB/s]Loading:   9%|▊         | 1.66G/19.0G [00:37<05:09, 60.2MiB/s]Loading:   9%|▉         | 1.67G/19.0G [00:37<05:38, 55.0MiB/s]Loading:   9%|▉         | 1.67G/19.0G [00:37<05:15, 58.9MiB/s]Loading:   9%|▉         | 1.69G/19.0G [00:37<04:12, 73.6MiB/s]Loading:   9%|▉         | 1.69G/19.0G [00:37<04:18, 72.0MiB/s]Loading:   9%|▉         | 1.70G/19.0G [00:37<05:02, 61.5MiB/s]Loading:   9%|▉         | 1.71G/19.0G [00:38<06:05, 50.8MiB/s]Loading:   9%|▉         | 1.72G/19.0G [00:38<05:36, 55.1MiB/s]Loading:   9%|▉         | 1.72G/19.0G [00:38<05:21, 57.7MiB/s]Loading:   9%|▉         | 1.73G/19.0G [00:38<05:31, 55.9MiB/s]Loading:   9%|▉         | 1.74G/19.0G [00:38<05:27, 56.7MiB/s]Loading:   9%|▉         | 1.74G/19.0G [00:38<05:18, 58.2MiB/s]Loading:   9%|▉         | 1.75G/19.0G [00:38<04:54, 62.9MiB/s]Loading:   9%|▉         | 1.76G/19.0G [00:38<04:52, 63.2MiB/s]Loading:   9%|▉         | 1.77G/19.0G [00:38<03:39, 84.2MiB/s]Loading:   9%|▉         | 1.78G/19.0G [00:39<03:30, 87.7MiB/s]Loading:   9%|▉         | 1.79G/19.0G [00:39<03:23, 90.8MiB/s]Loading:   9%|▉         | 1.80G/19.0G [00:39<03:26, 89.4MiB/s]Loading:  10%|▉         | 1.81G/19.0G [00:39<03:35, 85.5MiB/s]Loading:  10%|▉         | 1.82G/19.0G [00:39<03:51, 79.7MiB/s]Loading:  10%|▉         | 1.83G/19.0G [00:39<03:17, 93.2MiB/s]Loading:  10%|▉         | 1.84G/19.0G [00:39<03:45, 81.7MiB/s]Loading:  10%|▉         | 1.85G/19.0G [00:40<04:04, 75.4MiB/s]Loading:  10%|▉         | 1.86G/19.0G [00:40<04:09, 73.6MiB/s]Loading:  10%|▉         | 1.87G/19.0G [00:40<04:09, 73.8MiB/s]Loading:  10%|▉         | 1.88G/19.0G [00:40<04:07, 74.2MiB/s]Loading:  10%|▉         | 1.89G/19.0G [00:40<03:35, 85.2MiB/s]Loading:  10%|▉         | 1.90G/19.0G [00:40<03:32, 86.3MiB/s]Loading:  10%|█         | 1.91G/19.0G [00:40<04:06, 74.4MiB/s]Loading:  10%|█         | 1.92G/19.0G [00:40<04:02, 75.7MiB/s]Loading:  10%|█         | 1.92G/19.0G [00:41<04:04, 74.9MiB/s]Loading:  10%|█         | 1.93G/19.0G [00:41<04:25, 69.0MiB/s]Loading:  10%|█         | 1.94G/19.0G [00:41<03:57, 77.2MiB/s]Loading:  10%|█         | 1.95G/19.0G [00:41<03:50, 79.4MiB/s]Loading:  10%|█         | 1.96G/19.0G [00:41<03:40, 83.0MiB/s]Loading:  10%|█         | 1.98G/19.0G [00:41<03:04, 99.1MiB/s]Loading:  10%|█         | 1.99G/19.0G [00:41<03:20, 91.1MiB/s]Loading:  11%|█         | 2.00G/19.0G [00:41<03:05, 98.4MiB/s]Loading:  11%|█         | 2.01G/19.0G [00:42<03:17, 92.2MiB/s]Loading:  11%|█         | 2.02G/19.0G [00:42<03:33, 85.6MiB/s]Loading:  11%|█         | 2.03G/19.0G [00:42<04:22, 69.4MiB/s]Loading:  11%|█         | 2.04G/19.0G [00:42<03:45, 80.6MiB/s]Loading:  11%|█         | 2.05G/19.0G [00:42<03:54, 77.7MiB/s]Loading:  11%|█         | 2.06G/19.0G [00:42<03:55, 77.2MiB/s]Loading:  11%|█         | 2.07G/19.0G [00:42<04:31, 67.0MiB/s]Loading:  11%|█         | 2.07G/19.0G [00:43<04:34, 66.1MiB/s]Loading:  11%|█         | 2.08G/19.0G [00:43<04:39, 65.1MiB/s]Loading:  11%|█         | 2.09G/19.0G [00:43<04:59, 60.7MiB/s]Loading:  11%|█         | 2.09G/19.0G [00:43<05:19, 56.7MiB/s]Loading:  11%|█         | 2.10G/19.0G [00:43<06:03, 49.9MiB/s]Loading:  11%|█         | 2.10G/19.0G [00:43<06:04, 49.7MiB/s]Loading:  11%|█         | 2.11G/19.0G [00:43<06:00, 50.4MiB/s]Loading:  11%|█         | 2.13G/19.0G [00:43<03:53, 77.5MiB/s]Loading:  11%|█▏        | 2.14G/19.0G [00:44<03:13, 93.6MiB/s]Loading:  11%|█▏        | 2.15G/19.0G [00:44<03:21, 89.9MiB/s]Loading:  11%|█▏        | 2.16G/19.0G [00:44<03:28, 86.6MiB/s]Loading:  11%|█▏        | 2.17G/19.0G [00:44<03:04, 98.2MiB/s]Loading:  11%|█▏        | 2.18G/19.0G [00:44<02:56, 102MiB/s] Loading:  12%|█▏        | 2.19G/19.0G [00:44<03:31, 85.5MiB/s]Loading:  12%|█▏        | 2.20G/19.0G [00:44<03:23, 88.6MiB/s]Loading:  12%|█▏        | 2.21G/19.0G [00:45<03:44, 80.4MiB/s]Loading:  12%|█▏        | 2.22G/19.0G [00:45<04:03, 74.0MiB/s]Loading:  12%|█▏        | 2.23G/19.0G [00:45<04:17, 70.0MiB/s]Loading:  12%|█▏        | 2.24G/19.0G [00:45<04:30, 66.5MiB/s]Loading:  12%|█▏        | 2.24G/19.0G [00:45<04:45, 63.0MiB/s]Loading:  12%|█▏        | 2.25G/19.0G [00:45<04:46, 62.8MiB/s]Loading:  12%|█▏        | 2.26G/19.0G [00:45<04:49, 62.1MiB/s]Loading:  12%|█▏        | 2.26G/19.0G [00:45<05:02, 59.5MiB/s]Loading:  12%|█▏        | 2.27G/19.0G [00:46<04:40, 64.1MiB/s]Loading:  12%|█▏        | 2.28G/19.0G [00:46<04:03, 73.7MiB/s]Loading:  12%|█▏        | 2.29G/19.0G [00:46<03:49, 78.2MiB/s]Loading:  12%|█▏        | 2.30G/19.0G [00:46<05:15, 56.8MiB/s]Loading:  12%|█▏        | 2.32G/19.0G [00:46<03:51, 77.4MiB/s]Loading:  12%|█▏        | 2.32G/19.0G [00:46<03:56, 75.8MiB/s]Loading:  12%|█▏        | 2.33G/19.0G [00:47<05:07, 58.2MiB/s]Loading:  12%|█▏        | 2.34G/19.0G [00:47<05:11, 57.4MiB/s]Loading:  12%|█▏        | 2.35G/19.0G [00:47<04:41, 63.6MiB/s]Loading:  12%|█▏        | 2.36G/19.0G [00:47<04:23, 67.9MiB/s]Loading:  12%|█▏        | 2.36G/19.0G [00:47<04:16, 69.7MiB/s]Loading:  12%|█▏        | 2.37G/19.0G [00:47<03:55, 75.9MiB/s]Loading:  13%|█▎        | 2.38G/19.0G [00:47<03:45, 79.0MiB/s]Loading:  13%|█▎        | 2.39G/19.0G [00:47<03:59, 74.3MiB/s]Loading:  13%|█▎        | 2.40G/19.0G [00:48<04:25, 67.2MiB/s]Loading:  13%|█▎        | 2.41G/19.0G [00:48<04:10, 71.1MiB/s]Loading:  13%|█▎        | 2.43G/19.0G [00:48<03:14, 91.6MiB/s]Loading:  13%|█▎        | 2.44G/19.0G [00:48<03:17, 89.9MiB/s]Loading:  13%|█▎        | 2.45G/19.0G [00:48<03:37, 81.8MiB/s]Loading:  13%|█▎        | 2.45G/19.0G [00:48<03:50, 77.2MiB/s]Loading:  13%|█▎        | 2.46G/19.0G [00:48<03:37, 81.6MiB/s]Loading:  13%|█▎        | 2.47G/19.0G [00:48<03:32, 83.5MiB/s]Loading:  13%|█▎        | 2.48G/19.0G [00:49<04:26, 66.6MiB/s]Loading:  13%|█▎        | 2.49G/19.0G [00:49<04:26, 66.6MiB/s]Loading:  13%|█▎        | 2.50G/19.0G [00:49<05:01, 58.8MiB/s]Loading:  13%|█▎        | 2.50G/19.0G [00:49<06:40, 44.3MiB/s]Loading:  13%|█▎        | 2.51G/19.0G [00:49<05:18, 55.6MiB/s]Loading:  13%|█▎        | 2.52G/19.0G [00:49<05:55, 49.8MiB/s]Loading:  13%|█▎        | 2.52G/19.0G [00:50<05:56, 49.6MiB/s]Loading:  13%|█▎        | 2.53G/19.0G [00:50<05:45, 51.2MiB/s]Loading:  13%|█▎        | 2.54G/19.0G [00:50<06:25, 45.9MiB/s]Loading:  13%|█▎        | 2.55G/19.0G [00:50<05:43, 51.4MiB/s]Loading:  13%|█▎        | 2.55G/19.0G [00:50<05:53, 49.9MiB/s]Loading:  13%|█▎        | 2.56G/19.0G [00:50<04:46, 61.7MiB/s]Loading:  14%|█▎        | 2.57G/19.0G [00:50<04:51, 60.6MiB/s]Loading:  14%|█▎        | 2.58G/19.0G [00:51<04:38, 63.4MiB/s]Loading:  14%|█▎        | 2.58G/19.0G [00:51<04:28, 65.6MiB/s]Loading:  14%|█▎        | 2.59G/19.0G [00:51<03:47, 77.5MiB/s]Loading:  14%|█▎        | 2.61G/19.0G [00:51<03:19, 88.2MiB/s]Loading:  14%|█▍        | 2.62G/19.0G [00:51<03:39, 80.0MiB/s]Loading:  14%|█▍        | 2.63G/19.0G [00:51<03:30, 83.7MiB/s]Loading:  14%|█▍        | 2.64G/19.0G [00:51<03:51, 76.0MiB/s]Loading:  14%|█▍        | 2.65G/19.0G [00:51<03:39, 80.2MiB/s]Loading:  14%|█▍        | 2.66G/19.0G [00:52<03:24, 86.0MiB/s]Loading:  14%|█▍        | 2.66G/19.0G [00:52<04:59, 58.6MiB/s]Loading:  14%|█▍        | 2.67G/19.0G [00:52<04:57, 59.0MiB/s]Loading:  14%|█▍        | 2.68G/19.0G [00:52<03:59, 73.3MiB/s]Loading:  14%|█▍        | 2.69G/19.0G [00:52<03:55, 74.4MiB/s]Loading:  14%|█▍        | 2.70G/19.0G [00:52<05:15, 55.4MiB/s]Loading:  14%|█▍        | 2.71G/19.0G [00:53<04:22, 66.6MiB/s]Loading:  14%|█▍        | 2.72G/19.0G [00:53<05:43, 50.9MiB/s]Loading:  14%|█▍        | 2.73G/19.0G [00:53<04:41, 62.1MiB/s]Loading:  14%|█▍        | 2.74G/19.0G [00:53<04:35, 63.3MiB/s]Loading:  14%|█▍        | 2.75G/19.0G [00:53<04:16, 68.1MiB/s]Loading:  14%|█▍        | 2.75G/19.0G [00:53<05:24, 53.8MiB/s]Loading:  15%|█▍        | 2.76G/19.0G [00:54<04:55, 59.0MiB/s]Loading:  15%|█▍        | 2.77G/19.0G [00:54<04:13, 68.8MiB/s]Loading:  15%|█▍        | 2.78G/19.0G [00:54<04:05, 70.9MiB/s]Loading:  15%|█▍        | 2.79G/19.0G [00:54<04:41, 61.8MiB/s]Loading:  15%|█▍        | 2.80G/19.0G [00:54<04:20, 66.7MiB/s]Loading:  15%|█▍        | 2.81G/19.0G [00:54<03:49, 75.6MiB/s]Loading:  15%|█▍        | 2.82G/19.0G [00:54<04:23, 65.8MiB/s]Loading:  15%|█▍        | 2.82G/19.0G [00:54<04:14, 68.3MiB/s]Loading:  15%|█▍        | 2.84G/19.0G [00:55<03:22, 85.8MiB/s]Loading:  15%|█▍        | 2.85G/19.0G [00:55<03:02, 95.3MiB/s]Loading:  15%|█▌        | 2.86G/19.0G [00:55<02:48, 103MiB/s] Loading:  15%|█▌        | 2.87G/19.0G [00:55<03:09, 91.2MiB/s]Loading:  15%|█▌        | 2.88G/19.0G [00:55<03:45, 76.8MiB/s]Loading:  15%|█▌        | 2.89G/19.0G [00:55<03:31, 81.9MiB/s]Loading:  15%|█▌        | 2.90G/19.0G [00:55<03:52, 74.4MiB/s]Loading:  15%|█▌        | 2.91G/19.0G [00:56<03:52, 74.4MiB/s]Loading:  15%|█▌        | 2.92G/19.0G [00:56<03:11, 90.2MiB/s]Loading:  15%|█▌        | 2.93G/19.0G [00:56<03:20, 85.9MiB/s]Loading:  15%|█▌        | 2.94G/19.0G [00:56<03:33, 80.9MiB/s]Loading:  16%|█▌        | 2.95G/19.0G [00:56<03:48, 75.4MiB/s]Loading:  16%|█▌        | 2.96G/19.0G [00:56<04:01, 71.2MiB/s]Loading:  16%|█▌        | 2.97G/19.0G [00:56<03:26, 83.3MiB/s]Loading:  16%|█▌        | 2.98G/19.0G [00:56<03:18, 86.6MiB/s]Loading:  16%|█▌        | 2.99G/19.0G [00:57<03:23, 84.6MiB/s]Loading:  16%|█▌        | 3.00G/19.0G [00:57<03:13, 88.8MiB/s]Loading:  16%|█▌        | 3.01G/19.0G [00:57<03:36, 79.4MiB/s]Loading:  16%|█▌        | 3.01G/19.0G [00:57<03:36, 79.5MiB/s]Loading:  16%|█▌        | 3.02G/19.0G [00:57<03:52, 73.7MiB/s]Loading:  16%|█▌        | 3.03G/19.0G [00:57<03:39, 78.0MiB/s]Loading:  16%|█▌        | 3.04G/19.0G [00:57<03:41, 77.3MiB/s]Loading:  16%|█▌        | 3.05G/19.0G [00:57<03:23, 84.2MiB/s]Loading:  16%|█▌        | 3.06G/19.0G [00:57<03:45, 76.0MiB/s]Loading:  16%|█▌        | 3.07G/19.0G [00:58<03:08, 90.7MiB/s]Loading:  16%|█▌        | 3.08G/19.0G [00:58<03:06, 91.7MiB/s]Loading:  16%|█▋        | 3.09G/19.0G [00:58<03:36, 78.8MiB/s]Loading:  16%|█▋        | 3.10G/19.0G [00:58<03:20, 85.0MiB/s]Loading:  16%|█▋        | 3.11G/19.0G [00:58<04:25, 64.2MiB/s]Loading:  16%|█▋        | 3.12G/19.0G [00:58<03:47, 74.9MiB/s]Loading:  16%|█▋        | 3.13G/19.0G [00:58<03:39, 77.7MiB/s]Loading:  17%|█▋        | 3.14G/19.0G [00:59<03:33, 79.6MiB/s]Loading:  17%|█▋        | 3.15G/19.0G [00:59<03:29, 81.2MiB/s]Loading:  17%|█▋        | 3.16G/19.0G [00:59<03:06, 91.2MiB/s]Loading:  17%|█▋        | 3.17G/19.0G [00:59<03:24, 83.3MiB/s]Loading:  17%|█▋        | 3.18G/19.0G [00:59<03:33, 79.6MiB/s]Loading:  17%|█▋        | 3.19G/19.0G [00:59<03:16, 86.3MiB/s]Loading:  17%|█▋        | 3.20G/19.0G [00:59<02:47, 102MiB/s] Loading:  17%|█▋        | 3.21G/19.0G [00:59<02:48, 101MiB/s]Loading:  17%|█▋        | 3.22G/19.0G [01:00<03:17, 86.0MiB/s]Loading:  17%|█▋        | 3.24G/19.0G [01:00<03:02, 93.0MiB/s]Loading:  17%|█▋        | 3.25G/19.0G [01:00<03:17, 85.8MiB/s]Loading:  17%|█▋        | 3.25G/19.0G [01:00<03:53, 72.4MiB/s]Loading:  17%|█▋        | 3.26G/19.0G [01:00<03:40, 76.5MiB/s]Loading:  17%|█▋        | 3.27G/19.0G [01:00<03:26, 81.7MiB/s]Loading:  17%|█▋        | 3.28G/19.0G [01:00<03:25, 82.1MiB/s]Loading:  17%|█▋        | 3.29G/19.0G [01:01<03:42, 75.9MiB/s]Loading:  17%|█▋        | 3.30G/19.0G [01:01<03:36, 77.9MiB/s]Loading:  17%|█▋        | 3.31G/19.0G [01:01<05:10, 54.2MiB/s]Loading:  17%|█▋        | 3.32G/19.0G [01:01<04:44, 59.3MiB/s]Loading:  17%|█▋        | 3.33G/19.0G [01:01<04:39, 60.2MiB/s]Loading:  18%|█▊        | 3.34G/19.0G [01:01<03:23, 82.7MiB/s]Loading:  18%|█▊        | 3.35G/19.0G [01:01<03:06, 90.3MiB/s]Loading:  18%|█▊        | 3.36G/19.0G [01:02<03:38, 77.0MiB/s]Loading:  18%|█▊        | 3.37G/19.0G [01:02<03:37, 77.3MiB/s]Loading:  18%|█▊        | 3.38G/19.0G [01:02<03:49, 73.2MiB/s]Loading:  18%|█▊        | 3.39G/19.0G [01:02<03:23, 82.4MiB/s]Loading:  18%|█▊        | 3.40G/19.0G [01:02<04:06, 68.1MiB/s]Loading:  18%|█▊        | 3.41G/19.0G [01:02<04:16, 65.2MiB/s]Loading:  18%|█▊        | 3.42G/19.0G [01:02<03:55, 71.1MiB/s]Loading:  18%|█▊        | 3.43G/19.0G [01:03<03:31, 79.1MiB/s]Loading:  18%|█▊        | 3.44G/19.0G [01:03<02:55, 95.4MiB/s]Loading:  18%|█▊        | 3.46G/19.0G [01:03<02:52, 96.6MiB/s]Loading:  18%|█▊        | 3.47G/19.0G [01:03<02:46, 100MiB/s] Loading:  18%|█▊        | 3.48G/19.0G [01:03<02:42, 103MiB/s]Loading:  18%|█▊        | 3.49G/19.0G [01:03<03:07, 88.7MiB/s]Loading:  18%|█▊        | 3.50G/19.0G [01:03<03:01, 91.8MiB/s]Loading:  18%|█▊        | 3.51G/19.0G [01:03<03:16, 84.5MiB/s]Loading:  19%|█▊        | 3.52G/19.0G [01:04<03:10, 87.4MiB/s]Loading:  19%|█▊        | 3.53G/19.0G [01:04<03:33, 77.8MiB/s]Loading:  19%|█▊        | 3.53G/19.0G [01:04<03:38, 76.1MiB/s]Loading:  19%|█▊        | 3.54G/19.0G [01:04<03:44, 74.0MiB/s]Loading:  19%|█▊        | 3.55G/19.0G [01:04<04:18, 64.1MiB/s]Loading:  19%|█▊        | 3.56G/19.0G [01:04<04:37, 59.8MiB/s]Loading:  19%|█▉        | 3.56G/19.0G [01:04<04:28, 61.6MiB/s]Loading:  19%|█▉        | 3.57G/19.0G [01:05<04:30, 61.2MiB/s]Loading:  19%|█▉        | 3.58G/19.0G [01:05<03:28, 79.4MiB/s]Loading:  19%|█▉        | 3.59G/19.0G [01:05<04:17, 64.1MiB/s]Loading:  19%|█▉        | 3.60G/19.0G [01:05<04:27, 61.8MiB/s]Loading:  19%|█▉        | 3.61G/19.0G [01:05<04:13, 65.3MiB/s]Loading:  19%|█▉        | 3.62G/19.0G [01:05<03:50, 71.8MiB/s]Loading:  19%|█▉        | 3.62G/19.0G [01:05<03:46, 73.0MiB/s]Loading:  19%|█▉        | 3.64G/19.0G [01:05<03:18, 83.1MiB/s]Loading:  19%|█▉        | 3.64G/19.0G [01:06<03:41, 74.5MiB/s]Loading:  19%|█▉        | 3.65G/19.0G [01:06<03:52, 70.9MiB/s]Loading:  19%|█▉        | 3.66G/19.0G [01:06<04:21, 62.9MiB/s]Loading:  19%|█▉        | 3.67G/19.0G [01:06<04:18, 63.7MiB/s]Loading:  19%|█▉        | 3.67G/19.0G [01:06<04:20, 63.1MiB/s]Loading:  19%|█▉        | 3.68G/19.0G [01:06<04:11, 65.3MiB/s]Loading:  19%|█▉        | 3.69G/19.0G [01:06<04:19, 63.5MiB/s]Loading:  19%|█▉        | 3.70G/19.0G [01:06<03:28, 78.6MiB/s]Loading:  20%|█▉        | 3.71G/19.0G [01:07<03:38, 75.2MiB/s]Loading:  20%|█▉        | 3.72G/19.0G [01:07<03:13, 85.0MiB/s]Loading:  20%|█▉        | 3.73G/19.0G [01:07<03:52, 70.7MiB/s]Loading:  20%|█▉        | 3.73G/19.0G [01:07<03:59, 68.6MiB/s]Loading:  20%|█▉        | 3.74G/19.0G [01:07<03:35, 76.1MiB/s]Loading:  20%|█▉        | 3.75G/19.0G [01:07<04:12, 65.0MiB/s]Loading:  20%|█▉        | 3.76G/19.0G [01:07<05:04, 53.7MiB/s]Loading:  20%|█▉        | 3.77G/19.0G [01:08<04:10, 65.2MiB/s]Loading:  20%|█▉        | 3.78G/19.0G [01:08<04:23, 62.1MiB/s]Loading:  20%|█▉        | 3.78G/19.0G [01:08<04:41, 58.0MiB/s]Loading:  20%|█▉        | 3.79G/19.0G [01:08<04:44, 57.4MiB/s]Loading:  20%|█▉        | 3.80G/19.0G [01:08<04:36, 58.9MiB/s]Loading:  20%|██        | 3.81G/19.0G [01:08<04:13, 64.3MiB/s]Loading:  20%|██        | 3.82G/19.0G [01:08<03:48, 71.2MiB/s]Loading:  20%|██        | 3.82G/19.0G [01:09<05:17, 51.3MiB/s]Loading:  20%|██        | 3.83G/19.0G [01:09<04:57, 54.8MiB/s]Loading:  20%|██        | 3.84G/19.0G [01:09<05:36, 48.4MiB/s]Loading:  20%|██        | 3.84G/19.0G [01:09<05:05, 53.2MiB/s]Loading:  20%|██        | 3.85G/19.0G [01:09<04:33, 59.5MiB/s]Loading:  20%|██        | 3.86G/19.0G [01:09<04:00, 67.5MiB/s]Loading:  20%|██        | 3.87G/19.0G [01:09<04:17, 63.2MiB/s]Loading:  20%|██        | 3.88G/19.0G [01:10<03:45, 71.9MiB/s]Loading:  20%|██        | 3.89G/19.0G [01:10<03:19, 81.5MiB/s]Loading:  21%|██        | 3.90G/19.0G [01:10<03:12, 84.2MiB/s]Loading:  21%|██        | 3.91G/19.0G [01:10<04:22, 61.9MiB/s]Loading:  21%|██        | 3.92G/19.0G [01:10<03:18, 81.4MiB/s]Loading:  21%|██        | 3.93G/19.0G [01:10<02:58, 90.6MiB/s]Loading:  21%|██        | 3.94G/19.0G [01:10<03:20, 80.6MiB/s]Loading:  21%|██        | 3.96G/19.0G [01:10<02:48, 95.7MiB/s]Loading:  21%|██        | 3.97G/19.0G [01:11<02:39, 101MiB/s] Loading:  21%|██        | 3.98G/19.0G [01:11<02:40, 100MiB/s]Loading:  21%|██        | 3.99G/19.0G [01:11<03:34, 75.2MiB/s]Loading:  21%|██        | 4.00G/19.0G [01:11<03:12, 83.6MiB/s]Loading:  21%|██        | 4.01G/19.0G [01:11<03:01, 88.8MiB/s]Loading:  21%|██        | 4.02G/19.0G [01:11<03:40, 72.8MiB/s]Loading:  21%|██        | 4.03G/19.0G [01:11<03:36, 74.4MiB/s]Loading:  21%|██▏       | 4.04G/19.0G [01:12<03:45, 71.2MiB/s]Loading:  21%|██▏       | 4.06G/19.0G [01:12<03:19, 80.6MiB/s]Loading:  21%|██▏       | 4.06G/19.0G [01:12<03:26, 77.5MiB/s]Loading:  21%|██▏       | 4.07G/19.0G [01:12<03:47, 70.5MiB/s]Loading:  21%|██▏       | 4.08G/19.0G [01:12<03:20, 80.0MiB/s]Loading:  22%|██▏       | 4.09G/19.0G [01:12<03:13, 82.6MiB/s]Loading:  22%|██▏       | 4.10G/19.0G [01:12<03:07, 85.2MiB/s]Loading:  22%|██▏       | 4.11G/19.0G [01:13<03:47, 70.2MiB/s]Loading:  22%|██▏       | 4.12G/19.0G [01:13<03:36, 73.7MiB/s]Loading:  22%|██▏       | 4.13G/19.0G [01:13<04:01, 66.1MiB/s]Loading:  22%|██▏       | 4.13G/19.0G [01:13<04:09, 64.0MiB/s]Loading:  22%|██▏       | 4.14G/19.0G [01:13<03:49, 69.4MiB/s]Loading:  22%|██▏       | 4.15G/19.0G [01:13<03:44, 70.9MiB/s]Loading:  22%|██▏       | 4.16G/19.0G [01:13<04:21, 61.0MiB/s]Loading:  22%|██▏       | 4.17G/19.0G [01:14<04:00, 66.2MiB/s]Loading:  22%|██▏       | 4.17G/19.0G [01:14<04:01, 65.9MiB/s]Loading:  22%|██▏       | 4.18G/19.0G [01:14<03:56, 67.4MiB/s]Loading:  22%|██▏       | 4.19G/19.0G [01:14<04:12, 63.1MiB/s]Loading:  22%|██▏       | 4.20G/19.0G [01:14<04:50, 54.8MiB/s]Loading:  22%|██▏       | 4.20G/19.0G [01:14<04:59, 53.0MiB/s]Loading:  22%|██▏       | 4.21G/19.0G [01:14<04:44, 55.8MiB/s]Loading:  22%|██▏       | 4.22G/19.0G [01:14<03:55, 67.5MiB/s]Loading:  22%|██▏       | 4.22G/19.0G [01:15<04:03, 65.2MiB/s]Loading:  22%|██▏       | 4.23G/19.0G [01:15<04:34, 57.9MiB/s]Loading:  22%|██▏       | 4.25G/19.0G [01:15<03:24, 77.4MiB/s]Loading:  22%|██▏       | 4.25G/19.0G [01:15<03:52, 68.2MiB/s]Loading:  22%|██▏       | 4.26G/19.0G [01:15<04:11, 62.9MiB/s]Loading:  22%|██▏       | 4.27G/19.0G [01:15<04:40, 56.4MiB/s]Loading:  23%|██▎       | 4.28G/19.0G [01:15<03:22, 78.0MiB/s]Loading:  23%|██▎       | 4.29G/19.0G [01:16<03:31, 74.7MiB/s]Loading:  23%|██▎       | 4.30G/19.0G [01:16<03:10, 82.9MiB/s]Loading:  23%|██▎       | 4.31G/19.0G [01:16<03:18, 79.3MiB/s]Loading:  23%|██▎       | 4.32G/19.0G [01:16<03:20, 78.6MiB/s]Loading:  23%|██▎       | 4.33G/19.0G [01:16<03:34, 73.3MiB/s]Loading:  23%|██▎       | 4.35G/19.0G [01:16<02:46, 94.7MiB/s]Loading:  23%|██▎       | 4.36G/19.0G [01:16<02:48, 93.5MiB/s]Loading:  23%|██▎       | 4.37G/19.0G [01:16<02:51, 91.9MiB/s]Loading:  23%|██▎       | 4.38G/19.0G [01:17<03:04, 85.1MiB/s]Loading:  23%|██▎       | 4.39G/19.0G [01:17<02:37, 99.6MiB/s]Loading:  23%|██▎       | 4.40G/19.0G [01:17<03:02, 85.9MiB/s]Loading:  23%|██▎       | 4.41G/19.0G [01:17<03:18, 79.0MiB/s]Loading:  23%|██▎       | 4.42G/19.0G [01:17<03:15, 80.0MiB/s]Loading:  23%|██▎       | 4.42G/19.0G [01:17<03:22, 77.4MiB/s]Loading:  23%|██▎       | 4.43G/19.0G [01:17<03:18, 78.7MiB/s]Loading:  23%|██▎       | 4.44G/19.0G [01:17<03:19, 78.2MiB/s]Loading:  23%|██▎       | 4.45G/19.0G [01:18<02:59, 87.1MiB/s]Loading:  23%|██▎       | 4.46G/19.0G [01:18<02:53, 90.2MiB/s]Loading:  24%|██▎       | 4.47G/19.0G [01:18<02:52, 90.6MiB/s]Loading:  24%|██▎       | 4.48G/19.0G [01:18<03:11, 81.3MiB/s]Loading:  24%|██▎       | 4.49G/19.0G [01:18<03:48, 68.2MiB/s]Loading:  24%|██▎       | 4.50G/19.0G [01:18<03:45, 69.2MiB/s]Loading:  24%|██▎       | 4.51G/19.0G [01:18<03:31, 73.6MiB/s]Loading:  24%|██▍       | 4.52G/19.0G [01:19<03:02, 85.4MiB/s]Loading:  24%|██▍       | 4.53G/19.0G [01:19<02:47, 93.0MiB/s]Loading:  24%|██▍       | 4.54G/19.0G [01:19<02:41, 96.0MiB/s]Loading:  24%|██▍       | 4.55G/19.0G [01:19<03:36, 71.7MiB/s]Loading:  24%|██▍       | 4.56G/19.0G [01:19<03:36, 71.5MiB/s]Loading:  24%|██▍       | 4.57G/19.0G [01:19<03:43, 69.5MiB/s]Loading:  24%|██▍       | 4.58G/19.0G [01:19<03:23, 76.0MiB/s]Loading:  24%|██▍       | 4.58G/19.0G [01:19<03:11, 80.9MiB/s]Loading:  24%|██▍       | 4.59G/19.0G [01:20<03:12, 80.3MiB/s]Loading:  24%|██▍       | 4.60G/19.0G [01:20<03:38, 70.8MiB/s]Loading:  24%|██▍       | 4.61G/19.0G [01:20<03:29, 73.9MiB/s]Loading:  24%|██▍       | 4.62G/19.0G [01:20<03:36, 71.5MiB/s]Loading:  24%|██▍       | 4.62G/19.0G [01:20<03:34, 72.0MiB/s]Loading:  24%|██▍       | 4.63G/19.0G [01:20<04:01, 63.9MiB/s]Loading:  24%|██▍       | 4.64G/19.0G [01:20<04:08, 62.0MiB/s]Loading:  24%|██▍       | 4.65G/19.0G [01:20<03:46, 68.1MiB/s]Loading:  25%|██▍       | 4.66G/19.0G [01:21<03:22, 76.0MiB/s]Loading:  25%|██▍       | 4.67G/19.0G [01:21<03:08, 81.8MiB/s]Loading:  25%|██▍       | 4.68G/19.0G [01:21<03:17, 77.9MiB/s]Loading:  25%|██▍       | 4.69G/19.0G [01:21<03:24, 75.3MiB/s]Loading:  25%|██▍       | 4.69G/19.0G [01:21<03:59, 64.1MiB/s]Loading:  25%|██▍       | 4.70G/19.0G [01:21<03:38, 70.4MiB/s]Loading:  25%|██▍       | 4.71G/19.0G [01:21<03:50, 66.6MiB/s]Loading:  25%|██▍       | 4.72G/19.0G [01:21<03:10, 80.6MiB/s]Loading:  25%|██▍       | 4.74G/19.0G [01:22<02:31, 101MiB/s] Loading:  25%|██▌       | 4.75G/19.0G [01:22<02:17, 111MiB/s]Loading:  25%|██▌       | 4.76G/19.0G [01:22<02:39, 96.0MiB/s]Loading:  25%|██▌       | 4.77G/19.0G [01:22<02:46, 91.6MiB/s]Loading:  25%|██▌       | 4.78G/19.0G [01:22<02:47, 91.4MiB/s]Loading:  25%|██▌       | 4.79G/19.0G [01:22<03:04, 82.8MiB/s]Loading:  25%|██▌       | 4.80G/19.0G [01:22<03:13, 78.9MiB/s]Loading:  25%|██▌       | 4.81G/19.0G [01:23<03:07, 81.4MiB/s]Loading:  25%|██▌       | 4.82G/19.0G [01:23<03:13, 78.6MiB/s]Loading:  25%|██▌       | 4.83G/19.0G [01:23<03:16, 77.3MiB/s]Loading:  25%|██▌       | 4.84G/19.0G [01:23<02:49, 89.7MiB/s]Loading:  26%|██▌       | 4.85G/19.0G [01:23<03:00, 84.3MiB/s]Loading:  26%|██▌       | 4.86G/19.0G [01:23<02:59, 84.4MiB/s]Loading:  26%|██▌       | 4.87G/19.0G [01:23<03:15, 77.7MiB/s]Loading:  26%|██▌       | 4.87G/19.0G [01:23<03:05, 81.8MiB/s]Loading:  26%|██▌       | 4.89G/19.0G [01:23<02:45, 91.4MiB/s]Loading:  26%|██▌       | 4.90G/19.0G [01:24<03:12, 78.7MiB/s]Loading:  26%|██▌       | 4.91G/19.0G [01:24<03:06, 81.3MiB/s]Loading:  26%|██▌       | 4.91G/19.0G [01:24<03:09, 79.7MiB/s]Loading:  26%|██▌       | 4.93G/19.0G [01:24<02:37, 95.8MiB/s]Loading:  26%|██▌       | 4.94G/19.0G [01:24<02:49, 88.9MiB/s]Loading:  26%|██▌       | 4.95G/19.0G [01:24<03:04, 81.6MiB/s]Loading:  26%|██▌       | 4.96G/19.0G [01:24<03:08, 80.0MiB/s]Loading:  26%|██▌       | 4.96G/19.0G [01:25<03:25, 73.3MiB/s]Loading:  26%|██▌       | 4.97G/19.0G [01:25<03:51, 65.0MiB/s]Loading:  26%|██▌       | 4.98G/19.0G [01:25<03:24, 73.7MiB/s]Loading:  26%|██▋       | 4.99G/19.0G [01:25<03:11, 78.7MiB/s]Loading:  26%|██▋       | 5.00G/19.0G [01:25<03:40, 68.1MiB/s]Loading:  26%|██▋       | 5.01G/19.0G [01:25<03:18, 75.7MiB/s]Loading:  26%|██▋       | 5.02G/19.0G [01:25<02:52, 86.9MiB/s]Loading:  26%|██▋       | 5.03G/19.0G [01:25<02:54, 85.7MiB/s]Loading:  27%|██▋       | 5.04G/19.0G [01:26<03:29, 71.7MiB/s]Loading:  27%|██▋       | 5.05G/19.0G [01:26<03:05, 80.7MiB/s]Loading:  27%|██▋       | 5.06G/19.0G [01:26<03:19, 75.2MiB/s]Loading:  27%|██▋       | 5.07G/19.0G [01:26<03:03, 81.4MiB/s]Loading:  27%|██▋       | 5.08G/19.0G [01:26<03:23, 73.5MiB/s]Loading:  27%|██▋       | 5.09G/19.0G [01:26<03:20, 74.5MiB/s]Loading:  27%|██▋       | 5.10G/19.0G [01:26<03:16, 76.2MiB/s]Loading:  27%|██▋       | 5.11G/19.0G [01:27<03:32, 70.1MiB/s]Loading:  27%|██▋       | 5.11G/19.0G [01:27<03:16, 75.8MiB/s]Loading:  27%|██▋       | 5.12G/19.0G [01:27<03:06, 80.1MiB/s]Loading:  27%|██▋       | 5.13G/19.0G [01:27<02:48, 88.5MiB/s]Loading:  27%|██▋       | 5.14G/19.0G [01:27<02:50, 87.4MiB/s]Loading:  27%|██▋       | 5.15G/19.0G [01:27<03:12, 77.4MiB/s]Loading:  27%|██▋       | 5.16G/19.0G [01:27<03:09, 78.6MiB/s]Loading:  27%|██▋       | 5.17G/19.0G [01:27<02:55, 84.7MiB/s]Loading:  27%|██▋       | 5.18G/19.0G [01:27<03:10, 77.9MiB/s]Loading:  27%|██▋       | 5.19G/19.0G [01:28<02:44, 89.9MiB/s]Loading:  27%|██▋       | 5.20G/19.0G [01:28<02:34, 96.1MiB/s]Loading:  27%|██▋       | 5.21G/19.0G [01:28<02:42, 90.8MiB/s]Loading:  27%|██▋       | 5.22G/19.0G [01:28<02:31, 97.7MiB/s]Loading:  28%|██▊       | 5.24G/19.0G [01:28<02:24, 102MiB/s] Loading:  28%|██▊       | 5.25G/19.0G [01:28<02:54, 84.5MiB/s]Loading:  28%|██▊       | 5.25G/19.0G [01:28<02:56, 83.4MiB/s]Loading:  28%|██▊       | 5.26G/19.0G [01:29<03:14, 75.7MiB/s]Loading:  28%|██▊       | 5.27G/19.0G [01:29<03:12, 76.6MiB/s]Loading:  28%|██▊       | 5.28G/19.0G [01:29<03:22, 72.9MiB/s]Loading:  28%|██▊       | 5.29G/19.0G [01:29<03:29, 70.3MiB/s]Loading:  28%|██▊       | 5.30G/19.0G [01:29<03:13, 76.2MiB/s]Loading:  28%|██▊       | 5.31G/19.0G [01:29<02:58, 82.2MiB/s]Loading:  28%|██▊       | 5.32G/19.0G [01:29<02:57, 82.9MiB/s]Loading:  28%|██▊       | 5.33G/19.0G [01:29<02:35, 94.2MiB/s]Loading:  28%|██▊       | 5.34G/19.0G [01:29<02:46, 88.0MiB/s]Loading:  28%|██▊       | 5.35G/19.0G [01:30<02:47, 87.4MiB/s]Loading:  28%|██▊       | 5.36G/19.0G [01:30<03:21, 72.7MiB/s]Loading:  28%|██▊       | 5.37G/19.0G [01:30<03:23, 72.1MiB/s]Loading:  28%|██▊       | 5.37G/19.0G [01:30<03:19, 73.4MiB/s]Loading:  28%|██▊       | 5.38G/19.0G [01:30<02:59, 81.5MiB/s]Loading:  28%|██▊       | 5.39G/19.0G [01:30<03:52, 62.9MiB/s]Loading:  28%|██▊       | 5.40G/19.0G [01:30<03:31, 68.9MiB/s]Loading:  28%|██▊       | 5.41G/19.0G [01:31<03:42, 65.7MiB/s]Loading:  29%|██▊       | 5.42G/19.0G [01:31<04:04, 59.7MiB/s]Loading:  29%|██▊       | 5.43G/19.0G [01:31<03:15, 74.4MiB/s]Loading:  29%|██▊       | 5.44G/19.0G [01:31<03:35, 67.6MiB/s]Loading:  29%|██▊       | 5.45G/19.0G [01:31<03:13, 75.3MiB/s]Loading:  29%|██▊       | 5.45G/19.0G [01:31<03:41, 65.8MiB/s]Loading:  29%|██▊       | 5.46G/19.0G [01:31<03:42, 65.3MiB/s]Loading:  29%|██▉       | 5.47G/19.0G [01:32<03:42, 65.2MiB/s]Loading:  29%|██▉       | 5.47G/19.0G [01:32<05:28, 44.3MiB/s]Loading:  29%|██▉       | 5.49G/19.0G [01:32<04:05, 59.2MiB/s]Loading:  29%|██▉       | 5.49G/19.0G [01:32<03:37, 66.6MiB/s]Loading:  29%|██▉       | 5.50G/19.0G [01:32<03:22, 71.7MiB/s]Loading:  29%|██▉       | 5.51G/19.0G [01:32<03:50, 62.7MiB/s]Loading:  29%|██▉       | 5.52G/19.0G [01:33<03:23, 71.0MiB/s]Loading:  29%|██▉       | 5.54G/19.0G [01:33<03:08, 76.9MiB/s]Loading:  29%|██▉       | 5.54G/19.0G [01:33<03:49, 63.1MiB/s]Loading:  29%|██▉       | 5.56G/19.0G [01:33<03:10, 75.8MiB/s]Loading:  29%|██▉       | 5.57G/19.0G [01:33<02:52, 83.7MiB/s]Loading:  29%|██▉       | 5.58G/19.0G [01:33<02:55, 82.1MiB/s]Loading:  29%|██▉       | 5.58G/19.0G [01:33<03:23, 70.7MiB/s]Loading:  29%|██▉       | 5.60G/19.0G [01:33<03:01, 79.5MiB/s]Loading:  29%|██▉       | 5.60G/19.0G [01:34<02:58, 80.7MiB/s]Loading:  30%|██▉       | 5.61G/19.0G [01:34<03:19, 71.9MiB/s]Loading:  30%|██▉       | 5.62G/19.0G [01:34<03:14, 74.0MiB/s]Loading:  30%|██▉       | 5.63G/19.0G [01:34<03:00, 79.3MiB/s]Loading:  30%|██▉       | 5.64G/19.0G [01:34<02:58, 80.4MiB/s]Loading:  30%|██▉       | 5.65G/19.0G [01:34<02:57, 80.8MiB/s]Loading:  30%|██▉       | 5.66G/19.0G [01:34<02:59, 79.7MiB/s]Loading:  30%|██▉       | 5.67G/19.0G [01:34<02:47, 85.3MiB/s]Loading:  30%|██▉       | 5.68G/19.0G [01:35<02:43, 87.3MiB/s]Loading:  30%|██▉       | 5.69G/19.0G [01:35<03:00, 79.2MiB/s]Loading:  30%|██▉       | 5.69G/19.0G [01:35<03:44, 63.7MiB/s]Loading:  30%|███       | 5.70G/19.0G [01:35<03:11, 74.5MiB/s]Loading:  30%|███       | 5.71G/19.0G [01:35<03:07, 76.2MiB/s]Loading:  30%|███       | 5.72G/19.0G [01:35<03:56, 60.4MiB/s]Loading:  30%|███       | 5.73G/19.0G [01:35<03:22, 70.3MiB/s]Loading:  30%|███       | 5.74G/19.0G [01:36<03:52, 61.3MiB/s]Loading:  30%|███       | 5.75G/19.0G [01:36<03:21, 70.6MiB/s]Loading:  30%|███       | 5.76G/19.0G [01:36<03:30, 67.6MiB/s]Loading:  30%|███       | 5.77G/19.0G [01:36<03:01, 78.4MiB/s]Loading:  30%|███       | 5.78G/19.0G [01:36<02:47, 84.7MiB/s]Loading:  30%|███       | 5.79G/19.0G [01:36<02:40, 88.4MiB/s]Loading:  31%|███       | 5.80G/19.0G [01:36<02:26, 96.6MiB/s]Loading:  31%|███       | 5.81G/19.0G [01:37<03:14, 72.9MiB/s]Loading:  31%|███       | 5.82G/19.0G [01:37<03:15, 72.6MiB/s]Loading:  31%|███       | 5.83G/19.0G [01:37<02:51, 82.6MiB/s]Loading:  31%|███       | 5.84G/19.0G [01:37<02:36, 90.0MiB/s]Loading:  31%|███       | 5.85G/19.0G [01:37<02:32, 92.4MiB/s]Loading:  31%|███       | 5.87G/19.0G [01:37<02:12, 106MiB/s] Loading:  31%|███       | 5.88G/19.0G [01:37<02:24, 97.5MiB/s]Loading:  31%|███       | 5.89G/19.0G [01:37<02:43, 86.1MiB/s]Loading:  31%|███       | 5.90G/19.0G [01:38<03:05, 75.9MiB/s]Loading:  31%|███       | 5.90G/19.0G [01:38<04:29, 52.2MiB/s]Loading:  31%|███       | 5.91G/19.0G [01:38<03:41, 63.6MiB/s]Loading:  31%|███       | 5.92G/19.0G [01:38<03:48, 61.6MiB/s]Loading:  31%|███       | 5.93G/19.0G [01:38<03:16, 71.4MiB/s]Loading:  31%|███▏      | 5.94G/19.0G [01:38<03:03, 76.5MiB/s]Loading:  31%|███▏      | 5.95G/19.0G [01:39<03:29, 66.9MiB/s]Loading:  31%|███▏      | 5.96G/19.0G [01:39<03:42, 62.9MiB/s]Loading:  31%|███▏      | 5.97G/19.0G [01:39<03:41, 63.3MiB/s]Loading:  31%|███▏      | 5.98G/19.0G [01:39<03:24, 68.5MiB/s]Loading:  31%|███▏      | 5.99G/19.0G [01:39<03:02, 76.6MiB/s]Loading:  32%|███▏      | 5.99G/19.0G [01:39<03:00, 77.3MiB/s]Loading:  32%|███▏      | 6.00G/19.0G [01:39<02:38, 88.3MiB/s]Loading:  32%|███▏      | 6.01G/19.0G [01:39<03:03, 76.0MiB/s]Loading:  32%|███▏      | 6.02G/19.0G [01:40<03:27, 67.2MiB/s]Loading:  32%|███▏      | 6.03G/19.0G [01:40<03:18, 70.3MiB/s]Loading:  32%|███▏      | 6.04G/19.0G [01:40<04:34, 50.7MiB/s]Loading:  32%|███▏      | 6.04G/19.0G [01:40<04:26, 52.2MiB/s]Loading:  32%|███▏      | 6.06G/19.0G [01:40<03:26, 67.3MiB/s]Loading:  32%|███▏      | 6.06G/19.0G [01:40<03:15, 70.9MiB/s]Loading:  32%|███▏      | 6.08G/19.0G [01:41<03:07, 73.9MiB/s]Loading:  32%|███▏      | 6.09G/19.0G [01:41<02:42, 85.1MiB/s]Loading:  32%|███▏      | 6.10G/19.0G [01:41<02:34, 89.4MiB/s]Loading:  32%|███▏      | 6.11G/19.0G [01:41<03:05, 74.5MiB/s]Loading:  32%|███▏      | 6.12G/19.0G [01:41<03:11, 72.2MiB/s]Loading:  32%|███▏      | 6.13G/19.0G [01:41<03:02, 75.8MiB/s]Loading:  32%|███▏      | 6.14G/19.0G [01:41<02:43, 84.3MiB/s]Loading:  32%|███▏      | 6.15G/19.0G [01:41<02:49, 81.7MiB/s]Loading:  32%|███▏      | 6.16G/19.0G [01:42<02:45, 83.4MiB/s]Loading:  32%|███▏      | 6.17G/19.0G [01:42<02:58, 77.1MiB/s]Loading:  32%|███▏      | 6.17G/19.0G [01:42<03:12, 71.7MiB/s]Loading:  33%|███▎      | 6.19G/19.0G [01:42<02:55, 78.2MiB/s]Loading:  33%|███▎      | 6.20G/19.0G [01:42<02:34, 88.9MiB/s]Loading:  33%|███▎      | 6.21G/19.0G [01:42<02:38, 86.7MiB/s]Loading:  33%|███▎      | 6.22G/19.0G [01:42<02:19, 98.7MiB/s]Loading:  33%|███▎      | 6.23G/19.0G [01:42<02:18, 99.1MiB/s]Loading:  33%|███▎      | 6.24G/19.0G [01:43<03:32, 64.5MiB/s]Loading:  33%|███▎      | 6.25G/19.0G [01:43<03:21, 67.8MiB/s]Loading:  33%|███▎      | 6.26G/19.0G [01:43<03:57, 57.7MiB/s]Loading:  33%|███▎      | 6.27G/19.0G [01:43<03:51, 59.0MiB/s]Loading:  33%|███▎      | 6.28G/19.0G [01:43<03:18, 69.0MiB/s]Loading:  33%|███▎      | 6.28G/19.0G [01:43<03:25, 66.5MiB/s]Loading:  33%|███▎      | 6.29G/19.0G [01:44<03:20, 68.0MiB/s]Loading:  33%|███▎      | 6.30G/19.0G [01:44<04:24, 51.7MiB/s]Loading:  33%|███▎      | 6.31G/19.0G [01:44<04:01, 56.5MiB/s]Loading:  33%|███▎      | 6.32G/19.0G [01:44<03:12, 70.7MiB/s]Loading:  33%|███▎      | 6.33G/19.0G [01:44<03:11, 71.2MiB/s]Loading:  33%|███▎      | 6.33G/19.0G [01:44<03:18, 68.7MiB/s]Loading:  33%|███▎      | 6.34G/19.0G [01:44<03:20, 67.9MiB/s]Loading:  33%|███▎      | 6.35G/19.0G [01:44<03:18, 68.5MiB/s]Loading:  33%|███▎      | 6.36G/19.0G [01:45<02:50, 79.5MiB/s]Loading:  34%|███▎      | 6.37G/19.0G [01:45<02:32, 88.8MiB/s]Loading:  34%|███▎      | 6.38G/19.0G [01:45<02:16, 99.1MiB/s]Loading:  34%|███▎      | 6.40G/19.0G [01:45<02:05, 108MiB/s] Loading:  34%|███▎      | 6.41G/19.0G [01:45<01:49, 123MiB/s]Loading:  34%|███▍      | 6.42G/19.0G [01:45<01:53, 120MiB/s]Loading:  34%|███▍      | 6.44G/19.0G [01:45<01:39, 136MiB/s]Loading:  34%|███▍      | 6.45G/19.0G [01:45<01:39, 135MiB/s]Loading:  34%|███▍      | 6.47G/19.0G [01:45<01:37, 137MiB/s]Loading:  34%|███▍      | 6.49G/19.0G [01:46<01:29, 150MiB/s]Loading:  34%|███▍      | 6.50G/19.0G [01:46<01:31, 146MiB/s]Loading:  34%|███▍      | 6.51G/19.0G [01:46<01:31, 147MiB/s]Loading:  34%|███▍      | 6.53G/19.0G [01:46<01:30, 148MiB/s]Loading:  34%|███▍      | 6.54G/19.0G [01:46<01:32, 145MiB/s]Loading:  35%|███▍      | 6.56G/19.0G [01:46<01:30, 147MiB/s]Loading:  35%|███▍      | 6.58G/19.0G [01:46<01:27, 152MiB/s]Loading:  35%|███▍      | 6.59G/19.0G [01:46<01:24, 158MiB/s]Loading:  35%|███▍      | 6.61G/19.0G [01:46<01:24, 157MiB/s]Loading:  35%|███▍      | 6.62G/19.0G [01:47<01:22, 162MiB/s]Loading:  35%|███▍      | 6.64G/19.0G [01:47<01:29, 148MiB/s]Loading:  35%|███▌      | 6.66G/19.0G [01:47<01:29, 149MiB/s]Loading:  35%|███▌      | 6.67G/19.0G [01:47<01:27, 152MiB/s]Loading:  35%|███▌      | 6.69G/19.0G [01:47<01:27, 151MiB/s]Loading:  35%|███▌      | 6.70G/19.0G [01:47<01:27, 151MiB/s]Loading:  35%|███▌      | 6.71G/19.0G [01:47<01:27, 150MiB/s]Loading:  35%|███▌      | 6.73G/19.0G [01:47<01:30, 146MiB/s]Loading:  35%|███▌      | 6.74G/19.0G [01:47<01:36, 136MiB/s]Loading:  36%|███▌      | 6.76G/19.0G [01:48<01:32, 142MiB/s]Loading:  36%|███▌      | 6.77G/19.0G [01:48<01:31, 143MiB/s]Loading:  36%|███▌      | 6.79G/19.0G [01:48<01:29, 146MiB/s]Loading:  36%|███▌      | 6.80G/19.0G [01:48<01:35, 138MiB/s]Loading:  36%|███▌      | 6.82G/19.0G [01:48<01:36, 136MiB/s]Loading:  36%|███▌      | 6.83G/19.0G [01:48<01:36, 136MiB/s]Loading:  36%|███▌      | 6.84G/19.0G [01:48<01:35, 136MiB/s]Loading:  36%|███▌      | 6.86G/19.0G [01:48<01:35, 136MiB/s]Loading:  36%|███▌      | 6.87G/19.0G [01:48<01:33, 139MiB/s]Loading:  36%|███▌      | 6.88G/19.0G [01:49<01:34, 137MiB/s]Loading:  36%|███▋      | 6.90G/19.0G [01:49<01:40, 130MiB/s]Loading:  36%|███▋      | 6.92G/19.0G [01:49<01:25, 151MiB/s]Loading:  36%|███▋      | 6.93G/19.0G [01:49<01:24, 153MiB/s]Loading:  37%|███▋      | 6.95G/19.0G [01:49<01:26, 150MiB/s]Loading:  37%|███▋      | 6.96G/19.0G [01:49<01:24, 153MiB/s]Loading:  37%|███▋      | 6.98G/19.0G [01:49<01:20, 160MiB/s]Loading:  37%|███▋      | 6.99G/19.0G [01:49<01:21, 158MiB/s]Loading:  37%|███▋      | 7.01G/19.0G [01:49<01:21, 157MiB/s]Loading:  37%|███▋      | 7.03G/19.0G [01:49<01:23, 154MiB/s]Loading:  37%|███▋      | 7.04G/19.0G [01:50<01:26, 149MiB/s]Loading:  37%|███▋      | 7.06G/19.0G [01:50<01:25, 150MiB/s]Loading:  37%|███▋      | 7.07G/19.0G [01:50<01:24, 151MiB/s]Loading:  37%|███▋      | 7.09G/19.0G [01:50<01:24, 151MiB/s]Loading:  37%|███▋      | 7.10G/19.0G [01:50<01:24, 151MiB/s]Loading:  37%|███▋      | 7.12G/19.0G [01:50<01:24, 151MiB/s]Loading:  38%|███▊      | 7.13G/19.0G [01:50<01:27, 146MiB/s]Loading:  38%|███▊      | 7.15G/19.0G [01:50<01:29, 142MiB/s]Loading:  38%|███▊      | 7.16G/19.0G [01:51<01:38, 130MiB/s]Loading:  38%|███▊      | 7.17G/19.0G [01:51<01:34, 135MiB/s]Loading:  38%|███▊      | 7.19G/19.0G [01:51<01:36, 132MiB/s]Loading:  38%|███▊      | 7.20G/19.0G [01:51<01:31, 138MiB/s]Loading:  38%|███▊      | 7.22G/19.0G [01:51<01:23, 151MiB/s]Loading:  38%|███▊      | 7.24G/19.0G [01:51<01:23, 151MiB/s]Loading:  38%|███▊      | 7.25G/19.0G [01:51<01:20, 157MiB/s]Loading:  38%|███▊      | 7.27G/19.0G [01:51<01:15, 166MiB/s]Loading:  38%|███▊      | 7.29G/19.0G [01:51<01:15, 166MiB/s]Loading:  38%|███▊      | 7.30G/19.0G [01:51<01:16, 163MiB/s]Loading:  39%|███▊      | 7.32G/19.0G [01:52<01:20, 155MiB/s]Loading:  39%|███▊      | 7.33G/19.0G [01:52<01:22, 152MiB/s]Loading:  39%|███▊      | 7.35G/19.0G [01:52<01:28, 142MiB/s]Loading:  39%|███▉      | 7.37G/19.0G [01:52<01:23, 150MiB/s]Loading:  39%|███▉      | 7.38G/19.0G [01:52<01:23, 149MiB/s]Loading:  39%|███▉      | 7.40G/19.0G [01:52<01:25, 146MiB/s]Loading:  39%|███▉      | 7.41G/19.0G [01:52<01:34, 132MiB/s]Loading:  39%|███▉      | 7.42G/19.0G [01:52<01:28, 140MiB/s]Loading:  39%|███▉      | 7.44G/19.0G [01:53<01:26, 144MiB/s]Loading:  39%|███▉      | 7.45G/19.0G [01:53<01:30, 137MiB/s]Loading:  39%|███▉      | 7.47G/19.0G [01:53<01:33, 133MiB/s]Loading:  39%|███▉      | 7.48G/19.0G [01:53<01:34, 131MiB/s]Loading:  39%|███▉      | 7.49G/19.0G [01:53<01:34, 131MiB/s]Loading:  40%|███▉      | 7.51G/19.0G [01:53<01:29, 137MiB/s]Loading:  40%|███▉      | 7.52G/19.0G [01:53<01:59, 104MiB/s]Loading:  40%|███▉      | 7.53G/19.0G [01:53<01:54, 108MiB/s]Loading:  40%|███▉      | 7.55G/19.0G [01:54<01:49, 113MiB/s]Loading:  40%|███▉      | 7.56G/19.0G [01:54<01:43, 119MiB/s]Loading:  40%|███▉      | 7.57G/19.0G [01:54<01:37, 125MiB/s]Loading:  40%|███▉      | 7.59G/19.0G [01:54<01:31, 134MiB/s]Loading:  40%|████      | 7.60G/19.0G [01:54<01:36, 127MiB/s]Loading:  40%|████      | 7.62G/19.0G [01:54<01:36, 126MiB/s]Loading:  40%|████      | 7.63G/19.0G [01:54<01:36, 126MiB/s]Loading:  40%|████      | 7.64G/19.0G [01:54<01:29, 136MiB/s]Loading:  40%|████      | 7.66G/19.0G [01:54<01:25, 142MiB/s]Loading:  40%|████      | 7.67G/19.0G [01:55<01:26, 140MiB/s]Loading:  40%|████      | 7.69G/19.0G [01:55<01:29, 136MiB/s]Loading:  41%|████      | 7.70G/19.0G [01:55<01:30, 133MiB/s]Loading:  41%|████      | 7.72G/19.0G [01:55<01:22, 146MiB/s]Loading:  41%|████      | 7.73G/19.0G [01:55<01:23, 145MiB/s]Loading:  41%|████      | 7.75G/19.0G [01:55<01:25, 142MiB/s]Loading:  41%|████      | 7.76G/19.0G [01:55<01:27, 138MiB/s]Loading:  41%|████      | 7.77G/19.0G [01:55<01:27, 138MiB/s]Loading:  41%|████      | 7.79G/19.0G [01:55<01:26, 140MiB/s]Loading:  41%|████      | 7.80G/19.0G [01:56<01:27, 137MiB/s]Loading:  41%|████      | 7.81G/19.0G [01:56<01:29, 135MiB/s]Loading:  41%|████      | 7.83G/19.0G [01:56<01:25, 140MiB/s]Loading:  41%|████▏     | 7.84G/19.0G [01:56<01:25, 140MiB/s]Loading:  41%|████▏     | 7.86G/19.0G [01:56<01:23, 143MiB/s]Loading:  41%|████▏     | 7.87G/19.0G [01:56<01:23, 142MiB/s]Loading:  41%|████▏     | 7.89G/19.0G [01:56<01:23, 144MiB/s]Loading:  42%|████▏     | 7.90G/19.0G [01:56<01:25, 139MiB/s]Loading:  42%|████▏     | 7.91G/19.0G [01:56<01:27, 136MiB/s]Loading:  42%|████▏     | 7.93G/19.0G [01:56<01:24, 141MiB/s]Loading:  42%|████▏     | 7.94G/19.0G [01:57<01:27, 135MiB/s]Loading:  42%|████▏     | 7.96G/19.0G [01:57<01:24, 141MiB/s]Loading:  42%|████▏     | 7.97G/19.0G [01:57<01:24, 140MiB/s]Loading:  42%|████▏     | 7.99G/19.0G [01:57<01:25, 138MiB/s]Loading:  42%|████▏     | 8.00G/19.0G [01:57<01:24, 140MiB/s]Loading:  42%|████▏     | 8.01G/19.0G [01:57<01:28, 134MiB/s]Loading:  42%|████▏     | 8.03G/19.0G [01:57<01:30, 131MiB/s]Loading:  42%|████▏     | 8.04G/19.0G [01:57<01:23, 140MiB/s]Loading:  42%|████▏     | 8.05G/19.0G [01:57<01:24, 139MiB/s]Loading:  42%|████▏     | 8.07G/19.0G [01:58<01:27, 134MiB/s]Loading:  43%|████▎     | 8.08G/19.0G [01:58<01:29, 132MiB/s]Loading:  43%|████▎     | 8.09G/19.0G [01:58<01:33, 125MiB/s]Loading:  43%|████▎     | 8.11G/19.0G [01:58<01:41, 115MiB/s]Loading:  43%|████▎     | 8.12G/19.0G [01:58<01:30, 128MiB/s]Loading:  43%|████▎     | 8.13G/19.0G [01:58<01:33, 125MiB/s]Loading:  43%|████▎     | 8.15G/19.0G [01:58<01:27, 133MiB/s]Loading:  43%|████▎     | 8.16G/19.0G [01:58<01:24, 138MiB/s]Loading:  43%|████▎     | 8.18G/19.0G [01:58<01:28, 132MiB/s]Loading:  43%|████▎     | 8.19G/19.0G [01:59<01:22, 141MiB/s]Loading:  43%|████▎     | 8.21G/19.0G [01:59<01:17, 150MiB/s]Loading:  43%|████▎     | 8.22G/19.0G [01:59<01:18, 148MiB/s]Loading:  43%|████▎     | 8.24G/19.0G [01:59<01:18, 147MiB/s]Loading:  43%|████▎     | 8.25G/19.0G [01:59<01:18, 147MiB/s]Loading:  44%|████▎     | 8.27G/19.0G [01:59<01:15, 152MiB/s]Loading:  44%|████▎     | 8.29G/19.0G [01:59<01:20, 144MiB/s]Loading:  44%|████▎     | 8.30G/19.0G [01:59<01:25, 134MiB/s]Loading:  44%|████▎     | 8.31G/19.0G [02:00<01:31, 126MiB/s]Loading:  44%|████▍     | 8.33G/19.0G [02:00<01:25, 134MiB/s]Loading:  44%|████▍     | 8.34G/19.0G [02:00<01:25, 134MiB/s]Loading:  44%|████▍     | 8.35G/19.0G [02:00<01:26, 132MiB/s]Loading:  44%|████▍     | 8.37G/19.0G [02:00<01:35, 120MiB/s]Loading:  44%|████▍     | 8.38G/19.0G [02:00<01:30, 126MiB/s]Loading:  44%|████▍     | 8.40G/19.0G [02:00<01:26, 132MiB/s]Loading:  44%|████▍     | 8.41G/19.0G [02:00<01:25, 134MiB/s]Loading:  44%|████▍     | 8.42G/19.0G [02:00<01:23, 137MiB/s]Loading:  44%|████▍     | 8.44G/19.0G [02:01<01:22, 137MiB/s]Loading:  44%|████▍     | 8.45G/19.0G [02:01<01:21, 138MiB/s]Loading:  45%|████▍     | 8.47G/19.0G [02:01<01:16, 149MiB/s]Loading:  45%|████▍     | 8.48G/19.0G [02:01<01:15, 150MiB/s]Loading:  45%|████▍     | 8.50G/19.0G [02:01<01:17, 145MiB/s]Loading:  45%|████▍     | 8.51G/19.0G [02:01<01:30, 124MiB/s]Loading:  45%|████▍     | 8.52G/19.0G [02:01<01:28, 128MiB/s]Loading:  45%|████▍     | 8.54G/19.0G [02:01<01:19, 141MiB/s]Loading:  45%|████▌     | 8.56G/19.0G [02:01<01:21, 138MiB/s]Loading:  45%|████▌     | 8.57G/19.0G [02:02<01:20, 139MiB/s]Loading:  45%|████▌     | 8.58G/19.0G [02:02<01:27, 129MiB/s]Loading:  45%|████▌     | 8.60G/19.0G [02:02<01:25, 130MiB/s]Loading:  45%|████▌     | 8.61G/19.0G [02:02<01:24, 132MiB/s]Loading:  45%|████▌     | 8.63G/19.0G [02:02<01:20, 138MiB/s]Loading:  45%|████▌     | 8.64G/19.0G [02:02<01:16, 146MiB/s]Loading:  46%|████▌     | 8.66G/19.0G [02:02<01:14, 149MiB/s]Loading:  46%|████▌     | 8.67G/19.0G [02:03<02:21, 78.5MiB/s]Loading:  46%|████▌     | 8.68G/19.0G [02:03<02:32, 72.8MiB/s]Loading:  46%|████▌     | 8.69G/19.0G [02:03<02:58, 62.1MiB/s]Loading:  46%|████▌     | 8.70G/19.0G [02:03<03:00, 61.4MiB/s]Loading:  46%|████▌     | 8.71G/19.0G [02:03<03:20, 55.3MiB/s]Loading:  46%|████▌     | 8.71G/19.0G [02:04<03:28, 53.1MiB/s]Loading:  46%|████▌     | 8.73G/19.0G [02:04<02:38, 69.6MiB/s]Loading:  46%|████▌     | 8.74G/19.0G [02:04<02:15, 81.0MiB/s]Loading:  46%|████▌     | 8.75G/19.0G [02:04<03:04, 59.6MiB/s]Loading:  46%|████▌     | 8.76G/19.0G [02:04<03:26, 53.4MiB/s]Loading:  46%|████▌     | 8.76G/19.0G [02:05<04:32, 40.4MiB/s]Loading:  46%|████▌     | 8.77G/19.0G [02:05<03:55, 46.7MiB/s]Loading:  46%|████▌     | 8.78G/19.0G [02:05<03:20, 54.6MiB/s]Loading:  46%|████▋     | 8.79G/19.0G [02:05<03:01, 60.5MiB/s]Loading:  46%|████▋     | 8.80G/19.0G [02:05<02:30, 72.5MiB/s]Loading:  46%|████▋     | 8.81G/19.0G [02:05<02:39, 68.7MiB/s]Loading:  46%|████▋     | 8.82G/19.0G [02:05<02:38, 68.9MiB/s]Loading:  46%|████▋     | 8.83G/19.0G [02:06<02:45, 66.2MiB/s]Loading:  46%|████▋     | 8.83G/19.0G [02:06<02:54, 62.5MiB/s]Loading:  47%|████▋     | 8.84G/19.0G [02:06<02:49, 64.3MiB/s]Loading:  47%|████▋     | 8.85G/19.0G [02:06<02:39, 68.6MiB/s]Loading:  47%|████▋     | 8.86G/19.0G [02:06<02:30, 72.2MiB/s]Loading:  47%|████▋     | 8.86G/19.0G [02:06<02:37, 69.1MiB/s]Loading:  47%|████▋     | 8.87G/19.0G [02:06<02:24, 75.5MiB/s]Loading:  47%|████▋     | 8.88G/19.0G [02:06<02:52, 63.1MiB/s]Loading:  47%|████▋     | 8.89G/19.0G [02:07<02:56, 61.7MiB/s]Loading:  47%|████▋     | 8.90G/19.0G [02:07<02:47, 64.6MiB/s]Loading:  47%|████▋     | 8.91G/19.0G [02:07<02:17, 78.7MiB/s]Loading:  47%|████▋     | 8.92G/19.0G [02:07<01:54, 94.7MiB/s]Loading:  47%|████▋     | 8.93G/19.0G [02:07<02:19, 77.5MiB/s]Loading:  47%|████▋     | 8.94G/19.0G [02:07<02:34, 69.9MiB/s]Loading:  47%|████▋     | 8.95G/19.0G [02:07<02:48, 64.0MiB/s]Loading:  47%|████▋     | 8.96G/19.0G [02:07<02:23, 75.1MiB/s]Loading:  47%|████▋     | 8.97G/19.0G [02:08<02:24, 74.7MiB/s]Loading:  47%|████▋     | 8.98G/19.0G [02:08<02:48, 64.0MiB/s]Loading:  47%|████▋     | 8.98G/19.0G [02:08<02:40, 67.0MiB/s]Loading:  47%|████▋     | 8.99G/19.0G [02:08<03:15, 55.0MiB/s]Loading:  47%|████▋     | 9.00G/19.0G [02:08<04:32, 39.5MiB/s]Loading:  47%|████▋     | 9.00G/19.0G [02:09<04:22, 41.0MiB/s]Loading:  47%|████▋     | 9.01G/19.0G [02:09<04:57, 36.1MiB/s]Loading:  47%|████▋     | 9.02G/19.0G [02:09<04:11, 42.6MiB/s]Loading:  48%|████▊     | 9.03G/19.0G [02:09<03:06, 57.4MiB/s]Loading:  48%|████▊     | 9.04G/19.0G [02:09<04:08, 43.1MiB/s]Loading:  48%|████▊     | 9.04G/19.0G [02:09<04:15, 41.9MiB/s]Loading:  48%|████▊     | 9.05G/19.0G [02:10<03:45, 47.5MiB/s]Loading:  48%|████▊     | 9.05G/19.0G [02:10<04:24, 40.3MiB/s]Loading:  48%|████▊     | 9.06G/19.0G [02:10<03:36, 49.3MiB/s]Loading:  48%|████▊     | 9.07G/19.0G [02:10<03:16, 54.3MiB/s]Loading:  48%|████▊     | 9.08G/19.0G [02:10<04:24, 40.3MiB/s]Loading:  48%|████▊     | 9.08G/19.0G [02:10<04:20, 40.8MiB/s]Loading:  48%|████▊     | 9.09G/19.0G [02:11<04:16, 41.4MiB/s]Loading:  48%|████▊     | 9.09G/19.0G [02:11<03:48, 46.6MiB/s]Loading:  48%|████▊     | 9.10G/19.0G [02:11<03:14, 54.5MiB/s]Loading:  48%|████▊     | 9.12G/19.0G [02:11<02:24, 73.6MiB/s]Loading:  48%|████▊     | 9.12G/19.0G [02:11<02:16, 77.6MiB/s]Loading:  48%|████▊     | 9.13G/19.0G [02:11<03:22, 52.4MiB/s]Loading:  48%|████▊     | 9.14G/19.0G [02:12<03:41, 47.9MiB/s]Loading:  48%|████▊     | 9.15G/19.0G [02:12<03:21, 52.5MiB/s]Loading:  48%|████▊     | 9.15G/19.0G [02:12<03:38, 48.4MiB/s]Loading:  48%|████▊     | 9.16G/19.0G [02:12<03:30, 50.2MiB/s]Loading:  48%|████▊     | 9.16G/19.0G [02:12<03:26, 51.2MiB/s]Loading:  48%|████▊     | 9.17G/19.0G [02:12<03:07, 56.3MiB/s]Loading:  48%|████▊     | 9.18G/19.0G [02:12<02:48, 62.7MiB/s]Loading:  48%|████▊     | 9.19G/19.0G [02:12<03:03, 57.6MiB/s]Loading:  48%|████▊     | 9.19G/19.0G [02:13<03:26, 50.9MiB/s]Loading:  48%|████▊     | 9.20G/19.0G [02:13<03:10, 55.3MiB/s]Loading:  48%|████▊     | 9.21G/19.0G [02:13<03:03, 57.3MiB/s]Loading:  48%|████▊     | 9.21G/19.0G [02:13<03:01, 58.0MiB/s]Loading:  49%|████▊     | 9.22G/19.0G [02:13<03:08, 55.8MiB/s]Loading:  49%|████▊     | 9.23G/19.0G [02:13<02:47, 62.5MiB/s]Loading:  49%|████▊     | 9.23G/19.0G [02:13<03:19, 52.6MiB/s]Loading:  49%|████▊     | 9.24G/19.0G [02:13<02:59, 58.4MiB/s]Loading:  49%|████▊     | 9.25G/19.0G [02:14<03:10, 55.1MiB/s]Loading:  49%|████▊     | 9.25G/19.0G [02:14<03:07, 55.7MiB/s]Loading:  49%|████▊     | 9.26G/19.0G [02:14<03:09, 55.1MiB/s]Loading:  49%|████▉     | 9.27G/19.0G [02:14<02:59, 58.3MiB/s]Loading:  49%|████▉     | 9.27G/19.0G [02:14<03:00, 57.9MiB/s]Loading:  49%|████▉     | 9.29G/19.0G [02:14<02:20, 74.5MiB/s]Loading:  49%|████▉     | 9.30G/19.0G [02:14<02:00, 86.8MiB/s]Loading:  49%|████▉     | 9.31G/19.0G [02:14<01:53, 91.6MiB/s]Loading:  49%|████▉     | 9.32G/19.0G [02:15<02:43, 63.7MiB/s]Loading:  49%|████▉     | 9.33G/19.0G [02:15<02:25, 71.4MiB/s]Loading:  49%|████▉     | 9.34G/19.0G [02:15<02:40, 64.6MiB/s]Loading:  49%|████▉     | 9.34G/19.0G [02:15<02:48, 61.7MiB/s]Loading:  49%|████▉     | 9.35G/19.0G [02:15<02:35, 66.8MiB/s]Loading:  49%|████▉     | 9.36G/19.0G [02:15<02:18, 74.5MiB/s]Loading:  49%|████▉     | 9.38G/19.0G [02:15<02:01, 85.3MiB/s]Loading:  49%|████▉     | 9.38G/19.0G [02:16<02:07, 80.8MiB/s]Loading:  49%|████▉     | 9.39G/19.0G [02:16<02:45, 62.2MiB/s]Loading:  49%|████▉     | 9.40G/19.0G [02:16<03:10, 54.1MiB/s]Loading:  50%|████▉     | 9.41G/19.0G [02:16<03:04, 55.8MiB/s]Loading:  50%|████▉     | 9.42G/19.0G [02:16<02:41, 63.6MiB/s]Loading:  50%|████▉     | 9.43G/19.0G [02:16<02:23, 71.5MiB/s]Loading:  50%|████▉     | 9.43G/19.0G [02:17<03:04, 55.8MiB/s]Loading:  50%|████▉     | 9.44G/19.0G [02:17<02:48, 61.0MiB/s]Loading:  50%|████▉     | 9.45G/19.0G [02:17<03:04, 55.6MiB/s]Loading:  50%|████▉     | 9.46G/19.0G [02:17<03:08, 54.3MiB/s]Loading:  50%|████▉     | 9.46G/19.0G [02:17<03:09, 54.0MiB/s]Loading:  50%|████▉     | 9.47G/19.0G [02:17<02:21, 72.3MiB/s]Loading:  50%|████▉     | 9.48G/19.0G [02:17<02:22, 71.5MiB/s]Loading:  50%|████▉     | 9.49G/19.0G [02:18<02:40, 63.8MiB/s]Loading:  50%|████▉     | 9.50G/19.0G [02:18<02:37, 64.9MiB/s]Loading:  50%|█████     | 9.50G/19.0G [02:18<03:11, 53.4MiB/s]Loading:  50%|█████     | 9.51G/19.0G [02:18<02:49, 60.3MiB/s]Loading:  50%|█████     | 9.52G/19.0G [02:18<02:30, 67.7MiB/s]Loading:  50%|█████     | 9.53G/19.0G [02:18<02:13, 76.1MiB/s]Loading:  50%|█████     | 9.54G/19.0G [02:18<02:12, 76.9MiB/s]Loading:  50%|█████     | 9.55G/19.0G [02:18<02:21, 71.6MiB/s]Loading:  50%|█████     | 9.56G/19.0G [02:19<02:16, 74.1MiB/s]Loading:  50%|█████     | 9.57G/19.0G [02:19<02:22, 71.1MiB/s]Loading:  50%|█████     | 9.58G/19.0G [02:19<02:13, 75.9MiB/s]Loading:  50%|█████     | 9.58G/19.0G [02:19<02:32, 66.5MiB/s]Loading:  50%|█████     | 9.59G/19.0G [02:19<02:29, 67.6MiB/s]Loading:  51%|█████     | 9.60G/19.0G [02:19<02:19, 72.4MiB/s]Loading:  51%|█████     | 9.61G/19.0G [02:19<02:07, 79.3MiB/s]Loading:  51%|█████     | 9.62G/19.0G [02:20<02:33, 65.4MiB/s]Loading:  51%|█████     | 9.62G/19.0G [02:20<02:35, 64.7MiB/s]Loading:  51%|█████     | 9.64G/19.0G [02:20<02:07, 79.0MiB/s]Loading:  51%|█████     | 9.65G/19.0G [02:20<02:10, 77.3MiB/s]Loading:  51%|█████     | 9.65G/19.0G [02:20<02:14, 74.6MiB/s]Loading:  51%|█████     | 9.66G/19.0G [02:20<02:21, 70.7MiB/s]Loading:  51%|█████     | 9.67G/19.0G [02:20<02:10, 77.1MiB/s]Loading:  51%|█████     | 9.68G/19.0G [02:20<01:53, 88.5MiB/s]Loading:  51%|█████     | 9.69G/19.0G [02:20<01:57, 84.8MiB/s]Loading:  51%|█████     | 9.70G/19.0G [02:21<02:15, 74.0MiB/s]Loading:  51%|█████     | 9.71G/19.0G [02:21<02:28, 67.0MiB/s]Loading:  51%|█████     | 9.71G/19.0G [02:21<02:36, 63.7MiB/s]Loading:  51%|█████     | 9.72G/19.0G [02:21<02:43, 60.8MiB/s]Loading:  51%|█████     | 9.73G/19.0G [02:21<02:19, 71.6MiB/s]Loading:  51%|█████▏    | 9.74G/19.0G [02:21<02:20, 70.7MiB/s]Loading:  51%|█████▏    | 9.75G/19.0G [02:21<01:55, 86.2MiB/s]Loading:  51%|█████▏    | 9.76G/19.0G [02:22<02:02, 81.2MiB/s]Loading:  51%|█████▏    | 9.77G/19.0G [02:22<02:29, 66.5MiB/s]Loading:  51%|█████▏    | 9.78G/19.0G [02:22<02:04, 79.4MiB/s]Loading:  52%|█████▏    | 9.79G/19.0G [02:22<02:07, 77.5MiB/s]Loading:  52%|█████▏    | 9.80G/19.0G [02:22<02:06, 78.2MiB/s]Loading:  52%|█████▏    | 9.81G/19.0G [02:22<02:02, 80.8MiB/s]Loading:  52%|█████▏    | 9.82G/19.0G [02:22<02:02, 80.2MiB/s]Loading:  52%|█████▏    | 9.83G/19.0G [02:22<02:07, 77.4MiB/s]Loading:  52%|█████▏    | 9.84G/19.0G [02:23<01:50, 89.3MiB/s]Loading:  52%|█████▏    | 9.85G/19.0G [02:23<01:57, 83.5MiB/s]Loading:  52%|█████▏    | 9.85G/19.0G [02:23<02:09, 76.0MiB/s]Loading:  52%|█████▏    | 9.86G/19.0G [02:23<02:19, 70.6MiB/s]Loading:  52%|█████▏    | 9.87G/19.0G [02:23<02:17, 71.1MiB/s]Loading:  52%|█████▏    | 9.88G/19.0G [02:23<02:29, 65.4MiB/s]Loading:  52%|█████▏    | 9.88G/19.0G [02:23<02:45, 59.3MiB/s]Loading:  52%|█████▏    | 9.90G/19.0G [02:24<02:15, 72.0MiB/s]Loading:  52%|█████▏    | 9.91G/19.0G [02:24<02:10, 75.1MiB/s]Loading:  52%|█████▏    | 9.91G/19.0G [02:24<02:06, 77.1MiB/s]Loading:  52%|█████▏    | 9.92G/19.0G [02:24<02:18, 70.6MiB/s]Loading:  52%|█████▏    | 9.93G/19.0G [02:24<02:17, 70.9MiB/s]Loading:  52%|█████▏    | 9.93G/19.0G [02:24<02:19, 70.0MiB/s]Loading:  52%|█████▏    | 9.95G/19.0G [02:24<02:01, 80.2MiB/s]Loading:  52%|█████▏    | 9.96G/19.0G [02:24<01:37, 99.1MiB/s]Loading:  52%|█████▏    | 9.97G/19.0G [02:24<01:34, 103MiB/s] Loading:  53%|█████▎    | 9.98G/19.0G [02:25<01:45, 91.6MiB/s]Loading:  53%|█████▎    | 9.99G/19.0G [02:25<01:39, 97.7MiB/s]Loading:  53%|█████▎    | 10.0G/19.0G [02:25<01:50, 87.4MiB/s]Loading:  53%|█████▎    | 10.0G/19.0G [02:25<01:55, 83.9MiB/s]Loading:  53%|█████▎    | 10.0G/19.0G [02:25<02:36, 61.6MiB/s]Loading:  53%|█████▎    | 10.0G/19.0G [02:25<02:32, 63.0MiB/s]Loading:  53%|█████▎    | 10.0G/19.0G [02:25<02:34, 62.5MiB/s]Loading:  53%|█████▎    | 10.0G/19.0G [02:26<02:10, 73.6MiB/s]Loading:  53%|█████▎    | 10.1G/19.0G [02:26<02:23, 66.8MiB/s]Loading:  53%|█████▎    | 10.1G/19.0G [02:26<02:09, 73.9MiB/s]Loading:  53%|█████▎    | 10.1G/19.0G [02:26<02:28, 64.7MiB/s]Loading:  53%|█████▎    | 10.1G/19.0G [02:26<02:45, 58.0MiB/s]Loading:  53%|█████▎    | 10.1G/19.0G [02:26<02:43, 58.4MiB/s]Loading:  53%|█████▎    | 10.1G/19.0G [02:26<02:41, 59.4MiB/s]Loading:  53%|█████▎    | 10.1G/19.0G [02:26<02:04, 76.6MiB/s]Loading:  53%|█████▎    | 10.1G/19.0G [02:27<02:02, 77.8MiB/s]Loading:  53%|█████▎    | 10.1G/19.0G [02:27<02:41, 59.0MiB/s]Loading:  53%|█████▎    | 10.1G/19.0G [02:27<02:12, 71.9MiB/s]Loading:  53%|█████▎    | 10.1G/19.0G [02:27<02:09, 73.2MiB/s]Loading:  53%|█████▎    | 10.1G/19.0G [02:27<02:31, 62.6MiB/s]Loading:  53%|█████▎    | 10.2G/19.0G [02:27<02:21, 67.2MiB/s]Loading:  54%|█████▎    | 10.2G/19.0G [02:27<02:01, 78.1MiB/s]Loading:  54%|█████▎    | 10.2G/19.0G [02:28<02:07, 74.4MiB/s]Loading:  54%|█████▎    | 10.2G/19.0G [02:28<02:27, 64.2MiB/s]Loading:  54%|█████▎    | 10.2G/19.0G [02:28<01:58, 79.7MiB/s]Loading:  54%|█████▎    | 10.2G/19.0G [02:28<01:51, 85.0MiB/s]Loading:  54%|█████▍    | 10.2G/19.0G [02:28<01:53, 83.1MiB/s]Loading:  54%|█████▍    | 10.2G/19.0G [02:28<01:51, 84.2MiB/s]Loading:  54%|█████▍    | 10.2G/19.0G [02:28<01:46, 88.5MiB/s]Loading:  54%|█████▍    | 10.2G/19.0G [02:28<01:47, 87.4MiB/s]Loading:  54%|█████▍    | 10.3G/19.0G [02:29<02:08, 73.1MiB/s]Loading:  54%|█████▍    | 10.3G/19.0G [02:29<02:32, 61.7MiB/s]Loading:  54%|█████▍    | 10.3G/19.0G [02:29<03:44, 41.9MiB/s]Loading:  54%|█████▍    | 10.3G/19.0G [02:30<04:49, 32.4MiB/s]Loading:  54%|█████▍    | 10.3G/19.0G [02:30<04:25, 35.3MiB/s]Loading:  54%|█████▍    | 10.3G/19.0G [02:30<04:09, 37.6MiB/s]Loading:  54%|█████▍    | 10.3G/19.0G [02:30<02:52, 54.1MiB/s]Loading:  54%|█████▍    | 10.3G/19.0G [02:30<02:23, 65.1MiB/s]Loading:  54%|█████▍    | 10.3G/19.0G [02:30<02:15, 69.0MiB/s]Loading:  54%|█████▍    | 10.3G/19.0G [02:30<02:03, 75.6MiB/s]Loading:  54%|█████▍    | 10.3G/19.0G [02:30<02:22, 65.2MiB/s]Loading:  54%|█████▍    | 10.3G/19.0G [02:31<02:17, 67.8MiB/s]Loading:  54%|█████▍    | 10.3G/19.0G [02:31<02:22, 65.1MiB/s]Loading:  55%|█████▍    | 10.4G/19.0G [02:31<02:17, 67.3MiB/s]Loading:  55%|█████▍    | 10.4G/19.0G [02:31<02:00, 77.0MiB/s]Loading:  55%|█████▍    | 10.4G/19.0G [02:31<02:01, 76.1MiB/s]Loading:  55%|█████▍    | 10.4G/19.0G [02:31<01:53, 81.9MiB/s]Loading:  55%|█████▍    | 10.4G/19.0G [02:31<01:52, 82.2MiB/s]Loading:  55%|█████▍    | 10.4G/19.0G [02:31<01:46, 86.4MiB/s]Loading:  55%|█████▍    | 10.4G/19.0G [02:31<01:50, 83.1MiB/s]Loading:  55%|█████▍    | 10.4G/19.0G [02:32<02:15, 68.1MiB/s]Loading:  55%|█████▍    | 10.4G/19.0G [02:32<02:02, 75.2MiB/s]Loading:  55%|█████▍    | 10.4G/19.0G [02:32<01:47, 85.5MiB/s]Loading:  55%|█████▌    | 10.5G/19.0G [02:32<01:57, 78.5MiB/s]Loading:  55%|█████▌    | 10.5G/19.0G [02:32<01:48, 84.8MiB/s]Loading:  55%|█████▌    | 10.5G/19.0G [02:32<02:13, 68.6MiB/s]Loading:  55%|█████▌    | 10.5G/19.0G [02:32<02:23, 64.0MiB/s]Loading:  55%|█████▌    | 10.5G/19.0G [02:33<02:16, 66.9MiB/s]Loading:  55%|█████▌    | 10.5G/19.0G [02:33<02:31, 60.2MiB/s]Loading:  55%|█████▌    | 10.5G/19.0G [02:33<02:07, 71.6MiB/s]Loading:  55%|█████▌    | 10.5G/19.0G [02:33<02:15, 67.3MiB/s]Loading:  55%|█████▌    | 10.5G/19.0G [02:33<02:13, 68.2MiB/s]Loading:  55%|█████▌    | 10.5G/19.0G [02:33<02:14, 67.5MiB/s]Loading:  55%|█████▌    | 10.5G/19.0G [02:33<02:12, 68.8MiB/s]Loading:  55%|█████▌    | 10.5G/19.0G [02:33<02:14, 67.3MiB/s]Loading:  56%|█████▌    | 10.6G/19.0G [02:34<02:06, 71.7MiB/s]Loading:  56%|█████▌    | 10.6G/19.0G [02:34<02:11, 69.2MiB/s]Loading:  56%|█████▌    | 10.6G/19.0G [02:34<02:07, 70.8MiB/s]Loading:  56%|█████▌    | 10.6G/19.0G [02:34<02:01, 74.4MiB/s]Loading:  56%|█████▌    | 10.6G/19.0G [02:34<01:59, 75.4MiB/s]Loading:  56%|█████▌    | 10.6G/19.0G [02:34<01:56, 77.4MiB/s]Loading:  56%|█████▌    | 10.6G/19.0G [02:34<02:02, 73.5MiB/s]Loading:  56%|█████▌    | 10.6G/19.0G [02:34<01:55, 78.0MiB/s]Loading:  56%|█████▌    | 10.6G/19.0G [02:35<01:47, 83.7MiB/s]Loading:  56%|█████▌    | 10.6G/19.0G [02:35<01:48, 82.8MiB/s]Loading:  56%|█████▌    | 10.6G/19.0G [02:35<01:48, 82.5MiB/s]Loading:  56%|█████▌    | 10.6G/19.0G [02:35<01:45, 85.0MiB/s]Loading:  56%|█████▌    | 10.7G/19.0G [02:35<01:37, 91.9MiB/s]Loading:  56%|█████▌    | 10.7G/19.0G [02:35<01:40, 88.7MiB/s]Loading:  56%|█████▌    | 10.7G/19.0G [02:35<02:23, 62.2MiB/s]Loading:  56%|█████▌    | 10.7G/19.0G [02:36<02:29, 59.6MiB/s]Loading:  56%|█████▋    | 10.7G/19.0G [02:36<02:23, 62.2MiB/s]Loading:  56%|█████▋    | 10.7G/19.0G [02:36<02:13, 66.8MiB/s]Loading:  56%|█████▋    | 10.7G/19.0G [02:36<01:50, 80.8MiB/s]Loading:  56%|█████▋    | 10.7G/19.0G [02:36<01:32, 95.8MiB/s]Loading:  57%|█████▋    | 10.7G/19.0G [02:36<01:58, 75.2MiB/s]Loading:  57%|█████▋    | 10.7G/19.0G [02:36<01:52, 78.5MiB/s]Loading:  57%|█████▋    | 10.8G/19.0G [02:37<02:08, 69.0MiB/s]Loading:  57%|█████▋    | 10.8G/19.0G [02:37<02:24, 61.0MiB/s]Loading:  57%|█████▋    | 10.8G/19.0G [02:37<02:20, 62.9MiB/s]Loading:  57%|█████▋    | 10.8G/19.0G [02:37<01:55, 76.2MiB/s]Loading:  57%|█████▋    | 10.8G/19.0G [02:37<01:35, 91.8MiB/s]Loading:  57%|█████▋    | 10.8G/19.0G [02:37<01:32, 94.8MiB/s]Loading:  57%|█████▋    | 10.8G/19.0G [02:37<01:37, 89.9MiB/s]Loading:  57%|█████▋    | 10.8G/19.0G [02:37<01:46, 82.5MiB/s]Loading:  57%|█████▋    | 10.8G/19.0G [02:38<01:42, 85.3MiB/s]Loading:  57%|█████▋    | 10.8G/19.0G [02:38<01:56, 75.4MiB/s]Loading:  57%|█████▋    | 10.9G/19.0G [02:38<02:17, 63.5MiB/s]Loading:  57%|█████▋    | 10.9G/19.0G [02:38<02:11, 66.4MiB/s]Loading:  57%|█████▋    | 10.9G/19.0G [02:38<02:05, 69.4MiB/s]Loading:  57%|█████▋    | 10.9G/19.0G [02:38<01:43, 84.5MiB/s]Loading:  57%|█████▋    | 10.9G/19.0G [02:38<01:48, 80.0MiB/s]Loading:  57%|█████▋    | 10.9G/19.0G [02:38<01:44, 83.2MiB/s]Loading:  57%|█████▋    | 10.9G/19.0G [02:39<02:08, 67.6MiB/s]Loading:  57%|█████▋    | 10.9G/19.0G [02:39<02:13, 65.0MiB/s]Loading:  57%|█████▋    | 10.9G/19.0G [02:39<02:16, 63.7MiB/s]Loading:  58%|█████▊    | 10.9G/19.0G [02:39<01:46, 81.5MiB/s]Loading:  58%|█████▊    | 10.9G/19.0G [02:39<01:57, 73.6MiB/s]Loading:  58%|█████▊    | 11.0G/19.0G [02:39<02:19, 62.0MiB/s]Loading:  58%|█████▊    | 11.0G/19.0G [02:40<02:14, 63.9MiB/s]Loading:  58%|█████▊    | 11.0G/19.0G [02:40<02:10, 66.2MiB/s]Loading:  58%|█████▊    | 11.0G/19.0G [02:40<01:56, 73.9MiB/s]Loading:  58%|█████▊    | 11.0G/19.0G [02:40<01:51, 77.4MiB/s]Loading:  58%|█████▊    | 11.0G/19.0G [02:40<01:40, 85.7MiB/s]Loading:  58%|█████▊    | 11.0G/19.0G [02:40<01:25, 101MiB/s] Loading:  58%|█████▊    | 11.0G/19.0G [02:40<01:28, 97.1MiB/s]Loading:  58%|█████▊    | 11.0G/19.0G [02:40<01:33, 91.1MiB/s]Loading:  58%|█████▊    | 11.1G/19.0G [02:41<01:24, 101MiB/s] Loading:  58%|█████▊    | 11.1G/19.0G [02:41<01:30, 94.0MiB/s]Loading:  58%|█████▊    | 11.1G/19.0G [02:41<01:33, 91.5MiB/s]Loading:  58%|█████▊    | 11.1G/19.0G [02:41<01:45, 80.9MiB/s]Loading:  58%|█████▊    | 11.1G/19.0G [02:41<01:55, 73.4MiB/s]Loading:  58%|█████▊    | 11.1G/19.0G [02:41<02:02, 69.1MiB/s]Loading:  58%|█████▊    | 11.1G/19.0G [02:41<02:07, 66.7MiB/s]Loading:  58%|█████▊    | 11.1G/19.0G [02:41<01:52, 75.2MiB/s]Loading:  59%|█████▊    | 11.1G/19.0G [02:42<01:39, 84.8MiB/s]Loading:  59%|█████▊    | 11.1G/19.0G [02:42<01:38, 85.5MiB/s]Loading:  59%|█████▊    | 11.1G/19.0G [02:42<01:39, 85.1MiB/s]Loading:  59%|█████▊    | 11.2G/19.0G [02:42<01:49, 77.1MiB/s]Loading:  59%|█████▊    | 11.2G/19.0G [02:42<01:39, 84.3MiB/s]Loading:  59%|█████▉    | 11.2G/19.0G [02:42<01:33, 90.0MiB/s]Loading:  59%|█████▉    | 11.2G/19.0G [02:42<01:57, 71.4MiB/s]Loading:  59%|█████▉    | 11.2G/19.0G [02:43<02:06, 66.4MiB/s]Loading:  59%|█████▉    | 11.2G/19.0G [02:43<01:58, 70.6MiB/s]Loading:  59%|█████▉    | 11.2G/19.0G [02:43<01:45, 79.1MiB/s]Loading:  59%|█████▉    | 11.2G/19.0G [02:43<01:53, 73.8MiB/s]Loading:  59%|█████▉    | 11.2G/19.0G [02:43<01:51, 74.6MiB/s]Loading:  59%|█████▉    | 11.2G/19.0G [02:43<01:55, 72.2MiB/s]Loading:  59%|█████▉    | 11.2G/19.0G [02:43<02:02, 67.9MiB/s]Loading:  59%|█████▉    | 11.3G/19.0G [02:43<01:50, 75.3MiB/s]Loading:  59%|█████▉    | 11.3G/19.0G [02:44<01:39, 83.4MiB/s]Loading:  59%|█████▉    | 11.3G/19.0G [02:44<01:47, 77.1MiB/s]Loading:  59%|█████▉    | 11.3G/19.0G [02:44<01:56, 71.0MiB/s]Loading:  59%|█████▉    | 11.3G/19.0G [02:44<02:08, 64.5MiB/s]Loading:  59%|█████▉    | 11.3G/19.0G [02:44<02:07, 64.8MiB/s]Loading:  60%|█████▉    | 11.3G/19.0G [02:44<01:47, 76.7MiB/s]Loading:  60%|█████▉    | 11.3G/19.0G [02:44<02:15, 61.0MiB/s]Loading:  60%|█████▉    | 11.3G/19.0G [02:45<01:58, 69.4MiB/s]Loading:  60%|█████▉    | 11.3G/19.0G [02:45<02:08, 64.2MiB/s]Loading:  60%|█████▉    | 11.3G/19.0G [02:45<02:04, 66.0MiB/s]Loading:  60%|█████▉    | 11.3G/19.0G [02:45<01:57, 70.1MiB/s]Loading:  60%|█████▉    | 11.4G/19.0G [02:45<01:56, 70.6MiB/s]Loading:  60%|█████▉    | 11.4G/19.0G [02:45<01:53, 72.5MiB/s]Loading:  60%|█████▉    | 11.4G/19.0G [02:45<01:34, 86.5MiB/s]Loading:  60%|█████▉    | 11.4G/19.0G [02:45<01:36, 84.6MiB/s]Loading:  60%|█████▉    | 11.4G/19.0G [02:46<01:28, 91.7MiB/s]Loading:  60%|██████    | 11.4G/19.0G [02:46<01:22, 99.1MiB/s]Loading:  60%|██████    | 11.4G/19.0G [02:46<01:30, 89.8MiB/s]Loading:  60%|██████    | 11.4G/19.0G [02:46<01:31, 88.4MiB/s]Loading:  60%|██████    | 11.4G/19.0G [02:46<01:58, 68.4MiB/s]Loading:  60%|██████    | 11.4G/19.0G [02:46<02:02, 66.2MiB/s]Loading:  60%|██████    | 11.5G/19.0G [02:46<01:51, 72.4MiB/s]Loading:  60%|██████    | 11.5G/19.0G [02:46<01:35, 85.0MiB/s]Loading:  60%|██████    | 11.5G/19.0G [02:47<01:30, 89.3MiB/s]Loading:  60%|██████    | 11.5G/19.0G [02:47<01:47, 74.9MiB/s]Loading:  61%|██████    | 11.5G/19.0G [02:47<01:46, 76.0MiB/s]Loading:  61%|██████    | 11.5G/19.0G [02:47<01:44, 77.1MiB/s]Loading:  61%|██████    | 11.5G/19.0G [02:47<01:49, 73.5MiB/s]Loading:  61%|██████    | 11.5G/19.0G [02:47<01:32, 86.4MiB/s]Loading:  61%|██████    | 11.5G/19.0G [02:47<01:21, 97.9MiB/s]Loading:  61%|██████    | 11.5G/19.0G [02:47<01:21, 98.2MiB/s]Loading:  61%|██████    | 11.6G/19.0G [02:48<01:42, 77.8MiB/s]Loading:  61%|██████    | 11.6G/19.0G [02:48<01:40, 79.3MiB/s]Loading:  61%|██████    | 11.6G/19.0G [02:48<01:37, 81.9MiB/s]Loading:  61%|██████    | 11.6G/19.0G [02:48<01:57, 67.6MiB/s]Loading:  61%|██████    | 11.6G/19.0G [02:48<02:23, 55.3MiB/s]Loading:  61%|██████    | 11.6G/19.0G [02:48<02:06, 62.9MiB/s]Loading:  61%|██████    | 11.6G/19.0G [02:48<01:43, 76.8MiB/s]Loading:  61%|██████    | 11.6G/19.0G [02:49<02:00, 65.6MiB/s]Loading:  61%|██████    | 11.6G/19.0G [02:49<02:02, 64.7MiB/s]Loading:  61%|██████    | 11.6G/19.0G [02:49<01:54, 68.9MiB/s]Loading:  61%|██████▏   | 11.6G/19.0G [02:49<02:16, 57.8MiB/s]Loading:  61%|██████▏   | 11.7G/19.0G [02:49<01:57, 67.4MiB/s]Loading:  61%|██████▏   | 11.7G/19.0G [02:49<01:43, 76.4MiB/s]Loading:  61%|██████▏   | 11.7G/19.0G [02:49<01:49, 71.9MiB/s]Loading:  61%|██████▏   | 11.7G/19.0G [02:50<02:00, 65.4MiB/s]Loading:  62%|██████▏   | 11.7G/19.0G [02:50<02:16, 57.4MiB/s]Loading:  62%|██████▏   | 11.7G/19.0G [02:50<02:23, 54.6MiB/s]Loading:  62%|██████▏   | 11.7G/19.0G [02:50<02:09, 60.6MiB/s]Loading:  62%|██████▏   | 11.7G/19.0G [02:50<02:00, 65.1MiB/s]Loading:  62%|██████▏   | 11.7G/19.0G [02:50<02:02, 63.9MiB/s]Loading:  62%|██████▏   | 11.7G/19.0G [02:50<01:34, 82.3MiB/s]Loading:  62%|██████▏   | 11.7G/19.0G [02:51<02:08, 60.5MiB/s]Loading:  62%|██████▏   | 11.8G/19.0G [02:51<01:50, 70.1MiB/s]Loading:  62%|██████▏   | 11.8G/19.0G [02:51<01:54, 68.1MiB/s]Loading:  62%|██████▏   | 11.8G/19.0G [02:51<01:52, 68.8MiB/s]Loading:  62%|██████▏   | 11.8G/19.0G [02:51<02:02, 63.2MiB/s]Loading:  62%|██████▏   | 11.8G/19.0G [02:51<02:11, 58.9MiB/s]Loading:  62%|██████▏   | 11.8G/19.0G [02:51<01:58, 65.1MiB/s]Loading:  62%|██████▏   | 11.8G/19.0G [02:52<01:37, 79.3MiB/s]Loading:  62%|██████▏   | 11.8G/19.0G [02:52<01:34, 82.0MiB/s]Loading:  62%|██████▏   | 11.8G/19.0G [02:52<01:22, 93.4MiB/s]Loading:  62%|██████▏   | 11.8G/19.0G [02:52<01:21, 94.9MiB/s]Loading:  62%|██████▏   | 11.8G/19.0G [02:52<01:27, 87.5MiB/s]Loading:  62%|██████▏   | 11.9G/19.0G [02:52<01:27, 88.0MiB/s]Loading:  62%|██████▏   | 11.9G/19.0G [02:52<01:49, 70.1MiB/s]Loading:  62%|██████▏   | 11.9G/19.0G [02:53<02:04, 61.6MiB/s]Loading:  63%|██████▎   | 11.9G/19.0G [02:53<01:42, 74.9MiB/s]Loading:  63%|██████▎   | 11.9G/19.0G [02:53<01:42, 74.8MiB/s]Loading:  63%|██████▎   | 11.9G/19.0G [02:53<01:40, 75.7MiB/s]Loading:  63%|██████▎   | 11.9G/19.0G [02:53<01:35, 79.9MiB/s]Loading:  63%|██████▎   | 11.9G/19.0G [02:53<01:37, 78.1MiB/s]Loading:  63%|██████▎   | 11.9G/19.0G [02:53<01:33, 81.6MiB/s]Loading:  63%|██████▎   | 11.9G/19.0G [02:53<01:27, 86.9MiB/s]Loading:  63%|██████▎   | 11.9G/19.0G [02:53<01:33, 81.1MiB/s]Loading:  63%|██████▎   | 12.0G/19.0G [02:54<01:38, 76.7MiB/s]Loading:  63%|██████▎   | 12.0G/19.0G [02:54<01:36, 78.1MiB/s]Loading:  63%|██████▎   | 12.0G/19.0G [02:54<01:45, 71.3MiB/s]Loading:  63%|██████▎   | 12.0G/19.0G [02:54<01:35, 79.0MiB/s]Loading:  63%|██████▎   | 12.0G/19.0G [02:54<01:36, 78.4MiB/s]Loading:  63%|██████▎   | 12.0G/19.0G [02:54<01:34, 79.3MiB/s]Loading:  63%|██████▎   | 12.0G/19.0G [02:54<01:50, 68.0MiB/s]Loading:  63%|██████▎   | 12.0G/19.0G [02:54<01:37, 77.0MiB/s]Loading:  63%|██████▎   | 12.0G/19.0G [02:55<01:20, 92.7MiB/s]Loading:  63%|██████▎   | 12.0G/19.0G [02:55<01:20, 92.5MiB/s]Loading:  63%|██████▎   | 12.0G/19.0G [02:55<01:30, 82.4MiB/s]Loading:  63%|██████▎   | 12.1G/19.0G [02:55<01:26, 86.3MiB/s]Loading:  64%|██████▎   | 12.1G/19.0G [02:55<01:16, 97.7MiB/s]Loading:  64%|██████▎   | 12.1G/19.0G [02:55<01:31, 81.5MiB/s]Loading:  64%|██████▎   | 12.1G/19.0G [02:55<01:29, 83.3MiB/s]Loading:  64%|██████▎   | 12.1G/19.0G [02:56<01:33, 79.4MiB/s]Loading:  64%|██████▎   | 12.1G/19.0G [02:56<01:18, 93.7MiB/s]Loading:  64%|██████▍   | 12.1G/19.0G [02:56<01:17, 95.3MiB/s]Loading:  64%|██████▍   | 12.1G/19.0G [02:56<01:18, 93.9MiB/s]Loading:  64%|██████▍   | 12.1G/19.0G [02:56<01:38, 74.8MiB/s]Loading:  64%|██████▍   | 12.2G/19.0G [02:56<01:41, 72.3MiB/s]Loading:  64%|██████▍   | 12.2G/19.0G [02:57<02:41, 45.5MiB/s]Loading:  64%|██████▍   | 12.2G/19.0G [02:57<02:24, 50.7MiB/s]Loading:  64%|██████▍   | 12.2G/19.0G [02:57<02:20, 52.3MiB/s]Loading:  64%|██████▍   | 12.2G/19.0G [02:57<02:26, 50.1MiB/s]Loading:  64%|██████▍   | 12.2G/19.0G [02:57<02:17, 53.4MiB/s]Loading:  64%|██████▍   | 12.2G/19.0G [02:57<02:32, 48.0MiB/s]Loading:  64%|██████▍   | 12.2G/19.0G [02:57<02:12, 55.2MiB/s]Loading:  64%|██████▍   | 12.2G/19.0G [02:58<02:17, 53.2MiB/s]Loading:  64%|██████▍   | 12.2G/19.0G [02:58<01:48, 67.1MiB/s]Loading:  64%|██████▍   | 12.2G/19.0G [02:58<01:37, 74.2MiB/s]Loading:  64%|██████▍   | 12.2G/19.0G [02:58<01:33, 78.0MiB/s]Loading:  64%|██████▍   | 12.3G/19.0G [02:58<01:36, 75.1MiB/s]Loading:  65%|██████▍   | 12.3G/19.0G [02:58<01:33, 77.1MiB/s]Loading:  65%|██████▍   | 12.3G/19.0G [02:58<01:29, 81.2MiB/s]Loading:  65%|██████▍   | 12.3G/19.0G [02:58<01:45, 68.3MiB/s]Loading:  65%|██████▍   | 12.3G/19.0G [02:59<02:02, 58.7MiB/s]Loading:  65%|██████▍   | 12.3G/19.0G [02:59<01:55, 62.4MiB/s]Loading:  65%|██████▍   | 12.3G/19.0G [02:59<01:44, 69.1MiB/s]Loading:  65%|██████▍   | 12.3G/19.0G [02:59<01:35, 75.5MiB/s]Loading:  65%|██████▍   | 12.3G/19.0G [02:59<01:46, 67.4MiB/s]Loading:  65%|██████▍   | 12.3G/19.0G [02:59<02:15, 53.0MiB/s]Loading:  65%|██████▍   | 12.3G/19.0G [03:00<02:12, 54.1MiB/s]Loading:  65%|██████▍   | 12.3G/19.0G [03:00<02:04, 57.6MiB/s]Loading:  65%|██████▌   | 12.4G/19.0G [03:00<01:53, 62.8MiB/s]Loading:  65%|██████▌   | 12.4G/19.0G [03:00<01:49, 64.9MiB/s]Loading:  65%|██████▌   | 12.4G/19.0G [03:00<02:01, 58.4MiB/s]Loading:  65%|██████▌   | 12.4G/19.0G [03:00<02:03, 57.5MiB/s]Loading:  65%|██████▌   | 12.4G/19.0G [03:00<02:04, 57.2MiB/s]Loading:  65%|██████▌   | 12.4G/19.0G [03:00<02:20, 50.6MiB/s]Loading:  65%|██████▌   | 12.4G/19.0G [03:01<02:17, 51.7MiB/s]Loading:  65%|██████▌   | 12.4G/19.0G [03:01<01:46, 66.2MiB/s]Loading:  65%|██████▌   | 12.4G/19.0G [03:01<01:18, 90.4MiB/s]Loading:  65%|██████▌   | 12.4G/19.0G [03:01<01:30, 78.0MiB/s]Loading:  65%|██████▌   | 12.4G/19.0G [03:01<01:29, 78.5MiB/s]Loading:  65%|██████▌   | 12.4G/19.0G [03:01<01:29, 78.9MiB/s]Loading:  66%|██████▌   | 12.5G/19.0G [03:01<01:50, 63.9MiB/s]Loading:  66%|██████▌   | 12.5G/19.0G [03:02<01:50, 63.8MiB/s]Loading:  66%|██████▌   | 12.5G/19.0G [03:02<01:58, 59.1MiB/s]Loading:  66%|██████▌   | 12.5G/19.0G [03:02<01:59, 58.5MiB/s]Loading:  66%|██████▌   | 12.5G/19.0G [03:02<01:30, 77.2MiB/s]Loading:  66%|██████▌   | 12.5G/19.0G [03:02<01:29, 77.7MiB/s]Loading:  66%|██████▌   | 12.5G/19.0G [03:02<02:11, 53.1MiB/s]Loading:  66%|██████▌   | 12.5G/19.0G [03:02<02:02, 56.7MiB/s]Loading:  66%|██████▌   | 12.5G/19.0G [03:03<01:40, 69.0MiB/s]Loading:  66%|██████▌   | 12.5G/19.0G [03:03<01:37, 71.6MiB/s]Loading:  66%|██████▌   | 12.5G/19.0G [03:03<01:19, 87.0MiB/s]Loading:  66%|██████▌   | 12.6G/19.0G [03:03<01:09, 99.9MiB/s]Loading:  66%|██████▌   | 12.6G/19.0G [03:03<01:45, 65.3MiB/s]Loading:  66%|██████▌   | 12.6G/19.0G [03:03<01:59, 57.8MiB/s]Loading:  66%|██████▌   | 12.6G/19.0G [03:03<01:44, 65.9MiB/s]Loading:  66%|██████▋   | 12.6G/19.0G [03:04<02:23, 47.9MiB/s]Loading:  66%|██████▋   | 12.6G/19.0G [03:04<02:08, 53.5MiB/s]Loading:  66%|██████▋   | 12.6G/19.0G [03:04<02:21, 48.6MiB/s]Loading:  66%|██████▋   | 12.6G/19.0G [03:04<02:36, 43.8MiB/s]Loading:  66%|██████▋   | 12.6G/19.0G [03:04<02:40, 42.7MiB/s]Loading:  66%|██████▋   | 12.6G/19.0G [03:05<02:14, 50.9MiB/s]Loading:  66%|██████▋   | 12.6G/19.0G [03:05<01:50, 61.7MiB/s]Loading:  67%|██████▋   | 12.6G/19.0G [03:05<01:38, 69.1MiB/s]Loading:  67%|██████▋   | 12.7G/19.0G [03:05<01:52, 60.6MiB/s]Loading:  67%|██████▋   | 12.7G/19.0G [03:05<01:27, 77.6MiB/s]Loading:  67%|██████▋   | 12.7G/19.0G [03:05<01:35, 71.5MiB/s]Loading:  67%|██████▋   | 12.7G/19.0G [03:05<01:39, 68.1MiB/s]Loading:  67%|██████▋   | 12.7G/19.0G [03:05<01:38, 68.5MiB/s]Loading:  67%|██████▋   | 12.7G/19.0G [03:06<01:30, 74.9MiB/s]Loading:  67%|██████▋   | 12.7G/19.0G [03:06<01:36, 69.7MiB/s]Loading:  67%|██████▋   | 12.7G/19.0G [03:06<01:33, 72.0MiB/s]Loading:  67%|██████▋   | 12.7G/19.0G [03:06<01:27, 77.3MiB/s]Loading:  67%|██████▋   | 12.7G/19.0G [03:06<01:12, 92.2MiB/s]Loading:  67%|██████▋   | 12.7G/19.0G [03:06<01:50, 60.8MiB/s]Loading:  67%|██████▋   | 12.8G/19.0G [03:06<01:48, 62.0MiB/s]Loading:  67%|██████▋   | 12.8G/19.0G [03:07<01:29, 74.7MiB/s]Loading:  67%|██████▋   | 12.8G/19.0G [03:07<01:52, 59.4MiB/s]Loading:  67%|██████▋   | 12.8G/19.0G [03:07<01:50, 60.2MiB/s]Loading:  67%|██████▋   | 12.8G/19.0G [03:07<01:37, 68.5MiB/s]Loading:  67%|██████▋   | 12.8G/19.0G [03:07<01:43, 64.5MiB/s]Loading:  67%|██████▋   | 12.8G/19.0G [03:07<01:45, 63.1MiB/s]Loading:  67%|██████▋   | 12.8G/19.0G [03:08<01:50, 60.1MiB/s]Loading:  67%|██████▋   | 12.8G/19.0G [03:08<01:45, 63.1MiB/s]Loading:  68%|██████▊   | 12.8G/19.0G [03:08<02:10, 50.7MiB/s]Loading:  68%|██████▊   | 12.8G/19.0G [03:08<02:04, 53.1MiB/s]Loading:  68%|██████▊   | 12.8G/19.0G [03:08<02:11, 50.4MiB/s]Loading:  68%|██████▊   | 12.9G/19.0G [03:08<01:50, 59.6MiB/s]Loading:  68%|██████▊   | 12.9G/19.0G [03:08<01:49, 60.1MiB/s]Loading:  68%|██████▊   | 12.9G/19.0G [03:08<01:53, 58.2MiB/s]Loading:  68%|██████▊   | 12.9G/19.0G [03:09<01:46, 61.7MiB/s]Loading:  68%|██████▊   | 12.9G/19.0G [03:09<01:16, 86.3MiB/s]Loading:  68%|██████▊   | 12.9G/19.0G [03:09<01:15, 86.9MiB/s]Loading:  68%|██████▊   | 12.9G/19.0G [03:09<01:21, 80.1MiB/s]Loading:  68%|██████▊   | 12.9G/19.0G [03:09<01:19, 82.7MiB/s]Loading:  68%|██████▊   | 12.9G/19.0G [03:09<01:38, 66.3MiB/s]Loading:  68%|██████▊   | 12.9G/19.0G [03:09<02:08, 50.8MiB/s]Loading:  68%|██████▊   | 12.9G/19.0G [03:10<02:03, 52.6MiB/s]Loading:  68%|██████▊   | 12.9G/19.0G [03:10<02:22, 45.7MiB/s]Loading:  68%|██████▊   | 12.9G/19.0G [03:10<02:15, 48.0MiB/s]Loading:  68%|██████▊   | 13.0G/19.0G [03:10<03:08, 34.6MiB/s]Loading:  68%|██████▊   | 13.0G/19.0G [03:10<02:38, 40.9MiB/s]Loading:  68%|██████▊   | 13.0G/19.0G [03:11<02:43, 39.6MiB/s]Loading:  68%|██████▊   | 13.0G/19.0G [03:11<02:49, 38.1MiB/s]Loading:  68%|██████▊   | 13.0G/19.0G [03:11<03:00, 35.8MiB/s]Loading:  68%|██████▊   | 13.0G/19.0G [03:11<03:15, 33.1MiB/s]Loading:  68%|██████▊   | 13.0G/19.0G [03:11<03:14, 33.3MiB/s]Loading:  68%|██████▊   | 13.0G/19.0G [03:11<02:07, 50.6MiB/s]Loading:  68%|██████▊   | 13.0G/19.0G [03:12<02:02, 52.4MiB/s]Loading:  68%|██████▊   | 13.0G/19.0G [03:12<02:01, 53.1MiB/s]Loading:  69%|██████▊   | 13.0G/19.0G [03:12<02:00, 53.5MiB/s]Loading:  69%|██████▊   | 13.0G/19.0G [03:12<02:17, 46.7MiB/s]Loading:  69%|██████▊   | 13.0G/19.0G [03:12<02:16, 47.1MiB/s]Loading:  69%|██████▊   | 13.0G/19.0G [03:12<02:09, 49.4MiB/s]Loading:  69%|██████▊   | 13.0G/19.0G [03:12<01:55, 55.5MiB/s]Loading:  69%|██████▊   | 13.1G/19.0G [03:12<01:27, 73.0MiB/s]Loading:  69%|██████▉   | 13.1G/19.0G [03:13<01:50, 57.6MiB/s]Loading:  69%|██████▉   | 13.1G/19.0G [03:13<01:35, 66.4MiB/s]Loading:  69%|██████▉   | 13.1G/19.0G [03:13<01:38, 64.3MiB/s]Loading:  69%|██████▉   | 13.1G/19.0G [03:13<01:52, 56.4MiB/s]Loading:  69%|██████▉   | 13.1G/19.0G [03:13<01:33, 67.8MiB/s]Loading:  69%|██████▉   | 13.1G/19.0G [03:13<01:31, 69.2MiB/s]Loading:  69%|██████▉   | 13.1G/19.0G [03:14<01:17, 81.0MiB/s]Loading:  69%|██████▉   | 13.1G/19.0G [03:14<01:26, 73.0MiB/s]Loading:  69%|██████▉   | 13.1G/19.0G [03:14<01:30, 69.7MiB/s]Loading:  69%|██████▉   | 13.2G/19.0G [03:14<01:21, 77.2MiB/s]Loading:  69%|██████▉   | 13.2G/19.0G [03:14<01:22, 76.4MiB/s]Loading:  69%|██████▉   | 13.2G/19.0G [03:14<01:35, 65.6MiB/s]Loading:  69%|██████▉   | 13.2G/19.0G [03:14<01:29, 69.8MiB/s]Loading:  69%|██████▉   | 13.2G/19.0G [03:14<01:26, 72.5MiB/s]Loading:  69%|██████▉   | 13.2G/19.0G [03:15<01:14, 83.3MiB/s]Loading:  70%|██████▉   | 13.2G/19.0G [03:15<01:09, 89.0MiB/s]Loading:  70%|██████▉   | 13.2G/19.0G [03:15<01:24, 73.5MiB/s]Loading:  70%|██████▉   | 13.2G/19.0G [03:15<01:55, 53.8MiB/s]Loading:  70%|██████▉   | 13.2G/19.0G [03:15<01:47, 57.7MiB/s]Loading:  70%|██████▉   | 13.2G/19.0G [03:15<01:37, 63.5MiB/s]Loading:  70%|██████▉   | 13.3G/19.0G [03:15<01:32, 66.7MiB/s]Loading:  70%|██████▉   | 13.3G/19.0G [03:16<01:32, 66.5MiB/s]Loading:  70%|██████▉   | 13.3G/19.0G [03:16<01:21, 75.3MiB/s]Loading:  70%|██████▉   | 13.3G/19.0G [03:16<01:16, 80.1MiB/s]Loading:  70%|██████▉   | 13.3G/19.0G [03:16<01:05, 93.7MiB/s]Loading:  70%|███████   | 13.3G/19.0G [03:16<00:56, 107MiB/s] Loading:  70%|███████   | 13.3G/19.0G [03:16<01:04, 94.4MiB/s]Loading:  70%|███████   | 13.3G/19.0G [03:16<01:11, 85.7MiB/s]Loading:  70%|███████   | 13.3G/19.0G [03:16<01:18, 77.5MiB/s]Loading:  70%|███████   | 13.3G/19.0G [03:17<01:22, 73.9MiB/s]Loading:  70%|███████   | 13.4G/19.0G [03:17<01:20, 75.5MiB/s]Loading:  70%|███████   | 13.4G/19.0G [03:17<01:52, 54.0MiB/s]Loading:  70%|███████   | 13.4G/19.0G [03:17<01:26, 69.8MiB/s]Loading:  70%|███████   | 13.4G/19.0G [03:17<01:27, 68.7MiB/s]Loading:  70%|███████   | 13.4G/19.0G [03:17<01:21, 74.0MiB/s]Loading:  71%|███████   | 13.4G/19.0G [03:17<01:17, 77.4MiB/s]Loading:  71%|███████   | 13.4G/19.0G [03:18<01:13, 81.3MiB/s]Loading:  71%|███████   | 13.4G/19.0G [03:18<01:19, 75.3MiB/s]Loading:  71%|███████   | 13.4G/19.0G [03:18<01:36, 61.9MiB/s]Loading:  71%|███████   | 13.4G/19.0G [03:18<01:34, 63.1MiB/s]Loading:  71%|███████   | 13.4G/19.0G [03:18<01:47, 55.7MiB/s]Loading:  71%|███████   | 13.4G/19.0G [03:18<01:56, 51.1MiB/s]Loading:  71%|███████   | 13.4G/19.0G [03:19<02:01, 49.0MiB/s]Loading:  71%|███████   | 13.5G/19.0G [03:19<01:37, 61.0MiB/s]Loading:  71%|███████   | 13.5G/19.0G [03:19<01:27, 68.3MiB/s]Loading:  71%|███████   | 13.5G/19.0G [03:19<01:49, 54.1MiB/s]Loading:  71%|███████   | 13.5G/19.0G [03:19<01:57, 50.5MiB/s]Loading:  71%|███████   | 13.5G/19.0G [03:19<01:59, 49.7MiB/s]Loading:  71%|███████   | 13.5G/19.0G [03:19<01:57, 50.5MiB/s]Loading:  71%|███████   | 13.5G/19.0G [03:19<01:36, 61.1MiB/s]Loading:  71%|███████   | 13.5G/19.0G [03:20<01:35, 61.9MiB/s]Loading:  71%|███████   | 13.5G/19.0G [03:20<01:20, 73.2MiB/s]Loading:  71%|███████   | 13.5G/19.0G [03:20<01:17, 75.5MiB/s]Loading:  71%|███████   | 13.5G/19.0G [03:20<01:36, 60.9MiB/s]Loading:  71%|███████▏  | 13.5G/19.0G [03:20<01:37, 60.3MiB/s]Loading:  71%|███████▏  | 13.5G/19.0G [03:20<02:01, 48.0MiB/s]Loading:  71%|███████▏  | 13.6G/19.0G [03:21<01:42, 56.8MiB/s]Loading:  71%|███████▏  | 13.6G/19.0G [03:21<01:57, 49.7MiB/s]Loading:  71%|███████▏  | 13.6G/19.0G [03:21<01:41, 57.4MiB/s]Loading:  71%|███████▏  | 13.6G/19.0G [03:21<01:27, 66.8MiB/s]Loading:  72%|███████▏  | 13.6G/19.0G [03:21<01:25, 67.8MiB/s]Loading:  72%|███████▏  | 13.6G/19.0G [03:21<01:18, 74.0MiB/s]Loading:  72%|███████▏  | 13.6G/19.0G [03:21<01:20, 71.9MiB/s]Loading:  72%|███████▏  | 13.6G/19.0G [03:22<01:55, 50.0MiB/s]Loading:  72%|███████▏  | 13.6G/19.0G [03:22<01:51, 51.8MiB/s]Loading:  72%|███████▏  | 13.6G/19.0G [03:22<01:53, 50.6MiB/s]Loading:  72%|███████▏  | 13.6G/19.0G [03:22<01:58, 48.5MiB/s]Loading:  72%|███████▏  | 13.6G/19.0G [03:22<01:40, 57.4MiB/s]Loading:  72%|███████▏  | 13.7G/19.0G [03:22<01:41, 56.3MiB/s]Loading:  72%|███████▏  | 13.7G/19.0G [03:22<01:59, 48.1MiB/s]Loading:  72%|███████▏  | 13.7G/19.0G [03:23<02:10, 44.0MiB/s]Loading:  72%|███████▏  | 13.7G/19.0G [03:23<01:41, 56.4MiB/s]Loading:  72%|███████▏  | 13.7G/19.0G [03:23<01:28, 64.6MiB/s]Loading:  72%|███████▏  | 13.7G/19.0G [03:23<01:44, 54.6MiB/s]Loading:  72%|███████▏  | 13.7G/19.0G [03:23<01:52, 50.5MiB/s]Loading:  72%|███████▏  | 13.7G/19.0G [03:23<02:11, 43.4MiB/s]Loading:  72%|███████▏  | 13.7G/19.0G [03:24<02:15, 42.0MiB/s]Loading:  72%|███████▏  | 13.7G/19.0G [03:24<02:19, 40.8MiB/s]Loading:  72%|███████▏  | 13.7G/19.0G [03:24<02:23, 39.4MiB/s]Loading:  72%|███████▏  | 13.7G/19.0G [03:24<01:35, 59.3MiB/s]Loading:  72%|███████▏  | 13.7G/19.0G [03:24<01:34, 59.8MiB/s]Loading:  72%|███████▏  | 13.8G/19.0G [03:24<01:30, 62.0MiB/s]Loading:  72%|███████▏  | 13.8G/19.0G [03:24<01:21, 69.0MiB/s]Loading:  72%|███████▏  | 13.8G/19.0G [03:25<01:34, 59.3MiB/s]Loading:  72%|███████▏  | 13.8G/19.0G [03:25<01:38, 57.0MiB/s]Loading:  73%|███████▎  | 13.8G/19.0G [03:25<01:20, 69.3MiB/s]Loading:  73%|███████▎  | 13.8G/19.0G [03:25<01:25, 65.3MiB/s]Loading:  73%|███████▎  | 13.8G/19.0G [03:25<01:12, 76.5MiB/s]Loading:  73%|███████▎  | 13.8G/19.0G [03:25<01:39, 55.9MiB/s]Loading:  73%|███████▎  | 13.8G/19.0G [03:25<01:42, 54.4MiB/s]Loading:  73%|███████▎  | 13.8G/19.0G [03:26<01:36, 57.4MiB/s]Loading:  73%|███████▎  | 13.8G/19.0G [03:26<01:07, 82.5MiB/s]Loading:  73%|███████▎  | 13.8G/19.0G [03:26<01:11, 77.8MiB/s]Loading:  73%|███████▎  | 13.9G/19.0G [03:26<01:10, 77.9MiB/s]Loading:  73%|███████▎  | 13.9G/19.0G [03:26<01:12, 76.4MiB/s]Loading:  73%|███████▎  | 13.9G/19.0G [03:26<01:06, 83.2MiB/s]Loading:  73%|███████▎  | 13.9G/19.0G [03:26<01:03, 86.4MiB/s]Loading:  73%|███████▎  | 13.9G/19.0G [03:26<01:05, 84.0MiB/s]Loading:  73%|███████▎  | 13.9G/19.0G [03:27<01:13, 74.7MiB/s]Loading:  73%|███████▎  | 13.9G/19.0G [03:27<01:40, 54.5MiB/s]Loading:  73%|███████▎  | 13.9G/19.0G [03:27<01:16, 71.7MiB/s]Loading:  73%|███████▎  | 13.9G/19.0G [03:27<01:13, 74.0MiB/s]Loading:  73%|███████▎  | 13.9G/19.0G [03:27<01:09, 78.1MiB/s]Loading:  73%|███████▎  | 14.0G/19.0G [03:27<01:04, 84.6MiB/s]Loading:  74%|███████▎  | 14.0G/19.0G [03:27<01:00, 89.1MiB/s]Loading:  74%|███████▎  | 14.0G/19.0G [03:28<01:03, 85.5MiB/s]Loading:  74%|███████▎  | 14.0G/19.0G [03:28<01:08, 78.8MiB/s]Loading:  74%|███████▎  | 14.0G/19.0G [03:28<01:09, 77.5MiB/s]Loading:  74%|███████▎  | 14.0G/19.0G [03:28<01:25, 62.7MiB/s]Loading:  74%|███████▎  | 14.0G/19.0G [03:28<01:31, 58.5MiB/s]Loading:  74%|███████▍  | 14.0G/19.0G [03:28<01:28, 60.4MiB/s]Loading:  74%|███████▍  | 14.0G/19.0G [03:28<01:20, 66.1MiB/s]Loading:  74%|███████▍  | 14.0G/19.0G [03:29<01:31, 58.1MiB/s]Loading:  74%|███████▍  | 14.0G/19.0G [03:29<01:28, 60.0MiB/s]Loading:  74%|███████▍  | 14.1G/19.0G [03:29<01:13, 71.9MiB/s]Loading:  74%|███████▍  | 14.1G/19.0G [03:29<01:08, 76.9MiB/s]Loading:  74%|███████▍  | 14.1G/19.0G [03:29<01:01, 86.4MiB/s]Loading:  74%|███████▍  | 14.1G/19.0G [03:29<01:00, 86.8MiB/s]Loading:  74%|███████▍  | 14.1G/19.0G [03:29<01:00, 87.8MiB/s]Loading:  74%|███████▍  | 14.1G/19.0G [03:29<01:04, 81.7MiB/s]Loading:  74%|███████▍  | 14.1G/19.0G [03:30<01:03, 82.1MiB/s]Loading:  74%|███████▍  | 14.1G/19.0G [03:30<01:03, 82.6MiB/s]Loading:  74%|███████▍  | 14.1G/19.0G [03:30<01:04, 81.4MiB/s]Loading:  74%|███████▍  | 14.1G/19.0G [03:30<00:58, 89.4MiB/s]Loading:  74%|███████▍  | 14.1G/19.0G [03:30<01:16, 68.2MiB/s]Loading:  74%|███████▍  | 14.2G/19.0G [03:30<01:07, 77.4MiB/s]Loading:  75%|███████▍  | 14.2G/19.0G [03:30<01:02, 82.8MiB/s]Loading:  75%|███████▍  | 14.2G/19.0G [03:30<00:57, 90.8MiB/s]Loading:  75%|███████▍  | 14.2G/19.0G [03:31<00:57, 89.3MiB/s]Loading:  75%|███████▍  | 14.2G/19.0G [03:31<01:23, 61.7MiB/s]Loading:  75%|███████▍  | 14.2G/19.0G [03:31<01:25, 60.3MiB/s]Loading:  75%|███████▍  | 14.2G/19.0G [03:31<01:48, 47.6MiB/s]Loading:  75%|███████▍  | 14.2G/19.0G [03:31<01:22, 61.9MiB/s]Loading:  75%|███████▍  | 14.2G/19.0G [03:31<01:12, 70.5MiB/s]Loading:  75%|███████▍  | 14.2G/19.0G [03:32<00:59, 86.2MiB/s]Loading:  75%|███████▌  | 14.3G/19.0G [03:32<00:52, 97.6MiB/s]Loading:  75%|███████▌  | 14.3G/19.0G [03:32<01:12, 69.9MiB/s]Loading:  75%|███████▌  | 14.3G/19.0G [03:32<01:09, 73.5MiB/s]Loading:  75%|███████▌  | 14.3G/19.0G [03:32<01:07, 74.6MiB/s]Loading:  75%|███████▌  | 14.3G/19.0G [03:32<01:00, 83.0MiB/s]Loading:  75%|███████▌  | 14.3G/19.0G [03:32<01:02, 80.4MiB/s]Loading:  75%|███████▌  | 14.3G/19.0G [03:33<01:01, 81.2MiB/s]Loading:  75%|███████▌  | 14.3G/19.0G [03:33<01:01, 81.1MiB/s]Loading:  75%|███████▌  | 14.3G/19.0G [03:33<01:00, 82.6MiB/s]Loading:  76%|███████▌  | 14.3G/19.0G [03:33<01:05, 76.3MiB/s]Loading:  76%|███████▌  | 14.4G/19.0G [03:33<01:02, 80.1MiB/s]Loading:  76%|███████▌  | 14.4G/19.0G [03:33<01:00, 81.7MiB/s]Loading:  76%|███████▌  | 14.4G/19.0G [03:33<00:42, 117MiB/s] Loading:  76%|███████▌  | 14.4G/19.0G [03:34<00:48, 102MiB/s]Loading:  76%|███████▌  | 14.4G/19.0G [03:34<00:46, 106MiB/s]Loading:  76%|███████▌  | 14.4G/19.0G [03:34<00:54, 90.5MiB/s]Loading:  76%|███████▌  | 14.4G/19.0G [03:34<01:00, 80.4MiB/s]Loading:  76%|███████▌  | 14.4G/19.0G [03:34<00:59, 82.7MiB/s]Loading:  76%|███████▌  | 14.5G/19.0G [03:34<01:00, 80.8MiB/s]Loading:  76%|███████▌  | 14.5G/19.0G [03:34<01:01, 78.8MiB/s]Loading:  76%|███████▌  | 14.5G/19.0G [03:34<01:04, 75.9MiB/s]Loading:  76%|███████▌  | 14.5G/19.0G [03:35<01:06, 72.6MiB/s]Loading:  76%|███████▋  | 14.5G/19.0G [03:35<01:02, 78.1MiB/s]Loading:  76%|███████▋  | 14.5G/19.0G [03:35<00:54, 88.2MiB/s]Loading:  76%|███████▋  | 14.5G/19.0G [03:35<01:10, 68.7MiB/s]Loading:  76%|███████▋  | 14.5G/19.0G [03:35<01:15, 63.8MiB/s]Loading:  76%|███████▋  | 14.5G/19.0G [03:35<01:02, 76.5MiB/s]Loading:  77%|███████▋  | 14.5G/19.0G [03:35<00:53, 89.4MiB/s]Loading:  77%|███████▋  | 14.6G/19.0G [03:36<01:05, 73.0MiB/s]Loading:  77%|███████▋  | 14.6G/19.0G [03:36<01:01, 77.6MiB/s]Loading:  77%|███████▋  | 14.6G/19.0G [03:36<01:33, 50.6MiB/s]Loading:  77%|███████▋  | 14.6G/19.0G [03:36<01:45, 44.8MiB/s]Loading:  77%|███████▋  | 14.6G/19.0G [03:36<01:31, 51.7MiB/s]Loading:  77%|███████▋  | 14.6G/19.0G [03:37<01:42, 46.1MiB/s]Loading:  77%|███████▋  | 14.6G/19.0G [03:37<01:41, 46.6MiB/s]Loading:  77%|███████▋  | 14.6G/19.0G [03:37<01:32, 51.1MiB/s]Loading:  77%|███████▋  | 14.6G/19.0G [03:37<01:24, 55.7MiB/s]Loading:  77%|███████▋  | 14.6G/19.0G [03:37<01:24, 55.9MiB/s]Loading:  77%|███████▋  | 14.6G/19.0G [03:37<01:16, 61.6MiB/s]Loading:  77%|███████▋  | 14.6G/19.0G [03:37<01:10, 66.3MiB/s]Loading:  77%|███████▋  | 14.7G/19.0G [03:38<01:06, 69.8MiB/s]Loading:  77%|███████▋  | 14.7G/19.0G [03:38<01:00, 77.6MiB/s]Loading:  77%|███████▋  | 14.7G/19.0G [03:38<00:57, 81.3MiB/s]Loading:  77%|███████▋  | 14.7G/19.0G [03:38<01:16, 60.8MiB/s]Loading:  77%|███████▋  | 14.7G/19.0G [03:38<01:13, 62.6MiB/s]Loading:  77%|███████▋  | 14.7G/19.0G [03:38<01:12, 64.0MiB/s]Loading:  77%|███████▋  | 14.7G/19.0G [03:38<01:13, 62.6MiB/s]Loading:  77%|███████▋  | 14.7G/19.0G [03:39<01:05, 70.3MiB/s]Loading:  77%|███████▋  | 14.7G/19.0G [03:39<01:01, 74.3MiB/s]Loading:  78%|███████▊  | 14.7G/19.0G [03:39<01:17, 59.4MiB/s]Loading:  78%|███████▊  | 14.7G/19.0G [03:39<01:18, 58.1MiB/s]Loading:  78%|███████▊  | 14.7G/19.0G [03:39<01:10, 65.3MiB/s]Loading:  78%|███████▊  | 14.8G/19.0G [03:39<00:59, 76.8MiB/s]Loading:  78%|███████▊  | 14.8G/19.0G [03:39<01:07, 67.9MiB/s]Loading:  78%|███████▊  | 14.8G/19.0G [03:40<01:09, 65.3MiB/s]Loading:  78%|███████▊  | 14.8G/19.0G [03:40<01:02, 71.9MiB/s]Loading:  78%|███████▊  | 14.8G/19.0G [03:40<01:01, 73.4MiB/s]Loading:  78%|███████▊  | 14.8G/19.0G [03:40<01:07, 66.9MiB/s]Loading:  78%|███████▊  | 14.8G/19.0G [03:40<01:17, 58.1MiB/s]Loading:  78%|███████▊  | 14.8G/19.0G [03:40<01:06, 68.0MiB/s]Loading:  78%|███████▊  | 14.8G/19.0G [03:40<01:03, 70.6MiB/s]Loading:  78%|███████▊  | 14.8G/19.0G [03:40<01:04, 69.2MiB/s]Loading:  78%|███████▊  | 14.8G/19.0G [03:41<01:06, 67.2MiB/s]Loading:  78%|███████▊  | 14.8G/19.0G [03:41<01:08, 65.2MiB/s]Loading:  78%|███████▊  | 14.9G/19.0G [03:41<01:08, 65.2MiB/s]Loading:  78%|███████▊  | 14.9G/19.0G [03:41<01:19, 56.2MiB/s]Loading:  78%|███████▊  | 14.9G/19.0G [03:41<01:20, 55.5MiB/s]Loading:  78%|███████▊  | 14.9G/19.0G [03:41<01:11, 61.6MiB/s]Loading:  78%|███████▊  | 14.9G/19.0G [03:41<01:17, 56.9MiB/s]Loading:  78%|███████▊  | 14.9G/19.0G [03:41<01:04, 68.1MiB/s]Loading:  78%|███████▊  | 14.9G/19.0G [03:42<00:49, 88.5MiB/s]Loading:  79%|███████▊  | 14.9G/19.0G [03:42<00:41, 107MiB/s] Loading:  79%|███████▊  | 14.9G/19.0G [03:42<00:32, 134MiB/s]Loading:  79%|███████▊  | 15.0G/19.0G [03:42<00:33, 128MiB/s]Loading:  79%|███████▉  | 15.0G/19.0G [03:42<00:31, 137MiB/s]Loading:  79%|███████▉  | 15.0G/19.0G [03:42<00:30, 141MiB/s]Loading:  79%|███████▉  | 15.0G/19.0G [03:42<00:28, 150MiB/s]Loading:  79%|███████▉  | 15.0G/19.0G [03:42<00:27, 157MiB/s]Loading:  79%|███████▉  | 15.0G/19.0G [03:42<00:27, 153MiB/s]Loading:  79%|███████▉  | 15.1G/19.0G [03:43<00:27, 153MiB/s]Loading:  79%|███████▉  | 15.1G/19.0G [03:43<00:27, 156MiB/s]Loading:  79%|███████▉  | 15.1G/19.0G [03:43<00:29, 141MiB/s]Loading:  79%|███████▉  | 15.1G/19.0G [03:43<00:29, 142MiB/s]Loading:  80%|███████▉  | 15.1G/19.0G [03:43<00:30, 137MiB/s]Loading:  80%|███████▉  | 15.1G/19.0G [03:43<00:29, 141MiB/s]Loading:  80%|███████▉  | 15.1G/19.0G [03:43<00:27, 148MiB/s]Loading:  80%|███████▉  | 15.2G/19.0G [03:43<00:28, 144MiB/s]Loading:  80%|███████▉  | 15.2G/19.0G [03:44<00:30, 137MiB/s]Loading:  80%|███████▉  | 15.2G/19.0G [03:44<00:29, 139MiB/s]Loading:  80%|███████▉  | 15.2G/19.0G [03:44<00:27, 146MiB/s]Loading:  80%|████████  | 15.2G/19.0G [03:44<00:30, 133MiB/s]Loading:  80%|████████  | 15.2G/19.0G [03:44<00:29, 138MiB/s]Loading:  80%|████████  | 15.2G/19.0G [03:44<00:26, 150MiB/s]Loading:  80%|████████  | 15.3G/19.0G [03:44<00:25, 157MiB/s]Loading:  80%|████████  | 15.3G/19.0G [03:44<00:27, 147MiB/s]Loading:  80%|████████  | 15.3G/19.0G [03:44<00:26, 148MiB/s]Loading:  81%|████████  | 15.3G/19.0G [03:45<00:25, 153MiB/s]Loading:  81%|████████  | 15.3G/19.0G [03:45<00:26, 148MiB/s]Loading:  81%|████████  | 15.3G/19.0G [03:45<00:26, 151MiB/s]Loading:  81%|████████  | 15.4G/19.0G [03:45<00:25, 151MiB/s]Loading:  81%|████████  | 15.4G/19.0G [03:45<00:26, 147MiB/s]Loading:  81%|████████  | 15.4G/19.0G [03:45<00:25, 153MiB/s]Loading:  81%|████████  | 15.4G/19.0G [03:45<00:25, 151MiB/s]Loading:  81%|████████  | 15.4G/19.0G [03:45<00:26, 143MiB/s]Loading:  81%|████████  | 15.4G/19.0G [03:45<00:26, 144MiB/s]Loading:  81%|████████▏ | 15.4G/19.0G [03:45<00:25, 150MiB/s]Loading:  81%|████████▏ | 15.5G/19.0G [03:46<00:26, 144MiB/s]Loading:  81%|████████▏ | 15.5G/19.0G [03:46<00:25, 148MiB/s]Loading:  82%|████████▏ | 15.5G/19.0G [03:46<00:23, 159MiB/s]Loading:  82%|████████▏ | 15.5G/19.0G [03:46<00:25, 147MiB/s]Loading:  82%|████████▏ | 15.5G/19.0G [03:46<00:24, 152MiB/s]Loading:  82%|████████▏ | 15.5G/19.0G [03:46<00:24, 153MiB/s]Loading:  82%|████████▏ | 15.6G/19.0G [03:46<00:24, 150MiB/s]Loading:  82%|████████▏ | 15.6G/19.0G [03:46<00:25, 145MiB/s]Loading:  82%|████████▏ | 15.6G/19.0G [03:46<00:24, 148MiB/s]Loading:  82%|████████▏ | 15.6G/19.0G [03:47<00:24, 146MiB/s]Loading:  82%|████████▏ | 15.6G/19.0G [03:47<00:25, 145MiB/s]Loading:  82%|████████▏ | 15.6G/19.0G [03:47<00:27, 134MiB/s]Loading:  82%|████████▏ | 15.6G/19.0G [03:47<00:26, 138MiB/s]Loading:  82%|████████▏ | 15.7G/19.0G [03:47<00:25, 141MiB/s]Loading:  82%|████████▏ | 15.7G/19.0G [03:47<00:24, 148MiB/s]Loading:  83%|████████▎ | 15.7G/19.0G [03:47<00:25, 139MiB/s]Loading:  83%|████████▎ | 15.7G/19.0G [03:47<00:25, 137MiB/s]Loading:  83%|████████▎ | 15.7G/19.0G [03:48<00:26, 134MiB/s]Loading:  83%|████████▎ | 15.7G/19.0G [03:48<00:25, 136MiB/s]Loading:  83%|████████▎ | 15.7G/19.0G [03:48<00:25, 138MiB/s]Loading:  83%|████████▎ | 15.8G/19.0G [03:48<00:25, 138MiB/s]Loading:  83%|████████▎ | 15.8G/19.0G [03:48<00:24, 142MiB/s]Loading:  83%|████████▎ | 15.8G/19.0G [03:48<00:23, 146MiB/s]Loading:  83%|████████▎ | 15.8G/19.0G [03:48<00:23, 148MiB/s]Loading:  83%|████████▎ | 15.8G/19.0G [03:48<00:24, 141MiB/s]Loading:  83%|████████▎ | 15.8G/19.0G [03:48<00:24, 140MiB/s]Loading:  83%|████████▎ | 15.8G/19.0G [03:48<00:24, 137MiB/s]Loading:  83%|████████▎ | 15.9G/19.0G [03:49<00:26, 129MiB/s]Loading:  84%|████████▎ | 15.9G/19.0G [03:49<00:24, 138MiB/s]Loading:  84%|████████▎ | 15.9G/19.0G [03:49<00:21, 155MiB/s]Loading:  84%|████████▎ | 15.9G/19.0G [03:49<00:19, 174MiB/s]Loading:  84%|████████▍ | 15.9G/19.0G [03:49<00:19, 165MiB/s]Loading:  84%|████████▍ | 15.9G/19.0G [03:49<00:20, 158MiB/s]Loading:  84%|████████▍ | 16.0G/19.0G [03:49<00:22, 148MiB/s]Loading:  84%|████████▍ | 16.0G/19.0G [03:49<00:21, 154MiB/s]Loading:  84%|████████▍ | 16.0G/19.0G [03:50<00:20, 155MiB/s]Loading:  84%|████████▍ | 16.0G/19.0G [03:50<00:20, 154MiB/s]Loading:  84%|████████▍ | 16.0G/19.0G [03:50<00:20, 155MiB/s]Loading:  84%|████████▍ | 16.0G/19.0G [03:50<00:20, 158MiB/s]Loading:  85%|████████▍ | 16.1G/19.0G [03:50<00:17, 177MiB/s]Loading:  85%|████████▍ | 16.1G/19.0G [03:50<00:19, 162MiB/s]Loading:  85%|████████▍ | 16.1G/19.0G [03:50<00:19, 159MiB/s]Loading:  85%|████████▍ | 16.1G/19.0G [03:50<00:19, 159MiB/s]Loading:  85%|████████▍ | 16.1G/19.0G [03:50<00:19, 160MiB/s]Loading:  85%|████████▍ | 16.1G/19.0G [03:51<00:20, 153MiB/s]Loading:  85%|████████▌ | 16.2G/19.0G [03:51<00:19, 153MiB/s]Loading:  85%|████████▌ | 16.2G/19.0G [03:51<00:19, 157MiB/s]Loading:  85%|████████▌ | 16.2G/19.0G [03:51<00:19, 158MiB/s]Loading:  85%|████████▌ | 16.2G/19.0G [03:51<00:20, 144MiB/s]Loading:  85%|████████▌ | 16.2G/19.0G [03:51<00:21, 141MiB/s]Loading:  85%|████████▌ | 16.2G/19.0G [03:51<00:21, 137MiB/s]Loading:  86%|████████▌ | 16.2G/19.0G [03:51<00:20, 144MiB/s]Loading:  86%|████████▌ | 16.3G/19.0G [03:51<00:20, 145MiB/s]Loading:  86%|████████▌ | 16.3G/19.0G [03:52<00:20, 146MiB/s]Loading:  86%|████████▌ | 16.3G/19.0G [03:52<00:20, 143MiB/s]Loading:  86%|████████▌ | 16.3G/19.0G [03:52<00:23, 124MiB/s]Loading:  86%|████████▌ | 16.3G/19.0G [03:52<00:22, 128MiB/s]Loading:  86%|████████▌ | 16.3G/19.0G [03:52<00:22, 126MiB/s]Loading:  86%|████████▌ | 16.3G/19.0G [03:52<00:22, 129MiB/s]Loading:  86%|████████▌ | 16.4G/19.0G [03:52<00:20, 136MiB/s]Loading:  86%|████████▌ | 16.4G/19.0G [03:52<00:22, 123MiB/s]Loading:  86%|████████▌ | 16.4G/19.0G [03:52<00:22, 125MiB/s]Loading:  86%|████████▋ | 16.4G/19.0G [03:53<00:23, 119MiB/s]Loading:  86%|████████▋ | 16.4G/19.0G [03:53<00:23, 116MiB/s]Loading:  87%|████████▋ | 16.5G/19.0G [03:53<00:12, 220MiB/s]Loading:  87%|████████▋ | 16.5G/19.0G [03:53<00:17, 157MiB/s]Loading:  87%|████████▋ | 16.5G/19.0G [03:53<00:18, 147MiB/s]Loading:  87%|████████▋ | 16.5G/19.0G [03:53<00:19, 134MiB/s]Loading:  87%|████████▋ | 16.5G/19.0G [03:54<00:20, 132MiB/s]Loading:  87%|████████▋ | 16.5G/19.0G [03:54<00:21, 121MiB/s]Loading:  87%|████████▋ | 16.6G/19.0G [03:54<00:21, 123MiB/s]Loading:  87%|████████▋ | 16.6G/19.0G [03:54<00:20, 125MiB/s]Loading:  87%|████████▋ | 16.6G/19.0G [03:54<00:20, 125MiB/s]Loading:  87%|████████▋ | 16.6G/19.0G [03:54<00:20, 127MiB/s]Loading:  87%|████████▋ | 16.6G/19.0G [03:54<00:20, 128MiB/s]Loading:  87%|████████▋ | 16.6G/19.0G [03:54<00:19, 133MiB/s]Loading:  88%|████████▊ | 16.6G/19.0G [03:54<00:17, 142MiB/s]Loading:  88%|████████▊ | 16.7G/19.0G [03:55<00:18, 139MiB/s]Loading:  88%|████████▊ | 16.7G/19.0G [03:55<00:16, 154MiB/s]Loading:  88%|████████▊ | 16.7G/19.0G [03:55<00:16, 155MiB/s]Loading:  88%|████████▊ | 16.7G/19.0G [03:55<00:13, 176MiB/s]Loading:  88%|████████▊ | 16.8G/19.0G [03:55<00:06, 348MiB/s]Loading:  89%|████████▉ | 16.9G/19.0G [03:55<00:04, 515MiB/s]Loading:  89%|████████▉ | 17.0G/19.0G [03:55<00:03, 627MiB/s]Loading:  90%|████████▉ | 17.0G/19.0G [03:55<00:02, 724MiB/s]Loading:  90%|█████████ | 17.1G/19.0G [03:55<00:02, 780MiB/s]Loading:  91%|█████████ | 17.2G/19.0G [03:55<00:02, 823MiB/s]Loading:  91%|█████████ | 17.3G/19.0G [03:56<00:02, 849MiB/s]Loading:  91%|█████████▏| 17.4G/19.0G [03:56<00:01, 871MiB/s]Loading:  92%|█████████▏| 17.5G/19.0G [03:56<00:01, 828MiB/s]Loading:  92%|█████████▏| 17.6G/19.0G [03:56<00:01, 857MiB/s]Loading:  93%|█████████▎| 17.6G/19.0G [03:56<00:01, 869MiB/s]Loading:  93%|█████████▎| 17.7G/19.0G [03:56<00:01, 887MiB/s]Loading:  94%|█████████▎| 17.8G/19.0G [03:56<00:01, 880MiB/s]Loading:  94%|█████████▍| 17.9G/19.0G [03:56<00:01, 891MiB/s]Loading:  95%|█████████▍| 18.0G/19.0G [03:56<00:01, 806MiB/s]Loading:  95%|█████████▌| 18.1G/19.0G [03:57<00:01, 510MiB/s]Loading:  95%|█████████▌| 18.1G/19.0G [03:57<00:02, 444MiB/s]Loading:  96%|█████████▌| 18.2G/19.0G [03:57<00:01, 542MiB/s]Loading:  96%|█████████▋| 18.3G/19.0G [03:57<00:01, 631MiB/s]Loading:  97%|█████████▋| 18.4G/19.0G [03:57<00:00, 702MiB/s]Loading:  97%|█████████▋| 18.5G/19.0G [03:57<00:00, 769MiB/s]Loading:  98%|█████████▊| 18.6G/19.0G [03:57<00:00, 813MiB/s]Loading:  98%|█████████▊| 18.7G/19.0G [03:58<00:00, 855MiB/s]Loading:  99%|█████████▊| 18.7G/19.0G [03:58<00:00, 878MiB/s]Loading:  99%|█████████▉| 18.8G/19.0G [03:58<00:00, 903MiB/s]Loading: 100%|█████████▉| 18.9G/19.0G [03:58<00:00, 912MiB/s]Loading: 100%|██████████| 19.0G/19.0G [04:24<00:00, 912MiB/s]Loading: 100%|██████████| 19.0G/19.0G [04:56<00:00, 68.9MiB/s]
 Model Loaded
 Model Set to Inference
-     drugbank_id  ...                                             blocks
-5        DB00878  ...  [[3*]C(=N)NC(=N)Nc1ccc(Cl)cc1^[2*]NCCCCCCN[1*]...
-9        DB01110  ...  [[3*]c1ccc(Cl)cc1Cl^[2*]COC([1*])Cn1ccnc1^[3*]...
-40       DB00501  ...   [[3*]c1nc[nH]c1C^[2*]CSCCN[1*]^[3*]/C(=N\C#N)NC]
-41       DB00863  ...  [[3*]c1ccc(CN(C)C)o1^[2*]CSCCN[1*]^[3*]C(=C[N+...
-43       DB00585  ...  [[3*]c1csc(CN(C)C)n1^[2*]CSCCN[1*]^[3*]C(=C[N+...
-...          ...  ...                                                ...
-2936     DB12407  ...  [[3*]N(C)CC(O)CO^[2*]C(=O)c1c(I)c(NC(=O)C(CO)C...
-2937     DB09135  ...  [[3*]NCC(O)CO^[2*]C(=O)c1c(I)c([1*])c(I)c(C(=O...
-2938     DB04711  ...  [[3*]Nc1c(I)cc(I)c(C(=O)O)c1I^[2*]C(=O)CCCCC([...
-2963     DB09149  ...  [[3*]c1ccc(NC)cc1^[2*]/C=C/c1ccc([1*])nc1^[3*]...
-2964     DB09148  ...  [[3*]c1ccc(NC)cc1^[2*]/C=C/c1ccc([1*])cc1^[3*]...
-
-[635 rows x 7 columns]
-
-  0%|          | 0/1 [00:00<?, ?it/s]Starting fresh.
-
-
-  0%|          | 0/635 [00:00<?, ?it/s][A
-
-  0%|          | 1/635 [00:07<1:22:56,  7.85s/it][A
-
-  0%|          | 2/635 [00:13<1:08:59,  6.54s/it][A
-
-  0%|          | 3/635 [00:19<1:05:17,  6.20s/it][A
-
-  1%|          | 4/635 [00:25<1:03:42,  6.06s/it][A
-
-  1%|          | 5/635 [00:30<1:02:46,  5.98s/it][A
-
-  1%|▏         | 8/635 [00:36<36:46,  3.52s/it]  [A
-
-  1%|▏         | 9/635 [00:44<45:44,  4.38s/it][A
-
-  2%|▏         | 10/635 [00:49<49:08,  4.72s/it][A
-
-  2%|▏         | 12/635 [00:55<41:10,  3.97s/it][A
-
-  2%|▏         | 13/635 [01:01<45:24,  4.38s/it][A
-
-  2%|▏         | 14/635 [01:07<49:02,  4.74s/it][A
-
-  2%|▏         | 15/635 [01:13<51:48,  5.01s/it][A
-
-  3%|▎         | 20/635 [01:18<25:42,  2.51s/it][A
-
-  3%|▎         | 21/635 [01:24<30:56,  3.02s/it][A
-
-  3%|▎         | 22/635 [01:30<35:45,  3.50s/it][A
-
-  4%|▍         | 24/635 [01:36<33:30,  3.29s/it][A
-
-  4%|▍         | 25/635 [01:41<38:26,  3.78s/it][A
-
-  4%|▍         | 26/635 [01:48<45:42,  4.50s/it][A
-
-  4%|▍         | 27/635 [01:57<55:47,  5.51s/it][A
-
-  4%|▍         | 28/635 [02:04<1:00:24,  5.97s/it][A
-
-  5%|▍         | 29/635 [02:13<1:07:44,  6.71s/it][A
-
-  5%|▍         | 30/635 [02:19<1:05:09,  6.46s/it][A
-
-  5%|▌         | 32/635 [02:28<55:36,  5.53s/it]  [A
-
-  5%|▌         | 33/635 [02:33<56:00,  5.58s/it][A
-
-  5%|▌         | 34/635 [02:39<56:15,  5.62s/it][A
-
-  6%|▌         | 35/635 [02:45<56:32,  5.65s/it][A
-
-  6%|▌         | 36/635 [02:51<56:51,  5.70s/it][A
-
-  6%|▌         | 37/635 [02:57<57:02,  5.72s/it][A
-
-  6%|▌         | 38/635 [03:02<57:05,  5.74s/it][A
-
-  6%|▌         | 39/635 [03:10<1:01:24,  6.18s/it][A
-
-  6%|▋         | 41/635 [03:15<46:23,  4.69s/it]  [A
-
-  7%|▋         | 43/635 [03:21<39:02,  3.96s/it][A
-
-  7%|▋         | 44/635 [03:27<42:38,  4.33s/it][A
-
-  7%|▋         | 46/635 [03:32<37:06,  3.78s/it][A
-
-  7%|▋         | 47/635 [03:38<41:13,  4.21s/it][A
-
-  8%|▊         | 48/635 [03:45<47:42,  4.88s/it][A
-
-  8%|▊         | 49/635 [03:51<49:50,  5.10s/it][A
-
-  8%|▊         | 51/635 [03:57<40:20,  4.15s/it][A
-
-  9%|▉         | 59/635 [04:02<16:38,  1.73s/it][A
-
- 10%|▉         | 61/635 [04:08<18:50,  1.97s/it][A
-
- 10%|▉         | 62/635 [04:14<23:21,  2.45s/it][A
-
- 10%|▉         | 63/635 [04:25<36:20,  3.81s/it][A
-
- 10%|█         | 64/635 [04:31<39:32,  4.16s/it][A
-
- 10%|█         | 65/635 [04:37<42:31,  4.48s/it][A
-
- 10%|█         | 66/635 [04:45<51:04,  5.39s/it][A
-
- 11%|█         | 67/635 [04:54<58:14,  6.15s/it][A
-
- 11%|█         | 68/635 [05:00<57:08,  6.05s/it][A
-
- 11%|█         | 69/635 [05:06<56:22,  5.98s/it][A
-
- 11%|█         | 70/635 [05:11<55:45,  5.92s/it][A
-
- 11%|█         | 71/635 [05:17<55:11,  5.87s/it][A
-
- 11%|█▏        | 72/635 [05:23<54:35,  5.82s/it][A
-
- 11%|█▏        | 73/635 [05:30<58:20,  6.23s/it][A
-
- 12%|█▏        | 74/635 [05:37<1:01:01,  6.53s/it][A
-
- 12%|█▏        | 75/635 [05:43<59:03,  6.33s/it]  [A
-
- 12%|█▏        | 76/635 [05:54<1:13:05,  7.85s/it][A
-
- 12%|█▏        | 77/635 [06:03<1:14:57,  8.06s/it][A
-
- 12%|█▏        | 78/635 [06:10<1:12:52,  7.85s/it][A
-
- 12%|█▏        | 79/635 [06:16<1:07:05,  7.24s/it][A
-
- 13%|█▎        | 80/635 [06:22<1:03:06,  6.82s/it][A
-
- 13%|█▎        | 81/635 [06:31<1:08:05,  7.37s/it][A
-
- 13%|█▎        | 82/635 [06:38<1:07:29,  7.32s/it][A
-
- 13%|█▎        | 83/635 [06:45<1:06:43,  7.25s/it][A
-
- 13%|█▎        | 84/635 [06:51<1:02:26,  6.80s/it][A
-
- 13%|█▎        | 85/635 [06:57<59:32,  6.50s/it]  [A
-
- 14%|█▍        | 88/635 [07:02<35:42,  3.92s/it][A
-
- 14%|█▍        | 89/635 [07:08<39:10,  4.30s/it][A
-
- 14%|█▍        | 90/635 [07:14<42:17,  4.66s/it][A
-
- 14%|█▍        | 91/635 [07:20<44:43,  4.93s/it][A
-
- 14%|█▍        | 92/635 [07:25<46:39,  5.16s/it][A
-
- 15%|█▍        | 93/635 [07:31<47:54,  5.30s/it][A
-
- 15%|█▍        | 94/635 [07:37<48:57,  5.43s/it][A
-
- 15%|█▍        | 95/635 [07:43<49:48,  5.53s/it][A
-
- 15%|█▌        | 96/635 [07:49<50:36,  5.63s/it][A
-
- 15%|█▌        | 98/635 [08:00<50:16,  5.62s/it][A
-
- 16%|█▌        | 99/635 [08:06<50:49,  5.69s/it][A
-
- 16%|█▌        | 100/635 [08:11<50:56,  5.71s/it][A
-
- 16%|█▌        | 101/635 [08:17<50:51,  5.72s/it][A
-
- 16%|█▌        | 102/635 [08:23<51:06,  5.75s/it][A
-
- 16%|█▌        | 103/635 [08:29<50:50,  5.73s/it][A
-
- 16%|█▋        | 104/635 [08:34<50:41,  5.73s/it][A
-
- 17%|█▋        | 105/635 [08:40<50:27,  5.71s/it][A
-
- 17%|█▋        | 106/635 [08:46<50:51,  5.77s/it][A
-
- 17%|█▋        | 107/635 [08:53<54:35,  6.20s/it][A
-
- 17%|█▋        | 109/635 [08:59<41:11,  4.70s/it][A
-
- 17%|█▋        | 110/635 [09:05<43:27,  4.97s/it][A
-
- 17%|█▋        | 111/635 [09:11<45:12,  5.18s/it][A
-
- 18%|█▊        | 112/635 [09:16<46:30,  5.34s/it][A
-
- 18%|█▊        | 113/635 [09:22<47:27,  5.45s/it][A
-
- 18%|█▊        | 114/635 [09:28<48:03,  5.54s/it][A
-
- 18%|█▊        | 116/635 [09:34<37:37,  4.35s/it][A
-
- 18%|█▊        | 117/635 [09:42<46:27,  5.38s/it][A
-
- 19%|█▊        | 118/635 [09:48<47:29,  5.51s/it][A
-
- 19%|█▊        | 119/635 [09:54<48:03,  5.59s/it][A
-
- 19%|█▉        | 122/635 [10:00<30:56,  3.62s/it][A
-
- 19%|█▉        | 123/635 [10:05<34:29,  4.04s/it][A
-
- 20%|█▉        | 124/635 [10:11<37:41,  4.43s/it][A
-
- 20%|█▉        | 125/635 [10:20<46:37,  5.49s/it][A
-
- 20%|█▉        | 126/635 [10:26<47:04,  5.55s/it][A
-
- 20%|██        | 127/635 [10:31<47:23,  5.60s/it][A
-
- 21%|██        | 132/635 [10:37<22:28,  2.68s/it][A
-
- 21%|██        | 134/635 [10:44<24:35,  2.95s/it][A
-
- 21%|██▏       | 135/635 [10:50<28:26,  3.41s/it][A
-
- 21%|██▏       | 136/635 [10:56<32:01,  3.85s/it][A
-
- 22%|██▏       | 137/635 [11:02<35:14,  4.25s/it][A
-
- 22%|██▏       | 138/635 [11:09<40:53,  4.94s/it][A
-
- 22%|██▏       | 139/635 [11:16<45:28,  5.50s/it][A
-
- 22%|██▏       | 140/635 [11:22<45:47,  5.55s/it][A
-
- 22%|██▏       | 141/635 [11:27<45:47,  5.56s/it][A
-
- 22%|██▏       | 142/635 [11:33<46:07,  5.61s/it][A
-
- 23%|██▎       | 143/635 [11:39<46:20,  5.65s/it][A
-
- 23%|██▎       | 145/635 [11:45<36:07,  4.42s/it][A
-
- 23%|██▎       | 146/635 [11:52<41:40,  5.11s/it][A
-
- 23%|██▎       | 147/635 [11:58<43:01,  5.29s/it][A
-
- 23%|██▎       | 148/635 [12:04<44:03,  5.43s/it][A
-
- 23%|██▎       | 149/635 [12:09<44:42,  5.52s/it][A
-
- 24%|██▎       | 150/635 [12:15<45:13,  5.59s/it][A
-
- 24%|██▍       | 151/635 [12:21<45:44,  5.67s/it][A
-
- 24%|██▍       | 152/635 [12:28<49:31,  6.15s/it][A
-
- 26%|██▌       | 162/635 [12:36<13:58,  1.77s/it][A
-
- 26%|██▌       | 163/635 [12:44<19:37,  2.50s/it][A
-
- 26%|██▌       | 164/635 [12:53<25:53,  3.30s/it][A
-
- 26%|██▌       | 165/635 [13:00<30:34,  3.90s/it][A
-
- 26%|██▌       | 166/635 [13:07<34:59,  4.48s/it][A
-
- 26%|██▋       | 167/635 [13:15<39:19,  5.04s/it][A
-
- 26%|██▋       | 168/635 [13:25<48:30,  6.23s/it][A
-
- 29%|██▊       | 182/635 [13:31<11:01,  1.46s/it][A
-
- 29%|██▉       | 183/635 [13:38<14:18,  1.90s/it][A
-
- 30%|██▉       | 189/635 [13:43<11:20,  1.52s/it][A
-
- 30%|██▉       | 190/635 [13:51<14:56,  2.02s/it][A
-
- 30%|███       | 191/635 [13:56<17:59,  2.43s/it][A
-
- 30%|███       | 192/635 [14:02<21:17,  2.88s/it][A
-
- 30%|███       | 193/635 [14:08<24:36,  3.34s/it][A
-
- 31%|███       | 194/635 [14:16<31:41,  4.31s/it][A
-
- 33%|███▎      | 212/635 [14:22<07:01,  1.00it/s][A
-
- 34%|███▎      | 213/635 [14:28<09:02,  1.29s/it][A
-
- 34%|███▎      | 214/635 [14:33<11:31,  1.64s/it][A
-
- 34%|███▍      | 215/635 [14:39<14:26,  2.06s/it][A
-
- 34%|███▍      | 216/635 [14:45<17:38,  2.53s/it][A
-
- 34%|███▍      | 217/635 [14:51<21:09,  3.04s/it][A
-
- 34%|███▍      | 218/635 [14:56<24:31,  3.53s/it][A
-
- 34%|███▍      | 219/635 [15:02<27:31,  3.97s/it][A
-
- 35%|███▍      | 220/635 [15:08<30:11,  4.37s/it][A
-
- 35%|███▌      | 223/635 [15:13<21:37,  3.15s/it][A
-
- 35%|███▌      | 225/635 [15:25<27:21,  4.00s/it][A
-
- 36%|███▌      | 226/635 [15:31<29:39,  4.35s/it][A
-
- 36%|███▌      | 227/635 [15:37<31:37,  4.65s/it][A
-
- 36%|███▌      | 228/635 [15:42<33:17,  4.91s/it][A
-
- 36%|███▌      | 229/635 [15:48<34:37,  5.12s/it][A
-
- 36%|███▌      | 230/635 [15:54<35:36,  5.28s/it][A
-
- 36%|███▋      | 231/635 [16:00<36:16,  5.39s/it][A
-
- 37%|███▋      | 233/635 [16:07<31:02,  4.63s/it][A
-
- 37%|███▋      | 234/635 [16:13<32:45,  4.90s/it][A
-
- 37%|███▋      | 235/635 [16:24<43:47,  6.57s/it][A
-
- 37%|███▋      | 236/635 [16:30<42:10,  6.34s/it][A
-
- 37%|███▋      | 238/635 [16:37<34:19,  5.19s/it][A
-
- 38%|███▊      | 240/635 [16:43<28:17,  4.30s/it][A
-
- 38%|███▊      | 243/635 [16:49<21:04,  3.23s/it][A
-
- 39%|███▊      | 245/635 [16:54<20:23,  3.14s/it][A
-
- 39%|███▊      | 246/635 [17:02<25:09,  3.88s/it][A
-
- 40%|███▉      | 252/635 [17:08<13:32,  2.12s/it][A
-
- 40%|███▉      | 253/635 [17:13<16:25,  2.58s/it][A
-
- 42%|████▏     | 265/635 [17:19<07:02,  1.14s/it][A
-
- 42%|████▏     | 266/635 [17:25<09:10,  1.49s/it][A
-
- 42%|████▏     | 267/635 [17:31<11:45,  1.92s/it][A
-
- 42%|████▏     | 268/635 [17:36<14:33,  2.38s/it][A
-
- 42%|████▏     | 269/635 [17:42<17:28,  2.87s/it][A
-
- 43%|████▎     | 271/635 [17:48<17:21,  2.86s/it][A
-
- 43%|████▎     | 272/635 [17:56<23:26,  3.87s/it][A
-
- 43%|████▎     | 273/635 [18:02<25:40,  4.25s/it][A
-
- 43%|████▎     | 275/635 [18:09<24:00,  4.00s/it][A
-
- 43%|████▎     | 276/635 [18:17<28:02,  4.69s/it][A
-
- 44%|████▎     | 277/635 [18:22<29:17,  4.91s/it][A
-
- 44%|████▍     | 279/635 [18:28<24:29,  4.13s/it][A
-
- 44%|████▍     | 280/635 [18:34<26:34,  4.49s/it][A
-
- 44%|████▍     | 281/635 [18:41<30:24,  5.15s/it][A
-
- 44%|████▍     | 282/635 [18:50<35:25,  6.02s/it][A
-
- 45%|████▍     | 283/635 [18:56<34:50,  5.94s/it][A
-
- 45%|████▍     | 284/635 [19:01<34:16,  5.86s/it][A
-
- 45%|████▍     | 285/635 [19:07<33:54,  5.81s/it][A
-
- 45%|████▌     | 286/635 [19:13<33:34,  5.77s/it][A
-
- 45%|████▌     | 288/635 [19:24<33:04,  5.72s/it][A
-
- 46%|████▌     | 289/635 [19:34<39:20,  6.82s/it][A
-
- 46%|████▌     | 290/635 [19:44<44:13,  7.69s/it][A
-
- 46%|████▌     | 291/635 [19:53<45:49,  7.99s/it][A
-
- 46%|████▌     | 292/635 [20:04<51:07,  8.94s/it][A
-
- 46%|████▌     | 293/635 [20:12<48:16,  8.47s/it][A
-
- 46%|████▋     | 294/635 [20:19<45:47,  8.06s/it][A
-
- 46%|████▋     | 295/635 [20:26<44:23,  7.83s/it][A
-
- 47%|████▋     | 296/635 [20:38<50:31,  8.94s/it][A
-
- 47%|████▋     | 297/635 [20:49<54:30,  9.67s/it][A
-
- 47%|████▋     | 298/635 [20:55<47:40,  8.49s/it][A
-
- 47%|████▋     | 299/635 [21:01<42:56,  7.67s/it][A
-
- 47%|████▋     | 300/635 [21:06<39:48,  7.13s/it][A
-
- 47%|████▋     | 301/635 [21:14<39:59,  7.18s/it][A
-
- 48%|████▊     | 302/635 [21:25<46:49,  8.44s/it][A
-
- 48%|████▊     | 304/635 [21:31<32:26,  5.88s/it][A
-
- 48%|████▊     | 305/635 [21:38<34:23,  6.25s/it][A
-
- 48%|████▊     | 306/635 [21:44<33:40,  6.14s/it][A
-
- 48%|████▊     | 307/635 [21:50<33:05,  6.05s/it][A
-
- 49%|████▊     | 308/635 [21:56<32:37,  5.99s/it][A
-
- 49%|████▊     | 309/635 [22:01<32:11,  5.92s/it][A
-
- 49%|████▉     | 310/635 [22:07<31:42,  5.85s/it][A
-
- 49%|████▉     | 311/635 [22:13<31:24,  5.82s/it][A
-
- 49%|████▉     | 312/635 [22:19<31:18,  5.82s/it][A
-
- 49%|████▉     | 313/635 [22:25<31:13,  5.82s/it][A
-
- 49%|████▉     | 314/635 [22:30<31:06,  5.82s/it][A
-
- 50%|████▉     | 315/635 [22:36<30:46,  5.77s/it][A
-
- 50%|████▉     | 316/635 [22:42<30:43,  5.78s/it][A
-
- 50%|████▉     | 317/635 [22:49<32:58,  6.22s/it][A
-
- 50%|█████     | 318/635 [22:55<32:10,  6.09s/it][A
-
- 50%|█████     | 319/635 [23:02<33:45,  6.41s/it][A
-
- 51%|█████     | 321/635 [23:08<24:51,  4.75s/it][A
-
- 51%|█████     | 322/635 [23:13<26:10,  5.02s/it][A
-
- 51%|█████     | 323/635 [23:19<26:53,  5.17s/it][A
-
- 51%|█████     | 324/635 [23:25<27:35,  5.32s/it][A
-
- 51%|█████     | 325/635 [23:33<32:24,  6.27s/it][A
-
- 51%|█████▏    | 326/635 [23:39<31:37,  6.14s/it][A
-
- 51%|█████▏    | 327/635 [23:45<30:59,  6.04s/it][A
-
- 52%|█████▏    | 328/635 [23:51<30:23,  5.94s/it][A
-
- 52%|█████▏    | 329/635 [23:57<30:04,  5.90s/it][A
-
- 52%|█████▏    | 330/635 [24:02<29:50,  5.87s/it][A
-
- 52%|█████▏    | 331/635 [24:10<31:41,  6.26s/it][A
-
- 52%|█████▏    | 332/635 [24:18<34:57,  6.92s/it][A
-
- 52%|█████▏    | 333/635 [24:27<37:10,  7.39s/it][A
-
- 53%|█████▎    | 334/635 [24:35<39:01,  7.78s/it][A
-
- 53%|█████▎    | 335/635 [24:44<40:14,  8.05s/it][A
-
- 53%|█████▎    | 336/635 [24:52<40:53,  8.21s/it][A
-
- 53%|█████▎    | 337/635 [25:00<39:12,  7.89s/it][A
-
- 53%|█████▎    | 338/635 [25:05<35:54,  7.25s/it][A
-
- 53%|█████▎    | 339/635 [25:13<35:51,  7.27s/it][A
-
- 54%|█████▎    | 340/635 [25:20<35:41,  7.26s/it][A
-
- 54%|█████▎    | 341/635 [25:27<35:22,  7.22s/it][A
-
- 54%|█████▍    | 342/635 [25:33<33:00,  6.76s/it][A
-
- 54%|█████▍    | 343/635 [25:38<31:22,  6.45s/it][A
-
- 54%|█████▍    | 344/635 [25:47<34:29,  7.11s/it][A
-
- 54%|█████▍    | 346/635 [25:56<27:54,  5.79s/it][A
-
- 55%|█████▍    | 347/635 [26:04<31:09,  6.49s/it][A
-
- 55%|█████▍    | 348/635 [26:10<30:18,  6.34s/it][A
-
- 55%|█████▍    | 349/635 [26:20<34:49,  7.31s/it][A
-
- 55%|█████▌    | 350/635 [26:29<36:24,  7.67s/it][A
-
- 55%|█████▌    | 351/635 [26:34<33:40,  7.12s/it][A
-
- 55%|█████▌    | 352/635 [26:40<31:49,  6.75s/it][A
-
- 56%|█████▌    | 353/635 [26:46<30:25,  6.48s/it][A
-
- 56%|█████▌    | 357/635 [26:53<16:29,  3.56s/it][A
-
- 56%|█████▋    | 358/635 [27:03<21:54,  4.74s/it][A
-
- 57%|█████▋    | 359/635 [27:12<25:28,  5.54s/it][A
-
- 57%|█████▋    | 361/635 [27:19<21:55,  4.80s/it][A
-
- 57%|█████▋    | 364/635 [27:28<17:46,  3.94s/it][A
-
- 57%|█████▋    | 365/635 [27:36<21:31,  4.78s/it][A
-
- 58%|█████▊    | 366/635 [27:42<22:27,  5.01s/it][A
-
- 58%|█████▊    | 367/635 [27:48<23:03,  5.16s/it][A
-
- 58%|█████▊    | 368/635 [27:57<26:43,  6.01s/it][A
-
- 58%|█████▊    | 369/635 [28:02<26:15,  5.92s/it][A
-
- 58%|█████▊    | 370/635 [28:10<27:44,  6.28s/it][A
-
- 58%|█████▊    | 371/635 [28:15<27:00,  6.14s/it][A
-
- 59%|█████▊    | 372/635 [28:23<28:10,  6.43s/it][A
-
- 59%|█████▊    | 373/635 [28:28<27:16,  6.24s/it][A
-
- 59%|█████▉    | 374/635 [28:38<31:54,  7.34s/it][A
-
- 59%|█████▉    | 375/635 [28:44<29:48,  6.88s/it][A
-
- 59%|█████▉    | 376/635 [28:50<28:17,  6.55s/it][A
-
- 59%|█████▉    | 377/635 [28:57<29:07,  6.77s/it][A
-
- 60%|█████▉    | 378/635 [29:03<27:40,  6.46s/it][A
-
- 60%|█████▉    | 379/635 [29:10<28:23,  6.65s/it][A
-
- 60%|█████▉    | 380/635 [29:16<27:12,  6.40s/it][A
-
- 60%|██████    | 381/635 [29:22<26:21,  6.22s/it][A
-
- 60%|██████    | 382/635 [29:27<25:45,  6.11s/it][A
-
- 60%|██████    | 383/635 [29:35<27:13,  6.48s/it][A
-
- 60%|██████    | 384/635 [29:40<26:06,  6.24s/it][A
-
- 61%|██████    | 385/635 [29:46<25:20,  6.08s/it][A
-
- 61%|██████    | 386/635 [29:52<24:52,  6.00s/it][A
-
- 61%|██████    | 387/635 [30:00<27:39,  6.69s/it][A
-
- 61%|██████    | 388/635 [30:08<28:15,  6.86s/it][A
-
- 61%|██████▏   | 389/635 [30:16<30:31,  7.44s/it][A
-
- 61%|██████▏   | 390/635 [30:26<33:39,  8.24s/it][A
-
- 62%|██████▏   | 391/635 [30:38<37:40,  9.26s/it][A
-
- 62%|██████▏   | 392/635 [30:44<33:23,  8.24s/it][A
-
- 62%|██████▏   | 393/635 [30:56<37:20,  9.26s/it][A
-
- 62%|██████▏   | 394/635 [31:01<32:51,  8.18s/it][A
-
- 62%|██████▏   | 395/635 [31:13<36:33,  9.14s/it][A
-
- 62%|██████▏   | 396/635 [31:18<32:22,  8.13s/it][A
-
- 63%|██████▎   | 399/635 [31:30<22:25,  5.70s/it][A
-
- 63%|██████▎   | 400/635 [31:36<22:18,  5.70s/it][A
-
- 63%|██████▎   | 401/635 [31:41<22:12,  5.70s/it][A
-
- 63%|██████▎   | 403/635 [31:47<17:37,  4.56s/it][A
-
- 64%|██████▎   | 404/635 [31:57<22:10,  5.76s/it][A
-
- 64%|██████▍   | 406/635 [32:03<17:42,  4.64s/it][A
-
- 65%|██████▍   | 410/635 [32:10<11:49,  3.15s/it][A
-
- 65%|██████▍   | 411/635 [32:19<15:01,  4.02s/it][A
-
- 65%|██████▍   | 412/635 [32:24<16:04,  4.33s/it][A
-
- 65%|██████▌   | 413/635 [32:30<17:05,  4.62s/it][A
-
- 65%|██████▌   | 414/635 [32:36<17:54,  4.86s/it][A
-
- 65%|██████▌   | 415/635 [32:43<19:59,  5.45s/it][A
-
- 66%|██████▌   | 416/635 [32:50<21:23,  5.86s/it][A
-
- 66%|██████▌   | 417/635 [32:56<21:18,  5.87s/it][A
-
- 66%|██████▌   | 418/635 [33:04<24:02,  6.65s/it][A
-
- 66%|██████▌   | 419/635 [33:13<25:44,  7.15s/it][A
-
- 66%|██████▌   | 420/635 [33:21<27:01,  7.54s/it][A
-
- 66%|██████▋   | 421/635 [33:29<26:42,  7.49s/it][A
-
- 66%|██████▋   | 422/635 [33:34<24:43,  6.96s/it][A
-
- 67%|██████▋   | 423/635 [33:46<29:23,  8.32s/it][A
-
- 67%|██████▋   | 424/635 [33:52<26:37,  7.57s/it][A
-
- 67%|██████▋   | 425/635 [33:58<24:35,  7.03s/it][A
-
- 67%|██████▋   | 427/635 [34:08<21:06,  6.09s/it][A
-
- 67%|██████▋   | 428/635 [34:13<20:42,  6.00s/it][A
-
- 68%|██████▊   | 429/635 [34:19<20:30,  5.97s/it][A
-
- 68%|██████▊   | 430/635 [34:25<20:14,  5.93s/it][A
-
- 68%|██████▊   | 433/635 [34:36<16:04,  4.78s/it][A
-
- 68%|██████▊   | 434/635 [34:48<20:32,  6.13s/it][A
-
- 69%|██████▊   | 435/635 [34:54<20:13,  6.07s/it][A
-
- 69%|██████▊   | 436/635 [34:59<19:54,  6.00s/it][A
-
- 69%|██████▉   | 437/635 [35:05<19:29,  5.91s/it][A
-
- 69%|██████▉   | 438/635 [35:12<20:39,  6.29s/it][A
-
- 69%|██████▉   | 439/635 [35:18<19:58,  6.12s/it][A
-
- 69%|██████▉   | 440/635 [35:29<24:48,  7.63s/it][A
-
- 69%|██████▉   | 441/635 [35:41<28:18,  8.76s/it][A
-
- 70%|██████▉   | 442/635 [35:47<25:22,  7.89s/it][A
-
- 70%|██████▉   | 443/635 [35:53<23:23,  7.31s/it][A
-
- 70%|██████▉   | 444/635 [35:58<21:49,  6.86s/it][A
-
- 70%|███████   | 445/635 [36:04<20:34,  6.50s/it][A
-
- 70%|███████   | 446/635 [36:13<22:25,  7.12s/it][A
-
- 70%|███████   | 447/635 [36:19<21:06,  6.74s/it][A
-
- 71%|███████   | 449/635 [36:26<16:29,  5.32s/it][A
-
- 71%|███████   | 450/635 [36:32<16:48,  5.45s/it][A
-
- 71%|███████   | 451/635 [36:38<17:00,  5.55s/it][A
-
- 71%|███████   | 452/635 [36:45<18:14,  5.98s/it][A
-
- 71%|███████▏  | 453/635 [36:50<17:57,  5.92s/it][A
-
- 71%|███████▏  | 454/635 [36:56<17:47,  5.90s/it][A
-
- 72%|███████▏  | 456/635 [37:02<13:33,  4.54s/it][A
-
- 72%|███████▏  | 457/635 [37:08<14:22,  4.84s/it][A
-
- 72%|███████▏  | 458/635 [37:14<14:57,  5.07s/it][A
-
- 73%|███████▎  | 463/635 [37:19<07:17,  2.54s/it][A
-
- 73%|███████▎  | 464/635 [37:25<08:43,  3.06s/it][A
-
- 73%|███████▎  | 465/635 [37:31<10:00,  3.53s/it][A
-
- 73%|███████▎  | 466/635 [37:41<13:38,  4.84s/it][A
-
- 74%|███████▎  | 467/635 [37:51<16:50,  6.01s/it][A
-
- 74%|███████▎  | 468/635 [37:58<17:31,  6.30s/it][A
-
- 74%|███████▍  | 469/635 [38:04<17:03,  6.17s/it][A
-
- 74%|███████▍  | 470/635 [38:10<16:41,  6.07s/it][A
-
- 74%|███████▍  | 471/635 [38:15<16:22,  5.99s/it][A
-
- 74%|███████▍  | 472/635 [38:21<16:08,  5.94s/it][A
-
- 74%|███████▍  | 473/635 [38:27<15:57,  5.91s/it][A
-
- 75%|███████▌  | 477/635 [38:33<08:18,  3.15s/it][A
-
- 75%|███████▌  | 478/635 [38:39<09:29,  3.63s/it][A
-
- 75%|███████▌  | 479/635 [38:44<10:35,  4.07s/it][A
-
- 76%|███████▌  | 483/635 [38:52<07:13,  2.85s/it][A
-
- 76%|███████▌  | 484/635 [38:57<08:20,  3.31s/it][A
-
- 76%|███████▋  | 485/635 [39:03<09:28,  3.79s/it][A
-
- 77%|███████▋  | 486/635 [39:09<10:29,  4.22s/it][A
-
- 77%|███████▋  | 487/635 [39:15<11:17,  4.57s/it][A
-
- 77%|███████▋  | 488/635 [39:21<11:57,  4.88s/it][A
-
- 77%|███████▋  | 489/635 [39:26<12:27,  5.12s/it][A
-
- 77%|███████▋  | 490/635 [39:34<13:45,  5.69s/it][A
-
- 77%|███████▋  | 491/635 [39:39<13:42,  5.71s/it][A
-
- 77%|███████▋  | 492/635 [39:45<13:37,  5.72s/it][A
-
- 78%|███████▊  | 493/635 [39:51<13:34,  5.74s/it][A
-
- 78%|███████▊  | 494/635 [39:57<13:27,  5.72s/it][A
-
- 78%|███████▊  | 495/635 [40:02<13:22,  5.73s/it][A
-
- 78%|███████▊  | 496/635 [40:08<13:17,  5.74s/it][A
-
- 78%|███████▊  | 497/635 [40:14<13:12,  5.75s/it][A
-
- 78%|███████▊  | 498/635 [40:20<13:07,  5.75s/it][A
-
- 79%|███████▊  | 500/635 [40:28<11:27,  5.09s/it][A
-
- 79%|███████▉  | 501/635 [40:34<11:43,  5.25s/it][A
-
- 79%|███████▉  | 502/635 [40:40<11:59,  5.41s/it][A
-
- 79%|███████▉  | 503/635 [40:46<12:02,  5.47s/it][A
-
- 79%|███████▉  | 504/635 [40:51<12:05,  5.54s/it][A
-
- 80%|███████▉  | 505/635 [40:58<13:03,  6.03s/it][A
-
- 80%|███████▉  | 506/635 [41:04<12:44,  5.93s/it][A
-
- 80%|███████▉  | 507/635 [41:10<12:36,  5.91s/it][A
-
- 80%|████████  | 508/635 [41:16<12:26,  5.88s/it][A
-
- 80%|████████  | 510/635 [41:23<10:05,  4.84s/it][A
-
- 80%|████████  | 511/635 [41:30<11:12,  5.42s/it][A
-
- 81%|████████  | 512/635 [41:36<11:18,  5.52s/it][A
-
- 81%|████████  | 513/635 [41:43<12:09,  5.98s/it][A
-
- 81%|████████  | 515/635 [41:50<09:52,  4.94s/it][A
-
- 81%|████████▏ | 516/635 [41:56<10:11,  5.14s/it][A
-
- 81%|████████▏ | 517/635 [42:04<11:12,  5.70s/it][A
-
- 82%|████████▏ | 519/635 [42:10<08:47,  4.55s/it][A
-
- 82%|████████▏ | 520/635 [42:15<09:15,  4.83s/it][A
-
- 82%|████████▏ | 523/635 [42:21<06:17,  3.37s/it][A
-
- 83%|████████▎ | 526/635 [42:27<05:01,  2.77s/it][A
-
- 83%|████████▎ | 530/635 [42:33<03:49,  2.19s/it][A
-
- 85%|████████▍ | 537/635 [42:44<03:07,  1.91s/it][A
-
- 85%|████████▍ | 539/635 [42:50<03:19,  2.08s/it][A
-
- 85%|████████▌ | 540/635 [42:56<03:55,  2.48s/it][A
-
- 85%|████████▌ | 541/635 [43:01<04:35,  2.93s/it][A
-
- 86%|████████▌ | 544/635 [43:07<03:51,  2.55s/it][A
-
- 86%|████████▌ | 547/635 [43:13<03:25,  2.33s/it][A
-
- 87%|████████▋ | 552/635 [43:21<02:49,  2.05s/it][A
-
- 87%|████████▋ | 555/635 [43:29<02:51,  2.15s/it][A
-
- 88%|████████▊ | 556/635 [43:36<03:38,  2.76s/it][A
-
- 88%|████████▊ | 558/635 [43:42<03:34,  2.78s/it][A
-
- 89%|████████▊ | 563/635 [43:47<02:24,  2.01s/it][A
-
- 89%|████████▉ | 564/635 [43:55<03:06,  2.63s/it][A
-
- 90%|████████▉ | 569/635 [44:03<02:26,  2.22s/it][A
-
- 90%|████████▉ | 570/635 [44:11<03:02,  2.81s/it][A
-
- 90%|████████▉ | 571/635 [44:16<03:26,  3.22s/it][A
-
- 90%|█████████ | 573/635 [44:22<03:14,  3.13s/it][A
-
- 90%|█████████ | 574/635 [44:28<03:39,  3.59s/it][A
-
- 92%|█████████▏| 582/635 [44:34<01:29,  1.70s/it][A
-
- 92%|█████████▏| 585/635 [44:40<01:28,  1.76s/it][A
-
- 92%|█████████▏| 586/635 [44:48<02:04,  2.53s/it][A
-
- 92%|█████████▏| 587/635 [44:57<02:40,  3.35s/it][A
-
- 93%|█████████▎| 588/635 [45:04<03:07,  3.98s/it][A
-
- 93%|█████████▎| 589/635 [45:11<03:31,  4.59s/it][A
-
- 93%|█████████▎| 590/635 [45:18<03:51,  5.14s/it][A
-
- 93%|█████████▎| 591/635 [45:26<04:07,  5.62s/it][A
-
- 94%|█████████▍| 596/635 [45:31<01:50,  2.83s/it][A
-
- 94%|█████████▍| 597/635 [45:37<02:04,  3.28s/it][A
-
- 95%|█████████▍| 603/635 [45:44<01:07,  2.10s/it][A
-
- 96%|█████████▌| 610/635 [45:50<00:37,  1.49s/it][A
-
- 96%|█████████▌| 611/635 [45:59<00:50,  2.12s/it][A
-
- 96%|█████████▋| 612/635 [46:04<00:58,  2.53s/it][A
-
- 97%|█████████▋| 613/635 [46:10<01:05,  3.00s/it][A
-
- 97%|█████████▋| 614/635 [46:16<01:13,  3.48s/it][A
-
- 97%|█████████▋| 619/635 [46:28<00:45,  2.83s/it][A
-
- 98%|█████████▊| 620/635 [46:35<00:51,  3.43s/it][A
-
- 98%|█████████▊| 621/635 [46:46<01:06,  4.73s/it][A
-
- 98%|█████████▊| 622/635 [46:52<01:03,  4.92s/it][A
-
- 98%|█████████▊| 624/635 [46:58<00:46,  4.21s/it][A
-
- 98%|█████████▊| 625/635 [47:04<00:45,  4.52s/it][A
-
- 99%|█████████▊| 626/635 [47:09<00:43,  4.80s/it][A
-
- 99%|█████████▊| 627/635 [47:18<00:45,  5.74s/it][A
-
- 99%|█████████▉| 628/635 [47:24<00:40,  5.74s/it][A
-
- 99%|█████████▉| 629/635 [47:30<00:34,  5.75s/it][A
-
- 99%|█████████▉| 630/635 [47:35<00:28,  5.75s/it][A
-
- 99%|█████████▉| 631/635 [47:41<00:22,  5.74s/it][A
-
-100%|█████████▉| 632/635 [47:47<00:17,  5.77s/it][A
-
-100%|█████████▉| 633/635 [47:53<00:11,  5.78s/it][A
-
-100%|█████████▉| 634/635 [47:59<00:05,  5.78s/it][A
-
-100%|██████████| 635/635 [48:06<00:00,  6.22s/it][A
-100%|██████████| 635/635 [48:06<00:00,  4.55s/it]
-
-100%|██████████| 1/1 [48:15<00:00, 2895.31s/it]
-100%|██████████| 1/1 [48:15<00:00, 2895.31s/it]
-pgp before: 0.65701735
-pgp after: 0.6800994
+     Unnamed: 0  ...                                             blocks
+0           133  ...  [[3*]N[C@H]1C[C@H]2CCC[C@@H](C1)N2C, [3*]C(=O)...
+1           166  ...  [[3*]NC1CCCCC1, [3*]C(=O)NS(=O)(=O)c1ccc(C(C)=...
+2           175  ...        [[3*]NCCC, [3*]C(=O)NS(=O)(=O)c1ccc(Cl)cc1]
+3           177  ...  [[3*]c1ccccc1, [3*]C(=C1CC[N+](C)(C)CC1)c1ccccc1]
+4           179  ...        [[3*]NCCCC, [3*]C(=O)NS(=O)(=O)c1ccc(C)cc1]
+..          ...  ...                                                ...
+117        1692  ...     [[3*]N1CCN(CCc2nnc3n2CCCC3)CC1, [3*]c1ccccc1C]
+118        1696  ...       [[3*]N(CC)Cc1ccncc1, [3*]C(=O)C(CO)c1ccccc1]
+119        1811  ...  [[3*]N(C)C, [1*]c1ccc2cc([2*])ccc2[n+]1C, [3*]...
+120        1812  ...  [[3*]c1ccc(NC)cc1, [3*]C=Cc1ccc(OCCOCCOCC[18F]...
+121        1813  ...  [[3*]c1ccc(NC)cc1, [3*]C=Cc1ccc(OCCOCCOCC[18F]...
+
+[122 rows x 3 columns]
+synth_keys 582
+  0%|          | 0/1 [00:00<?, ?it/s]Starting fresh.
+
+  0%|          | 0/122 [00:00<?, ?it/s][A
+  1%|          | 1/122 [00:25<51:27, 25.52s/it][A
+  2%|▏         | 2/122 [00:48<48:20, 24.17s/it][A
+  2%|▏         | 3/122 [01:07<42:48, 21.59s/it][A
+  3%|▎         | 4/122 [01:30<43:44, 22.24s/it][A
+  4%|▍         | 5/122 [01:49<41:03, 21.06s/it][A
+  5%|▍         | 6/122 [02:08<39:14, 20.30s/it][A
+  6%|▌         | 7/122 [02:27<37:55, 19.78s/it][A
+  7%|▋         | 8/122 [02:45<36:58, 19.46s/it][A
+  7%|▋         | 9/122 [03:04<36:07, 19.18s/it][A
+  8%|▊         | 10/122 [03:22<35:23, 18.96s/it][A
+  9%|▉         | 11/122 [03:41<34:51, 18.84s/it][A
+ 10%|▉         | 12/122 [03:59<34:23, 18.75s/it][A
+ 11%|█         | 13/122 [04:18<33:59, 18.71s/it][A
+ 11%|█▏        | 14/122 [04:37<33:40, 18.71s/it][A
+ 12%|█▏        | 15/122 [05:00<35:45, 20.05s/it][A
+ 13%|█▎        | 16/122 [05:24<37:33, 21.26s/it][A
+ 14%|█▍        | 17/122 [05:42<35:41, 20.39s/it][A
+ 15%|█▍        | 18/122 [06:01<34:23, 19.84s/it][A
+ 16%|█▌        | 19/122 [06:19<33:24, 19.46s/it][A
+ 16%|█▋        | 20/122 [06:38<32:45, 19.27s/it][A
+ 17%|█▋        | 21/122 [06:57<32:09, 19.11s/it][A
+ 18%|█▊        | 22/122 [07:20<33:52, 20.33s/it][A
+ 19%|█▉        | 23/122 [07:39<32:45, 19.85s/it][A
+ 20%|█▉        | 24/122 [08:02<34:03, 20.85s/it][A
+ 20%|██        | 25/122 [08:25<34:53, 21.59s/it][A
+ 21%|██▏       | 26/122 [08:44<33:06, 20.70s/it][A
+ 22%|██▏       | 27/122 [09:03<31:54, 20.15s/it][A
+ 23%|██▎       | 28/122 [09:22<30:53, 19.72s/it][A
+ 24%|██▍       | 29/122 [09:45<32:10, 20.76s/it][A
+ 25%|██▍       | 30/122 [10:01<29:38, 19.34s/it][A
+ 25%|██▌       | 31/122 [10:14<26:36, 17.55s/it][A
+ 26%|██▌       | 32/122 [10:27<24:15, 16.17s/it][A
+ 27%|██▋       | 33/122 [10:45<24:45, 16.69s/it][A
+ 28%|██▊       | 34/122 [11:04<25:18, 17.26s/it][A
+ 29%|██▊       | 35/122 [11:22<25:37, 17.68s/it][A
+ 30%|██▉       | 36/122 [11:46<27:51, 19.44s/it][A
+ 30%|███       | 37/122 [12:05<27:19, 19.29s/it][A
+ 31%|███       | 38/122 [12:28<28:43, 20.52s/it][A
+ 32%|███▏      | 39/122 [12:52<29:38, 21.43s/it][A
+ 33%|███▎      | 40/122 [13:14<29:45, 21.78s/it][A
+ 34%|███▎      | 41/122 [13:38<29:57, 22.19s/it][A
+ 34%|███▍      | 42/122 [14:00<29:50, 22.39s/it][A
+ 35%|███▌      | 43/122 [14:18<27:44, 21.07s/it][A
+ 36%|███▌      | 44/122 [14:37<26:24, 20.31s/it][A
+ 37%|███▋      | 45/122 [15:00<27:08, 21.15s/it][A
+ 38%|███▊      | 46/122 [15:23<27:29, 21.70s/it][A
+ 39%|███▊      | 47/122 [15:41<25:50, 20.68s/it][A
+ 39%|███▉      | 48/122 [16:04<26:22, 21.39s/it][A
+ 40%|████      | 49/122 [16:27<26:32, 21.81s/it][A
+ 41%|████      | 50/122 [16:46<24:57, 20.80s/it][A
+ 42%|████▏     | 51/122 [17:04<23:46, 20.09s/it][A
+ 43%|████▎     | 52/122 [17:23<22:55, 19.66s/it][A
+ 43%|████▎     | 53/122 [17:41<22:11, 19.30s/it][A
+ 44%|████▍     | 54/122 [18:04<23:12, 20.47s/it][A
+ 45%|████▌     | 55/122 [18:27<23:46, 21.29s/it][A
+ 46%|████▌     | 56/122 [18:46<22:33, 20.50s/it][A
+ 47%|████▋     | 57/122 [19:09<23:02, 21.26s/it][A
+ 48%|████▊     | 58/122 [19:32<23:16, 21.82s/it][A
+ 48%|████▊     | 59/122 [19:55<23:20, 22.23s/it][A
+ 49%|████▉     | 60/122 [20:14<21:52, 21.18s/it][A
+ 50%|█████     | 61/122 [20:33<20:51, 20.52s/it][A
+ 51%|█████     | 62/122 [20:53<20:22, 20.38s/it][A
+ 52%|█████▏    | 63/122 [21:12<19:32, 19.87s/it][A
+ 52%|█████▏    | 64/122 [21:35<20:11, 20.89s/it][A
+ 53%|█████▎    | 65/122 [21:58<20:30, 21.59s/it][A
+ 54%|█████▍    | 66/122 [22:21<20:32, 22.00s/it][A 54%|█████▍    | 66/122 [22:40<19:14, 20.61s/it]
+  0%|          | 0/1 [22:40<?, ?it/s]
+['[3*]N[C@H]1C[C@H]2CCC[C@@H](C1)N2C^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccc(S(=O)(=O)NC(=O)CC)cc1^', '[3*]C(=O)c1ccc(Br)o1^', '[/MOL]']
+['[3*]C(=O)NS(=O)(=O)c1ccc(Cl)cc1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C(=C1CC[N+](C)(C)CC1)c1ccccc1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccccc1C(F)(F)F^', '[3*]C(=O)c1ccoc1C^', '[/MOL]']
+['[3*]C(=O)[C@H](O)C(C)(C)CO^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]NCCN1CCOCC1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccncc1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C(=O)CCCC^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccccc1OC^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccccc1C(F)(F)F^', '[3*]c1ccoc1C^', '[/MOL]']
+['[3*]C(=O)c1ccc(Cl)s1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]N[C@H]1C[C@H]2CCC[C@@H](C1)N2C^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C(=O)Cn1ccnc1[N+](=O)[O-]^', '[3*]c1ccoc1C^', '[/MOL]']
+['[3*]Nc1cc(C(F)(F)F)ccc1C(F)(F)F^', '[3*]c1ccoc1C^', '[/MOL]']
+['[3*]C=C1C[C@@H](O)CCC1=C^', '[3*]C(=O)c1ccoc1C^', '[/MOL]']
+['[3*]C(=O)c1cnccn1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C=C1C[C@@H](O)C[C@H](O)C1=C^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C=C1C[C@@H](O)C[C@H](O)C1=C^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C(=O)c1ccc(OC)cc1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C=C1C[C@@H](O)CCC1=C^', '[3*]C(=O)c1ccoc1C^', '[/MOL]']
+['[3*]C(=O)CN1CCN(CC(O)COc2ccccc2OC)CC1^', '[3*]c1ccoc1C^', '[/MOL]']
+['[3*]c1ccc(C(=O)OCCN(C)C)cc1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1cccc(Br)c1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C(=O)c1cc(OCCCC)nc2ccccc12^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccoc1C^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccncn1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccc(C(C)C)cc1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1nc2ccc(OCCN(CC)CC)cc2s1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]N(CCN(C)C)Cc1ccc(OC)cc1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccoc1C^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccncc1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C(=O)C(Cl)Cl^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccc(C(C)C)cc1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]Nc1ccccc1C(F)(F)F^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccc(OC(F)(F)F)cc1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C(=O)[C@H]1CC[C@H]2[C@@H]3CC[C@H]4NC(=O)C=C[C@]4(C)[C@H]3CC[C@]12C^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C(=O)[C@@H]1C[C@@H](CCC)CN1C^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C=C1C[C@@H](O)C[C@H](O)C1=C^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1oc2c(C(=O)OCCN3CCCCC3)cccc2c(=O)c1C^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C(=O)[C@H]1CC[C@H]2[C@@H]3CC[C@H]4NC(=O)C=C[C@]4(C)[C@H]3CC[C@]12C^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C(=O)[C@@H]1C[C@@H](CCC)CN1C^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccccc1C(F)(F)F^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1cccc(C#N)c1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccc(OC[C@@]2(C)Cn3cc([N+](=O)[O-])nc3O2)cc1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]N(CC(=O)[O-])CC(=O)[O-]^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccc(C(C)C)cc1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1nc2cc(Cl)c(Cl)cc2n1[C@H]1O[C@@H](CO)[C@H](O)[C@@H]1O^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C(=O)C(C)(O)CS(=O)(=O)c1ccc(F)cc1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccc(C(F)(F)F)cn1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C(=O)C(C)C^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]/C(C)=C\\CO^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccncc1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C(=O)c1cnoc1C^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C(=O)C(=C)C^', '[3*]c1ccoc1C^', '[/MOL]']
+['[3*]c1ccccc1C#N^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]C(=O)C(=C)C^', '[3*]C(=O)c1ccoc1C^', '[/MOL]']
+['[3*]c1ccc(C(F)(F)F)cn1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccc(C(F)(F)F)cn1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccoc1C^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]NCCO[N+](=O)[O-]^', '[3*]c1ccoc1C^', '[/MOL]']
+['[3*]c1ccc2c(c1)OCCO2^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccc2c(c1)OCCO2^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]c1ccc(/C=N/N2CC(=O)NC2=O)o1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]N1CCN(Cc2ccc3c(c2)OCO3)CC1^', '[3*]c1ccc(C)o1^', '[/MOL]']
+['[3*]Nc1cc(C(F)(F)F)ccc1C(F)(F)F^', '[3*]c1ccoc1C^', '[/MOL]']
+['[/MOL]']
 Traceback (most recent call last):
-  File "/shared/nas2/cne2/Chemistry/mCLM/FDA/chat.py", line 706, in <module>
-    modifications= {task:new_smiles[task][i] for task in tasks}
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/shared/nas2/cne2/Chemistry/mCLM/FDA/chat.py", line 706, in <dictcomp>
-    modifications= {task:new_smiles[task][i] for task in tasks}
-                         ~~~~~~~~~~~~~~~~^^^
-IndexError: list index out of range
+  File "/shared/nas2/cne2/Chemistry/mCLM/FDA/chat_synth.py", line 721, in <module>
+    
+  File "/shared/nas2/cne2/Chemistry/mCLM/FDA/chat_synth.py", line 592, in get_molecule
+    #zz
+        
+  File "/shared/nas2/cne2/Chemistry/mCLM/FDA/chat_synth.py", line 526, in message_ids_to_string
+    mol_list, smi_message = extract_mol_content(message)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/shared/nas2/cne2/Chemistry/mCLM/FDA/chat_synth.py", line 526, in <listcomp>
+    mol_list, smi_message = extract_mol_content(message)
+                          ^^^^^
+IndexError: string index out of range

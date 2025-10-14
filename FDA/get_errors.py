@@ -39,10 +39,19 @@ for task in ['ames', 'bbbp', 'cyp3a4', 'dili', 'hia', 'pgp']:
 
     pre_scores, after_scores = scores[task][0]
 
+    #print(len(np.unique(names)))
+    #print(len(np.unique(pre_scores)))
+    #for n, s in zip(smiles, pre_scores):
+    #    print(n, s)
+    #zz
+
     all_done = set()
     new_nums = []
     for ps, smi in zip(pre_scores, smiles):
-        if smi in all_done: continue
+        if smi in all_done: 
+            #print(smi)
+            #zz
+            continue
         all_done.add(smi)
         new_nums.append(ps)
     pre_scores = np.array(new_nums)
