@@ -1,0 +1,200 @@
+[
+  [
+    "C[C@H](C1=CC(=C(C=C1)C2=CC=CC=C2)F)C(=O)O",
+    "[MOL] [3*]c1ccc([C@@H](C)C(=O)O)cc1F^[3*]c1ccccc1 [/MOL]"
+  ],
+  {
+    "ames": [
+      [
+        "Cc1nc(C=C2C(=O)c3ccc(-c4ccc([C@@H](C)C(=O)O)cc4F)cc3C2=C(C#N)C#N)cs1",
+        "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[2*]C=C1C(=O)c2ccc([1*])cc2C1=C(C#N)C#N^[3*]c1csc(C)n1"
+      ],
+      {
+        "ames": [
+          "C[C@@H](C(=O)O)c1ccc(C(=O)c2ccc(-c3ccc([C@@H](C)C(=O)O)cc3F)s2)c(F)c1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]C(=O)c1ccc([2*])s1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "bbbp": [
+          "CCC(C)CCCCCCCCCCC(=O)OC[C@H](COc1ccc([C@@H](C)C(=O)O)cc1F)Oc1ccc([C@@H](C)C(=O)O)cc1F",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[2*]O[C@@H](CO[1*])COC(=O)CCCCCCCCCCC(C)CC^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "cyp3a4": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "dili": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "hia": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "pgp": [
+          "Cc1onc(-c2ccc([C@@H](C)C(=O)O)cc2F)c1C(=O)c1ccc([C@@H](C)C(=O)O)cc1F",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1noc(C)c1C([2*])=O^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ]
+      }
+    ],
+    "bbbp": [
+      [
+        "Cc1nc(C=C2C(=O)c3ccc(-c4ccc([C@@H](C)C(=O)O)cc4F)cc3C2=C(C#N)C#N)cs1",
+        "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[2*]C=C1C(=O)c2ccc([1*])cc2C1=C(C#N)C#N^[3*]c1csc(C)n1"
+      ],
+      {
+        "ames": [
+          "C[C@@H](C(=O)O)c1ccc(C(=O)c2ccc(-c3ccc([C@@H](C)C(=O)O)cc3F)s2)c(F)c1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]C(=O)c1ccc([2*])s1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "bbbp": [
+          "CCC(C)CCCCCCCCCCC(=O)OC[C@H](COc1ccc([C@@H](C)C(=O)O)cc1F)Oc1ccc([C@@H](C)C(=O)O)cc1F",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[2*]O[C@@H](CO[1*])COC(=O)CCCCCCCCCCC(C)CC^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "cyp3a4": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "dili": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "hia": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "pgp": [
+          "Cc1onc(-c2ccc([C@@H](C)C(=O)O)cc2F)c1C(=O)c1ccc([C@@H](C)C(=O)O)cc1F",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1noc(C)c1C([2*])=O^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ]
+      }
+    ],
+    "cyp3a4": [
+      [
+        "Cc1nc(C=C2C(=O)c3ccc(-c4ccc([C@@H](C)C(=O)O)cc4F)cc3C2=C(C#N)C#N)cs1",
+        "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[2*]C=C1C(=O)c2ccc([1*])cc2C1=C(C#N)C#N^[3*]c1csc(C)n1"
+      ],
+      {
+        "ames": [
+          "C[C@@H](C(=O)O)c1ccc(C(=O)c2ccc(-c3ccc([C@@H](C)C(=O)O)cc3F)s2)c(F)c1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]C(=O)c1ccc([2*])s1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "bbbp": [
+          "CCC(C)CCCCCCCCCCC(=O)OC[C@H](COc1ccc([C@@H](C)C(=O)O)cc1F)Oc1ccc([C@@H](C)C(=O)O)cc1F",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[2*]O[C@@H](CO[1*])COC(=O)CCCCCCCCCCC(C)CC^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "cyp3a4": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "dili": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "hia": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "pgp": [
+          "Cc1onc(-c2ccc([C@@H](C)C(=O)O)cc2F)c1C(=O)c1ccc([C@@H](C)C(=O)O)cc1F",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1noc(C)c1C([2*])=O^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ]
+      }
+    ],
+    "dili": [
+      [
+        "CC(C)CCOC=C1C(=O)c2ccc(-c3ccc([C@@H](C)C(=O)O)cc3F)cc2C1=C(C#N)C#N",
+        "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[2*]C=C1C(=O)c2ccc([1*])cc2C1=C(C#N)C#N^[3*]OCCC(C)C"
+      ],
+      {
+        "ames": [
+          "C[C@@H](C(=O)O)c1ccc(C(=O)c2ccc(-c3ccc([C@@H](C)C(=O)O)cc3F)s2)c(F)c1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]C(=O)c1ccc([2*])s1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "bbbp": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "cyp3a4": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "dili": [
+          "Cc1onc(-c2ccc([C@@H](C)C(=O)O)cc2F)c1C(=O)c1ccc([C@@H](C)C(=O)O)cc1F",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1noc(C)c1C([2*])=O^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "hia": [
+          "C[C@@H](C(=O)O)c1ccc(C(=O)c2ccc(-c3ccc([C@@H](C)C(=O)O)cc3F)s2)c(F)c1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]C(=O)c1ccc([2*])s1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "pgp": [
+          "C[C@@H](C(=O)O)c1ccc(C(=O)c2ccc(-c3ccc([C@@H](C)C(=O)O)cc3F)s2)c(F)c1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]C(=O)c1ccc([2*])s1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ]
+      }
+    ],
+    "hia": [
+      [
+        "Cc1nc(C=C2C(=O)c3ccc(-c4ccc([C@@H](C)C(=O)O)cc4F)cc3C2=C(C#N)C#N)cs1",
+        "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[2*]C=C1C(=O)c2ccc([1*])cc2C1=C(C#N)C#N^[3*]c1csc(C)n1"
+      ],
+      {
+        "ames": [
+          "C[C@@H](C(=O)O)c1ccc(C(=O)c2ccc(-c3ccc([C@@H](C)C(=O)O)cc3F)s2)c(F)c1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]C(=O)c1ccc([2*])s1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "bbbp": [
+          "CCC(C)CCCCCCCCCCC(=O)OC[C@H](COc1ccc([C@@H](C)C(=O)O)cc1F)Oc1ccc([C@@H](C)C(=O)O)cc1F",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[2*]O[C@@H](CO[1*])COC(=O)CCCCCCCCCCC(C)CC^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "cyp3a4": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "dili": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "hia": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "pgp": [
+          "Cc1onc(-c2ccc([C@@H](C)C(=O)O)cc2F)c1C(=O)c1ccc([C@@H](C)C(=O)O)cc1F",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1noc(C)c1C([2*])=O^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ]
+      }
+    ],
+    "pgp": [
+      [
+        "Cc1nc(C=C2C(=O)c3ccc(-c4ccc([C@@H](C)C(=O)O)cc4F)cc3C2=C(C#N)C#N)cs1",
+        "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[2*]C=C1C(=O)c2ccc([1*])cc2C1=C(C#N)C#N^[3*]c1csc(C)n1"
+      ],
+      {
+        "ames": [
+          "C[C@@H](C(=O)O)c1ccc(C(=O)c2ccc(-c3ccc([C@@H](C)C(=O)O)cc3F)s2)c(F)c1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]C(=O)c1ccc([2*])s1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "bbbp": [
+          "CCC(C)CCCCCCCCCCC(=O)OC[C@H](COc1ccc([C@@H](C)C(=O)O)cc1F)Oc1ccc([C@@H](C)C(=O)O)cc1F",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[2*]O[C@@H](CO[1*])COC(=O)CCCCCCCCCCC(C)CC^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "cyp3a4": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "dili": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "hia": [
+          "Cc1nc(-c2ccc([C@@H](C)C(=O)O)cc2F)cc(-c2ccc([C@@H](C)C(=O)O)cc2F)n1",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1cc([2*])nc(C)n1^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ],
+        "pgp": [
+          "Cc1onc(-c2ccc([C@@H](C)C(=O)O)cc2F)c1C(=O)c1ccc([C@@H](C)C(=O)O)cc1F",
+          "[3*]c1ccc([C@@H](C)C(=O)O)cc1F^[1*]c1noc(C)c1C([2*])=O^[3*]c1ccc([C@@H](C)C(=O)O)cc1F"
+        ]
+      }
+    ]
+  }
+]
