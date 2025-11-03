@@ -173,7 +173,14 @@ CUDA_LAUNCH_BLOCKING=1 PYTHONPATH=. srun python mCLM/scripts/main.py
 * `load_GNN_ckpt` - The pretrained GNN checkpoint. 
 * `downsample_tulu` - A float to downsample Tulu3 in the pretraining data mixture. 
 
+## Why so many tokenizers?
 
+There are three tokenizers used for the model:
+- **mCLM_tokenizer**: This tokenizer is packaged separately. It is used to run the molecule tokenizer (without synthesis guarantees) to convert a SMILES string into our block notation and vice versa. Relevant functions are `join_fragments` and `get_blocks`. 
+- **mCLM/tokenizer**: This contains `MoleculeTokenizer`, which is a class for converting molecule token IDs into [torch-geometric data objects](https://pytorch-geometric.readthedocs.io/en/2.6.1/generated/torch_geometric.data.Data.html#torch_geometric.data.Data). It contains and manages a cache for these objects, allows data type conversion, and allows switching between base language models.
+- **tokenizer**: This is an `AutoTokenizer` from HuggingFace.
+
+You can use mCLM_tokenizer to get the blocks from a molecule SMILES. Then, use the MoleculeTokenizer and AutoTokenizer to interact with the model. mCLM.from_pretrained will already create those two for you! After you're done generating, you can use mCLM_tokenizer to convert back to SMILES. Please see [chat_HF.py](mCLM/scripts/chat_HF.py) for an example.
 
 ## Citation
 If you found our work useful, please cite:
