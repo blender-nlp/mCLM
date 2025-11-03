@@ -1,0 +1,13 @@
+
+
+
+
+**/__pycache__/
+mCLM.egg-info/
+
+
+.DS_Store
+
+hf_upload_temp/
+
+
