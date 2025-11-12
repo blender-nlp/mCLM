@@ -22,6 +22,7 @@ pip install -e ./
 
 ```bash
 python mCLM/scripts/chat_HF.py
+python mCLM/scripts/chat_HF.py --synth_only #constrains output to synthesis-guaranteed blocks
 ```
 `What is the BBBP of <SMILES> Cc1ccc(cc1Nc2nccc(n2)c3cccnc3)NC(=O)c4ccc(cc4)CN5CCN(CC5)C </SMILES>?`
 > The molecule is predicted to have a Blood Brain Barrier permeability (BBB) of 0.000000000000
@@ -32,6 +33,7 @@ python mCLM/scripts/chat_HF.py
 #### To only generate molecules:
 ```bash
 python mCLM/scripts/chat_HF_molgen.py
+python mCLM/scripts/chat_HF_molgen.py --synth_only #constrains output to synthesis-guaranteed blocks
 ```
 
 `Generate a molecule that has higher blood brain barrier permeability than [MOL] [3*]C(=O)CCCC^[2*]OC/C=C(/[1*])C^[3*]CCC=C(C)C [/MOL].`
@@ -47,6 +49,21 @@ python mCLM/scripts/chat_HF_molgen.py
 > | 8       | C=CC(=O)OCCCCOC(=O)CCCC                  | [3*]C(=O)CCCC^[2*]OCCCCO[1*]^[3*]C(=O)C=C                    |
 > | 9       | CCCCCC(=O)OCCCOC(=O)c1ccco1              | [3*]C(=O)CCCCC^[2*]OCCCO[1*]^[3*]C(=O)c1ccco1                |
 > | 10      | CCCCCCCC(=O)OCCCOC(=O)CCCCCCC            | [3*]C(=O)CCCCCCC^[2*]OCCCO[1*]^[3*]C(=O)CCCCCCC              |
+
+`Generate a molecule that has higher blood brain barrier permeability than [MOL] [3*]C(=O)CCCC^[2*]OC/C=C(/[1*])C^[3*]CCC=C(C)C [/MOL].` (synthesis guaranteed flag)
+> | #       | SMILES                                   | Blocks                                                       |
+> |:-------:|:-----------------------------------------|:-------------------------------------------------------------|
+> | 1       | CCCCC(=O)N1CC=C(c2ccccc2)CC1             | [3*]C(=O)CCCC^[1*]N1CC=C([2*])CC1^[3*]c1ccccc1               |
+> | 2       | CCC(=O)N1CC=C(c2ccccc2)CC1               | [3*]C(=O)CC^[1*]N1CC=C([2*])CC1^[3*]c1ccccc1                 |
+> | 3       | CCC(=O)N(CC)CC                           | [3*]N(CC)CC^[3*]C(=O)CC                                      |
+> | 4       | CN(C)c1ccccc1                            | [3*]N(C)C^[3*]c1ccccc1                                       |
+> | 5       | CCCC(=O)NCC1CCCO1                        | [3*]C(=O)CCC^[3*]NCC1CCCO1                                   |
+> | 6       | CCN(CC)C(C)=O                            | [3*]N(CC)CC^[3*]C(C)=O                                       |
+> | 7       | CCCCCC(=O)N(C)CC(=O)c1ccc2c(c1)OCO2      | [3*]C(=O)CCCCC^[1*]N(C)CC([2*])=O^[3*]c1ccc2c(c1)OCO2        |
+> | 8       | CCCCCCCC(=O)C(=O)C1CCCO1                 | [3*]C(=O)CCCCCCC^[3*]C(=O)C1CCCO1                            |
+> | 9       | CCCCCC(=O)C(=O)C12CC3CC(CC(C3)C1)C2      | [3*]C(=O)CCCCC^[3*]C(=O)C12CC3CC(CC(C3)C1)C2                 |
+> | 10      | CCCCC(=O)N(CC)CC(=O)C(=O)c1ccccc1        | [3*]C(=O)CCCC^[1*]N(CC)CC([2*])=O^[3*]C(=O)c1ccccc1          |
+
 
 `Generate a molecule related to <SMILES> Cc1cc(C)nc(NS(=O)(=O)c2ccc(N)cc2)n1 </SMILES>.`
 > | #       | SMILES                                   | Blocks                                                       |
