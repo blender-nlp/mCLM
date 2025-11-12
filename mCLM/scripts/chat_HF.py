@@ -2,7 +2,7 @@
 from mCLM.model.models import mCLM
 from mCLM.tokenizer.utils import convert_instruction_to_input, message_ids_to_string, get_processor
 import torch
-
+import argparse
 
 # ===========================
 # Settings
@@ -14,13 +14,33 @@ DEVICE = torch.device("cpu")  # set to same device for both
 
 if __name__ == "__main__":
 
-        
+    parser = argparse.ArgumentParser(description="A script with a synth_only flag.")
+
+    parser.add_argument(
+        '--synth_only',
+        action='store_true',
+        help='Run in synthesis-only mode (default: False)'
+    )
+    args = parser.parse_args()
+
+
     model = mCLM.from_pretrained("language-plus-molecules/mCLM_1k-3b")
 
     tokenizer = model.tokenizer
     molecule_tokenizer = model.molecule_tokenizer
 
-    bad_words_ids = None
+    if args.synth_only:
+        bad_words_ids = set()
+
+        synth_only_blocks = set([b.strip() for b in open('resources/synth_blocks_all.txt').readlines()])
+
+        for id, smi in molecule_tokenizer.idx_to_block.items():
+            if smi not in synth_only_blocks:
+                bad_words_ids.add(id)
+        bad_words_ids = [[bwi] for bwi in bad_words_ids]
+
+    else:
+        bad_words_ids = None
 
     model.to(DEVICE).to(DTYPE) #This is important for the HF model
         

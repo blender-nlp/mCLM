@@ -3,6 +3,7 @@ from mCLM.model.models import mCLM
 from mCLM.tokenizer.utils import convert_instruction_to_input, message_ids_to_string, get_processor, extract_mol_content, \
     ConditionalMolEndProcessor, insert_sublists
 import torch
+import argparse
 
 from transformers import LogitsProcessorList, LogitsProcessor
 
@@ -17,12 +18,15 @@ class RestrictTokensLogitsProcessor(LogitsProcessor):
         mask[:, allowed_ids] = scores[:, allowed_ids]
         return mask
 
-def get_molecule(instruct, tokenizer, molecule_tokenizer, num_beams=5):
+def get_molecule(instruct, tokenizer, molecule_tokenizer, num_beams=5, synth_only_ids=None):
 
     MOL_start = tokenizer.convert_tokens_to_ids('[MOL]')
     MOL_end = tokenizer.convert_tokens_to_ids('[/MOL]')
 
-    allowed_token_ids = list(molecule_tokenizer.idx_to_block.keys())
+    if synth_only_ids != None: 
+        allowed_token_ids = list(synth_only_ids)
+    else:
+        allowed_token_ids = list(molecule_tokenizer.idx_to_block.keys())
 
     library = set()
     for block in molecule_tokenizer.block_to_idx:
@@ -108,6 +112,16 @@ DEVICE = torch.device("cpu")  # set to same device for both
 
 if __name__ == "__main__":
 
+    parser = argparse.ArgumentParser(description="A script with a synth_only flag.")
+
+    parser.add_argument(
+        '--synth_only',
+        action='store_true',
+        help='Run in synthesis-only mode (default: False)'
+    )
+    args = parser.parse_args()
+
+
     device = 'cpu' #torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         
@@ -118,13 +132,23 @@ if __name__ == "__main__":
 
     model.to(DEVICE).to(DTYPE) #This is important for the HF model
         
+    if args.synth_only:
+        synth_only_blocks = set([b.strip() for b in open('resources/synth_blocks_all.txt').readlines()])
+        synth_only_ids = set()
+        for id, smi in molecule_tokenizer.idx_to_block.items():
+            if smi in synth_only_blocks:
+                synth_only_ids.add(id)
+                
+    else:
+        synth_only_ids = None
+
     while True:
         user_input = input("Enter a task (type 'quit' to exit): ")
         if user_input == 'quit': break
         user_input = user_input.strip()
 
             
-        smiles, mols = get_molecule(user_input, tokenizer, molecule_tokenizer, num_beams=10)
+        smiles, mols = get_molecule(user_input, tokenizer, molecule_tokenizer, num_beams=10, synth_only_ids=synth_only_ids)
 
         if len(mols) != 0:
             
