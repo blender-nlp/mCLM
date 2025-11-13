@@ -394,7 +394,7 @@ def reorder_fragments(frags):
 
 def reverse_rfrags(frags):
 
-    frags = frags.split('.')[::-1]
+    frags = frags.split('^')[::-1]
 
     return '^'.join(frags).replace('1*', '3*').replace('2*', '1*').replace('3*', '2*')
 
@@ -592,13 +592,13 @@ def join_fragments(fragment_string: str) -> Chem.Mol:
             
             if i == 0: #start
                 attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind3") and atom.GetProp('ind3') == f'{i}']
-                attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind1") and atom.GetProp('ind1') == f'{i+1}']
+                attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind2") and atom.GetProp('ind2') == f'{i+1}']
             elif i == len(fragments)-2: #end
-                attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind2") and atom.GetProp('ind2') == f'{i}']
+                attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind1") and atom.GetProp('ind1') == f'{i}']
                 attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind3") and atom.GetProp('ind3') == f'{i+1}']
             else: 
-                attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind2") and atom.GetProp('ind2') == f'{i}']
-                attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind1") and atom.GetProp('ind1') == f'{i+1}']
+                attachment_atoms_1 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind2") and atom.GetProp('ind2') == f'{i+1}']
+                attachment_atoms_2 = [atom.GetIdx() for atom in rw_mol.GetAtoms() if atom.HasProp("ind1") and atom.GetProp('ind1') == f'{i}']
 
             rw_mol.AddBond(attachment_atoms_1[0], attachment_atoms_2[0], Chem.BondType.SINGLE)
         
