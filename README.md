@@ -89,7 +89,7 @@ The pretraining datasets and model are [on Huggingface](https://huggingface.co/c
 
 ## Training the model
 
-Training code is available, but not configured to be run with publicly available data. 
+Training code is available, but not configured to be run with publicly available data format on HF. 
 
 ### Training the GNN
 
