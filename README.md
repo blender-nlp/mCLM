@@ -91,7 +91,7 @@ The pretraining datasets and pretrained base model are [on Huggingface](https://
 
 Training code is available, but not configured to be run with publicly available data format on HF. 
 
-### Training the GNN
+### Pretraining the GNN
 
 To be released. 
 
