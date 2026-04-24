@@ -84,7 +84,7 @@ python mCLM/scripts/chat_HF_molgen.py --synth_only #constrains output to synthes
 
 ## Data
 
-The pretraining datasets and model are [on Huggingface](https://huggingface.co/collections/language-plus-molecules/mclm).
+The pretraining datasets and pretrained base model are [on Huggingface](https://huggingface.co/collections/language-plus-molecules/mclm).
 
 
 ## Training the model
