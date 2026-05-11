@@ -86,6 +86,7 @@ python mCLM/scripts/chat_HF_molgen.py --synth_only #constrains output to synthes
 
 The pretraining datasets and pretrained base model are [on Huggingface](https://huggingface.co/collections/language-plus-molecules/mclm).
 
+The synthesis-aware blocks are located in [resources/synth_blocks_all.txt](resources/synth_blocks_all.txt). 
 
 ## Training the model
 
